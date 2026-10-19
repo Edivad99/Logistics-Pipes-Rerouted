@@ -1,14 +1,11 @@
 package logisticspipes.modules;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.property.Property;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
@@ -28,11 +25,6 @@ public class ModuleEnchantmentSink extends LogisticsModule {
     @Override
     public String getLPName() {
         return getName();
-    }
-
-    @Override
-    public List<Property<?>> getProperties() {
-        return Collections.emptyList();
     }
 
     @Override

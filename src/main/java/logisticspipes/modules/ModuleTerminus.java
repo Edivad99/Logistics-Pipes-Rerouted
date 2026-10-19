@@ -24,7 +24,6 @@ import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.IModuleInventoryReceive;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReceiver;
-import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
@@ -96,12 +95,11 @@ public class ModuleTerminus extends LogisticsModule
             && bestCustomPriority >= reply.customPriority)) {
             return null;
         }
-        final IPipeServiceProvider service = this.service;
-        if (service == null) {
+        if (this.service == null) {
             return null;
         }
         if (filterInventory.containsUndamagedItem(item.getUndamaged())) {
-            if (service.canUseEnergy(2)) {
+            if (this.service.canUseEnergy(2)) {
                 return reply;
             }
         }

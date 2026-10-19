@@ -28,8 +28,8 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 
-public class AsyncQuicksortModule extends AsyncModule<@Nullable AsyncQuicksortModule.QuicksortSetup,
-    @Nullable AsyncQuicksortModule.QuicksortResult> {
+public class AsyncQuicksortModule extends AsyncModule<AsyncQuicksortModule.@Nullable QuicksortSetup,
+    AsyncQuicksortModule.@Nullable QuicksortResult> {
 
     public static final int STALLED_DELAY = 24;
     public static final int NORMAL_DELAY = 6;

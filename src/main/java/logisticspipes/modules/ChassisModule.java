@@ -76,8 +76,12 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
 
     public Stream<LogisticsModule> getModules() {
         return modules.stream()
-            .filter(slottedModule -> !slottedModule.isEmpty())
-            .map(SlottedModule::module);
+            .mapMulti((slottedModule, sink) -> {
+                LogisticsModule module = slottedModule.module();
+                if (module != null) {
+                    sink.accept(module);
+                }
+            });
     }
 
     public Stream<SlottedModule> slottedModules() {

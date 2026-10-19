@@ -195,7 +195,7 @@ public class ModuleActiveSupplier extends LogisticsModule
             if (needed == null) {
                 continue;
             }
-            final Integer slotAssignedTo = slotAssignmentPattern.get(i);
+            final int slotAssignedTo = slotAssignmentPattern.get(i);
             if (invUtil.getContainerSize() <= slotAssignedTo) {
                 continue;
             }
@@ -294,7 +294,7 @@ public class ModuleActiveSupplier extends LogisticsModule
                 if (requestedCount != null) {
                     spaceAvailable -= requestedCount;
                 }
-                item.setValue(Math.min(item.getKey().getMaxStackSize(), Math.max(0, spaceAvailable)));
+                item.setValue(Math.clamp(spaceAvailable, 0, item.getKey().getMaxStackSize()));
                 continue;
             }
             if (spaceAvailable < 1

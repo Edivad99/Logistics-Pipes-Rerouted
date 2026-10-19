@@ -26,7 +26,6 @@ import logisticspipes.client.renderer.hud.modules.HUDStringBasedItemSink;
 import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
-import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IModuleWatchReceiver;
 import logisticspipes.interfaces.IPipeServiceProvider;
@@ -126,12 +125,11 @@ public class ModuleCreativeTabBasedItemSink extends LogisticsModule
 
     @Override
     public void listChanged() {
-        final ILevelProvider worldProvider = this.worldProvider;
-        if (worldProvider == null) {
+        if (this.worldProvider == null) {
             return;
         }
         final List<String> names = List.copyOf(tabList);
-        if (worldProvider.getLevel() instanceof ServerLevel) {
+        if (this.worldProvider.getLevel() instanceof ServerLevel) {
             localModeWatchers.send(new StringBasedItemSinkListMessage(ModuleTarget.of(this), names));
         } else {
             ClientPacketDistributor.sendToServer(

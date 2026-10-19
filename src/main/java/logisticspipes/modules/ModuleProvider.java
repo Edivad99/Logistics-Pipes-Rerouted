@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.minecraft.core.Direction;
@@ -224,15 +223,15 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     @Override
     public void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filters) {
         List<ItemIdentifier> possible = new ArrayList<>();
-        if (tree.getRequestType() instanceof ItemResource) {
-            possible.add(((ItemResource) tree.getRequestType()).getItem());
+        if (tree.getRequestType() instanceof ItemResource itemResource) {
+            possible.add(itemResource.getItem());
         } else if (tree.getRequestType() instanceof DictResource) {
             possible.addAll(
                 inventoriesWithMode()
                     .map(IInventoryUtil::getItemsAndCount)
                     .flatMap(inventory -> inventory.keySet().stream())
                     .filter(item -> tree.getRequestType().matches(item, IResource.MatchSettings.NORMAL))
-                    .collect(Collectors.toList())
+                    .toList()
             );
         }
         for (ItemIdentifier item : possible) {
@@ -251,28 +250,25 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     @Override
     public @Nullable LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
-        final IPipeServiceProvider service = this.service;
-        if (service == null) {
+        if (this.service == null) {
             return null;
         }
-        service.spawnParticle(Particles.WHITE_SPARKLE, 2);
-        return service.getItemOrderManager()
+        this.service.spawnParticle(Particles.WHITE_SPARKLE, 2);
+        return this.service.getItemOrderManager()
             .addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
                 ResourceType.PROVIDER, info);
     }
 
     private int getAvailableItemCount(ItemIdentifier item) {
-        final IPipeServiceProvider service = this.service;
-        if (service == null) {
+        if (this.service == null) {
             return 0;
         }
-        return getTotalItemCount(item) - service.getItemOrderManager().totalItemsCountInOrders(item);
+        return getTotalItemCount(item) - this.service.getItemOrderManager().totalItemsCountInOrders(item);
     }
 
     @Override
     public void getAllItems(Map<ItemIdentifier, Integer> items, List<IFilter> filters) {
-        final IPipeServiceProvider service = this.service;
-        if (service == null) {
+        if (this.service == null) {
             return;
         }
         items.putAll(
@@ -293,7 +289,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
                     return !blockedInFilters; // skip filters-parameter-filtered items
                 })
                 .map(item ->
-                    new Pair<>(item.getKey(), item.getValue() - service.getItemOrderManager()
+                    new Pair<>(item.getKey(), item.getValue() - this.service.getItemOrderManager()
                         .totalItemsCountInOrders(item.getKey()))
                 )
                 .filter(itemIdentAndRemaining -> itemIdentAndRemaining.getValue2()
@@ -305,14 +301,13 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     // returns -1 on permanently failed, don't try another stack this tick
     // returns 0 on "unable to do this delivery"
     public int sendStack(ItemIdentifierStack stack, int maxCount, int destination, IAdditionalTargetInformation info) {
-        final IPipeServiceProvider service = this.service;
-        if (service == null) {
+        if (this.service == null) {
             return -1;
         }
 
         ItemIdentifier item = stack.getItem();
 
-        Iterator<Pair<IInventoryUtil, Direction>> iterator = service.getAvailableAdjacent().inventories().stream()
+        Iterator<Pair<IInventoryUtil, Direction>> iterator = this.service.getAvailableAdjacent().inventories().stream()
             .flatMap(neighbor -> {
                 final IInventoryUtil invUtil = getInventoryUtilWithMode(neighbor);
                 if (invUtil == null) {
@@ -333,7 +328,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
             wanted = Math.min(wanted, item.getMaxStackSize());
             IRouter dRtr = SimpleServiceLocator.routerManager.getServerRouter(destination);
             if (dRtr == null) {
-                service.getItemOrderManager().sendFailed();
+                this.service.getItemOrderManager().sendFailed();
                 return 0;
             }
             SinkReply reply = LogisticsManager
@@ -343,13 +338,13 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
                 if (reply.maxNumberOfItems < wanted) {
                     wanted = reply.maxNumberOfItems;
                     if (wanted <= 0) {
-                        service.getItemOrderManager().deferSend();
+                        this.service.getItemOrderManager().deferSend();
                         return 0;
                     }
                     deferSend = true;
                 }
             }
-            if (!service.canUseEnergy(wanted * neededEnergy())) {
+            if (!this.service.canUseEnergy(wanted * neededEnergy())) {
                 return -1;
             }
             ItemStack removed = current.getValue1().getMultipleItems(item, wanted);
@@ -357,15 +352,15 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
                 continue;
             }
             int sent = removed.getCount();
-            service.useEnergy(sent * neededEnergy());
+            this.service.useEnergy(sent * neededEnergy());
 
-            final IRoutedItem routedItem = service
+            final IRoutedItem routedItem = this.service
                 .sendStack(removed, destination, itemSendMode(), info, current.getValue2());
-            service.getItemOrderManager().sendSuccessfull(sent, deferSend, routedItem);
+            this.service.getItemOrderManager().sendSuccessfull(sent, deferSend, routedItem);
             return sent;
         }
 
-        service.getItemOrderManager().sendFailed();
+        this.service.getItemOrderManager().sendFailed();
         return 0;
     }
 
@@ -394,7 +389,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     }
 
     private void checkUpdate(@Nullable Player player) {
-        if (localModeWatchers.size() == 0 && player == null) {
+        if (localModeWatchers.isEmpty() && player == null) {
             return;
         }
         displayList.clear();
@@ -403,7 +398,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
         displayList.ensureCapacity(displayMap.size());
         displayList.addAll(displayMap.entrySet().stream()
             .map(item -> new ItemIdentifierStack(item.getKey(), item.getValue()))
-            .collect(Collectors.toList()));
+            .toList());
         if (!oldList.equals(displayList)) {
             oldList.clear();
             oldList.ensureCapacity(displayList.size());

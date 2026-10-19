@@ -14,10 +14,9 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import lombok.Getter;
-
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.BooleanProperty;

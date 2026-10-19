@@ -157,7 +157,7 @@ public class ModuleCrafter extends LogisticsModule
     @Nullable
     private IRequestItems invRequester;
     private WeakReference<@Nullable BlockEntity> lastAccessedCrafter = new WeakReference<>(null);
-    private boolean cachedAreAllOrderesToBuffer;
+    private boolean cachedAreAllOrdersToBuffer;
 
     public ModuleCrafter() {
         advancedSatelliteUUIDList.ensureSize(9);
@@ -205,7 +205,7 @@ public class ModuleCrafter extends LogisticsModule
         final int itemCount = spaceFor(stack, item, includeInTransit);
         if (itemCount > 0) {
             return new SinkReply(sinkReply, itemCount,
-                areAllOrderesToBuffer() ? BufferMode.DESTINATION_BUFFERED : BufferMode.NONE);
+                areAllOrdersToBuffer() ? BufferMode.DESTINATION_BUFFERED : BufferMode.NONE);
         } else {
             return null;
         }
@@ -752,10 +752,9 @@ public class ModuleCrafter extends LogisticsModule
                         .filter(provider -> provider.importRecipe(neighbor.getBlockEntity(), dummyInventory))
                         .map(provider1 -> new Pair<>(neighbor, provider1))).findFirst()
                 .ifPresent(neighborProviderPair -> {
-                    if (neighborProviderPair.getValue2() instanceof IFuzzyRecipeProvider) {
-                        ((IFuzzyRecipeProvider) neighborProviderPair.getValue2())
-                            .importFuzzyFlags(neighborProviderPair.getValue1().getBlockEntity(),
-                                dummyInventory.getSlotAccess(), fuzzyFlags);
+                    if (neighborProviderPair.getValue2() instanceof IFuzzyRecipeProvider fuzzyRecipeProvider) {
+                        fuzzyRecipeProvider.importFuzzyFlags(neighborProviderPair.getValue1().getBlockEntity(),
+                            dummyInventory.getSlotAccess(), fuzzyFlags);
                     }
                 });
 
@@ -843,7 +842,7 @@ public class ModuleCrafter extends LogisticsModule
 
         if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
             if (service.isNthTick(6)) {
-                cacheAreAllOrderesToBuffer();
+                cacheAreAllOrdersToBuffer();
             }
             if (service.getItemOrderManager().isFirstOrderWatched()) {
                 BlockEntity tile = lastAccessedCrafter.get();
@@ -856,7 +855,7 @@ public class ModuleCrafter extends LogisticsModule
                 }
             }
         } else {
-            cachedAreAllOrderesToBuffer = false;
+            cachedAreAllOrdersToBuffer = false;
         }
 
         if (!service.isNthTick(6)) {
@@ -881,7 +880,7 @@ public class ModuleCrafter extends LogisticsModule
             return;
         }
 
-        if (adjacentInventories.size() < 1) {
+        if (adjacentInventories.isEmpty()) {
             if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
                 service.getItemOrderManager().sendFailed();
             }
@@ -986,11 +985,11 @@ public class ModuleCrafter extends LogisticsModule
             .matches(extractedID, IResource.MatchSettings.NORMAL));
     }
 
-    public boolean areAllOrderesToBuffer() {
-        return cachedAreAllOrderesToBuffer;
+    public boolean areAllOrdersToBuffer() {
+        return cachedAreAllOrdersToBuffer;
     }
 
-    public void cacheAreAllOrderesToBuffer() {
+    public void cacheAreAllOrdersToBuffer() {
         final IPipeServiceProvider service = this.service;
         if (service == null) {
             return;
@@ -1010,7 +1009,7 @@ public class ModuleCrafter extends LogisticsModule
                 break;
             }
         }
-        cachedAreAllOrderesToBuffer = result;
+        cachedAreAllOrdersToBuffer = result;
     }
 
     private ItemStack extract(NeighborBlockEntity<BlockEntity> adjacent, IResource item, int amount) {

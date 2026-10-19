@@ -1,16 +1,12 @@
 package logisticspipes.modules;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.property.Property;
 import logisticspipes.interfaces.IInventoryUtil;
-import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.utils.SinkReply;
@@ -34,11 +30,6 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
     }
 
     @Override
-    public List<Property<?>> getProperties() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public void registerPosition(ModulePositionType slot, int positionInt) {
         super.registerPosition(slot, positionInt);
         sinkReply = new SinkReply(FixedPriority.ItemSink,
@@ -58,12 +49,11 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
             && bestCustomPriority >= reply.customPriority)) {
             return null;
         }
-        final IPipeServiceProvider service = this.service;
-        if (service == null) {
+        if (this.service == null) {
             return null;
         }
-        final ISlotUpgradeManager upgradeManager = service.getUpgradeManager(slot, positionInt);
-        IInventoryUtil targetInventory = PipeServiceProviderUtil.availableSneakyInventories(service, upgradeManager)
+        final ISlotUpgradeManager upgradeManager = this.service.getUpgradeManager(slot, positionInt);
+        IInventoryUtil targetInventory = PipeServiceProviderUtil.availableSneakyInventories(this.service, upgradeManager)
             .stream().findFirst().orElse(null);
         if (targetInventory == null) {
             return null;
@@ -90,7 +80,7 @@ public class ModulePolymorphicItemSink extends LogisticsModule {
 
     @Override
     public boolean interestedInAttachedInventory() {
-        return true; // by definition :)
+        return true;
     }
 
     @Override

@@ -1,14 +1,11 @@
 package logisticspipes.modules;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.property.Property;
 import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.utils.SinkReply;
@@ -22,11 +19,6 @@ public class ModuleSatellite extends LogisticsModule {
     @Override
     public String getLPName() {
         throw new RuntimeException("Cannot get LP name for " + this);
-    }
-
-    @Override
-    public List<Property<?>> getProperties() {
-        return Collections.emptyList();
     }
 
     @Override
