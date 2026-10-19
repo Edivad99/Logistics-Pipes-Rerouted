@@ -83,7 +83,7 @@ public class ItemModuleInformationManager {
 			if (nbt.contains("moduleInformation")) {
 				CompoundTag moduleInformation = nbt.getCompoundOrEmpty("moduleInformation");
 				module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
-					module.getWorld().registryAccess(), moduleInformation));
+					module.getLevel().registryAccess(), moduleInformation));
 			}
 		}
 	}
