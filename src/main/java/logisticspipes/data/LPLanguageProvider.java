@@ -462,8 +462,6 @@ public class LPLanguageProvider extends LanguageProvider {
         addCompilerCategory(ProgramCategories.CHASSIS_3, "Chassis 3");
         addCompilerCategory(ProgramCategories.MODDED, "Modded");
 
-        add(Screen.SETTINGS_PIPE_RENDER_DISTANCE, "Max. Distance for Renderer");
-        add(Screen.SETTINGS_PIPE_CONTENT_RENDER_DISTANCE, "Max. Distance for Pipe Content");
 
         add(Screen.CHANNEL_SELECT_TITLE, "Channel Selection");
         add(Screen.CHANNEL_ADD_TITLE, "Add Channel");

@@ -396,8 +396,6 @@
   "screen.logisticspipes.select_ore_dict": "Select OreDict Type",
   "screen.logisticspipes.select_type": "Select Type",
   "screen.logisticspipes.set": "Set",
-  "screen.logisticspipes.settings.pipe_content_render_distance": "Max. Distance for Pipe Content",
-  "screen.logisticspipes.settings.pipe_render_distance": "Max. Distance for Renderer",
   "screen.logisticspipes.sort": "Sort",
   "screen.logisticspipes.statistics.already_tracked": "This item type is already tracked",
   "screen.logisticspipes.statistics.crafting": "View active crafting tasks",

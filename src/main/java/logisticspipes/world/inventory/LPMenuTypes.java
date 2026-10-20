@@ -207,11 +207,6 @@ public class LPMenuTypes {
         deferredRegister.register("pipe_controller",
             () -> pipeMenu(CoreRoutedPipe.class, PipeControllerMenu::new));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<PlayerSettingsMenu>> PLAYER_SETTINGS =
-        deferredRegister.register("player_settings", () -> new MenuType<>(
-            (IContainerFactory<PlayerSettingsMenu>) (containerId, inventory, buffer) ->
-                new PlayerSettingsMenu(containerId, inventory), FeatureFlags.DEFAULT_FLAGS));
-
     public static final DeferredHolder<MenuType<?>, MenuType<ItemAmountSignMenu>> ITEM_AMOUNT_SIGN =
         deferredRegister.register("item_amount_sign", () -> new MenuType<>(
             (IContainerFactory<ItemAmountSignMenu>) (containerId, inventory, buffer) -> {

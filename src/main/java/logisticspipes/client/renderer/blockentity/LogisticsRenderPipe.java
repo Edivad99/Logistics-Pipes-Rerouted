@@ -113,7 +113,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
     /**
      * How far away a pipe is still drawn, from the player's own settings.
      *
-     * <p>Read per frame rather than cached: the settings screen edits the live configuration.
+     * <p>Read per frame rather than cached: the configuration screen edits the live value.
      */
     @Override
     public int getViewDistance() {

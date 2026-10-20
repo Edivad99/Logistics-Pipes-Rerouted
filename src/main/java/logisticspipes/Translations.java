@@ -221,10 +221,6 @@ public final class Translations {
         public static final String PROGRAM_COMPILER_COMPILE = makeKey("screen", "program_compiler.compile");
         public static final String PROGRAM_COMPILER_FLASH = makeKey("screen", "program_compiler.flash");
 
-        public static final String SETTINGS_PIPE_RENDER_DISTANCE = makeKey("screen", "settings.pipe_render_distance");
-        public static final String SETTINGS_PIPE_CONTENT_RENDER_DISTANCE =
-            makeKey("screen", "settings.pipe_content_render_distance");
-
         public static final String CHANNEL_SELECT_TITLE = makeKey("screen", "channel.select.title");
         public static final String CHANNEL_ADD_TITLE = makeKey("screen", "channel.add.title");
         public static final String CHANNEL_EDIT_TITLE = makeKey("screen", "channel.edit.title");

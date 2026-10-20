@@ -31,7 +31,6 @@ import logisticspipes.client.gui.screen.InvSysConnectorScreen;
 import logisticspipes.client.gui.screen.ItemAmountSignCreationScreen;
 import logisticspipes.client.gui.screen.ItemSinkScreen;
 import logisticspipes.client.gui.screen.LogisticsCraftingTableScreen;
-import logisticspipes.client.gui.screen.LogisticsSettingsScreen;
 import logisticspipes.client.gui.screen.NormalMk2OrdererScreen;
 import logisticspipes.client.gui.screen.NormalOrdererScreen;
 import logisticspipes.client.gui.screen.OreDictItemSinkScreen;
@@ -167,7 +166,6 @@ public class ClientManager {
         event.register(LPMenuTypes.ACTIVE_SUPPLIER.get(), SupplierPipeScreen::new);
         event.register(LPMenuTypes.INV_SYS_CON.get(), InvSysConnectorScreen::new);
         event.register(LPMenuTypes.PIPE_CONTROLLER.get(), PipeControllerScreen::new);
-        event.register(LPMenuTypes.PLAYER_SETTINGS.get(), LogisticsSettingsScreen::new);
         event.register(LPMenuTypes.ITEM_AMOUNT_SIGN.get(), ItemAmountSignCreationScreen::new);
         event.register(LPMenuTypes.REQUEST_TABLE.get(), RequestTableScreen::new);
         // The screen is generic in its menu -- the MK2 subclass narrows it -- so the plain
