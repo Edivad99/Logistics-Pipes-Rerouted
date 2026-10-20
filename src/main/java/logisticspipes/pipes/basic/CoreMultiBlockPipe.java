@@ -1,15 +1,18 @@
 package logisticspipes.pipes.basic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -100,6 +103,41 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
             }
         }
         return false;
+    }
+
+    /**
+     * Whether this tube fits at {@code placeAt} in {@code orientation}: every block it covers is
+     * free, or held by a tube it may share that block with. Placement and the ghost preview both
+     * ask this, so the preview never shows a tube that will not go down.
+     *
+     * @param mayUse whether the player may build at a position; the preview, which only draws,
+     *               passes one that always agrees
+     */
+    public boolean fitsAt(Level level, BlockPos placeAt, ITubeOrientation orientation, Predicate<BlockPos> mayUse) {
+        PositionRotation rotation = new PositionRotation();
+        orientation.rotatePositions(rotation);
+        List<SubBlock> blocks = new ArrayList<>();
+        blocks.add(new SubBlock(BlockPos.ZERO, SubBlockTypeForShare.NON_SHARE));
+        getSubBlocks().stream().map(sub -> sub.rotated(rotation)).forEach(blocks::add);
+
+        // The share types only say which half of a block each tube runs through, and two
+        // S-curves crossing in an X pair them up exactly like two running side by side. What
+        // tells them apart is how much they overlap: tubes alongside each other share at most
+        // two blocks, tubes crossing share their whole footprint.
+        Map<BlockPos, Integer> sharedWith = new HashMap<>();
+        for (SubBlock block : blocks) {
+            BlockPos target = block.at(placeAt);
+            if (mayUse.test(target) && level.isEmptyBlock(target)) {
+                continue;
+            }
+            if (!(level.getBlockEntity(target) instanceof LogisticsGenericSubMultiBlockBlockEntity subTile)
+                || !canShare(subTile.getSubTypes(), block.type())) {
+                return false;
+            }
+            subTile.getConnectedMainPipes()
+                .forEach(main -> sharedWith.merge(main.getBlockPos(), 1, Integer::sum));
+        }
+        return sharedWith.values().stream().allMatch(shared -> shared <= 2);
     }
 
     @Override

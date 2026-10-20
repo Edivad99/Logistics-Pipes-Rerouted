@@ -1,7 +1,5 @@
 package logisticspipes.world.item;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -16,7 +14,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import lombok.Getter;
@@ -27,10 +24,8 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.utils.PositionRotation;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
-import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 /**
  * A logistics pipe Item
@@ -103,36 +98,13 @@ public class ItemLogisticsPipe extends LogisticsItem {
             }
         } else {
             CoreMultiBlockPipe multiPipe = (CoreMultiBlockPipe) dummyPipe;
-            boolean isFreeSpace = true;
             ITubeOrientation orientation = multiPipe.getTubeOrientation(player, pos.getX(), pos.getZ());
             if (orientation == null) {
                 return InteractionResult.FAIL;
             }
             BlockPos placeAt = pos.offset(orientation.getOffset());
-            final PositionRotation rotation = new PositionRotation();
-            orientation.rotatePositions(rotation);
-            List<CoreMultiBlockPipe.SubBlock> globalPos = new ArrayList<>();
-            globalPos.add(new CoreMultiBlockPipe.SubBlock(BlockPos.ZERO,
-                CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
-            multiPipe.getSubBlocks().stream().map(sub -> sub.rotated(rotation)).forEach(globalPos::add);
-
-            for (CoreMultiBlockPipe.SubBlock iPos : globalPos) {
-                final BlockPos target = iPos.at(placeAt);
-                if (!player.mayUseItemAt(target, facing, itemstack) || !level.isEmptyBlock(target)) {
-                    BlockEntity tile = level.getBlockEntity(target);
-                    boolean canPlace = false;
-                    if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
-                        if (CoreMultiBlockPipe.canShare(((LogisticsGenericSubMultiBlockBlockEntity) tile).getSubTypes(),
-                            iPos.type())) {
-                            canPlace = true;
-                        }
-                    }
-                    if (!canPlace) {
-                        isFreeSpace = false;
-                        break;
-                    }
-                }
-            }
+            boolean isFreeSpace = multiPipe.fitsAt(level, placeAt, orientation,
+                target -> player.mayUseItemAt(target, facing, itemstack));
             if (isFreeSpace) {
                 CoreUnroutedPipe pipe = LogisticsGenericPipeBlock.createPipe(this);
 

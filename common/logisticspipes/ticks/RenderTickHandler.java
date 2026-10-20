@@ -1,7 +1,5 @@
 package logisticspipes.ticks;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.client.Minecraft;
@@ -20,7 +18,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -49,9 +46,7 @@ import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 import logisticspipes.routing.debug.ClientViewController;
-import logisticspipes.utils.PositionRotation;
 import logisticspipes.world.item.ItemLogisticsPipe;
 
 public class RenderTickHandler {
@@ -181,30 +176,7 @@ public class RenderTickHandler {
 
 			if (orientation == null) return;
 
-			final BlockPos placeAt = pos.offset(orientation.getOffset());
-			final PositionRotation rotation = new PositionRotation();
-			orientation.rotatePositions(rotation);
-			List<CoreMultiBlockPipe.SubBlock> globalPos = new ArrayList<>();
-			globalPos.add(new CoreMultiBlockPipe.SubBlock(BlockPos.ZERO,
-					CoreMultiBlockPipe.SubBlockTypeForShare.NON_SHARE));
-			multiPipe.getSubBlocks().stream().map(sub -> sub.rotated(rotation)).forEach(globalPos::add);
-
-			for (CoreMultiBlockPipe.SubBlock posType : globalPos) {
-				final BlockPos target = posType.at(placeAt);
-				if (!level.isEmptyBlock(target)) {
-					BlockEntity tile = level.getBlockEntity(target);
-					boolean canPlace = false;
-					if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
-						if (CoreMultiBlockPipe.canShare(((LogisticsGenericSubMultiBlockBlockEntity) tile).getSubTypes(), posType.type())) {
-							canPlace = true;
-						}
-					}
-					if (!canPlace) {
-						isFreeSpace = false;
-						break;
-					}
-				}
-			}
+			isFreeSpace = multiPipe.fitsAt(level, pos.offset(orientation.getOffset()), orientation, target -> true);
 		} else {
 			if (!level.isEmptyBlock(pos)) {
 				isFreeSpace = false;
