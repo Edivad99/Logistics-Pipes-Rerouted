@@ -30,8 +30,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.level.storage.TagValueInput;
 
 import net.neoforged.bus.api.SubscribeEvent;
@@ -191,26 +193,35 @@ public class LPEventListener {
             Player player = event.getEntity();
             List<WeakReference<AsyncQuicksortModule>> modules = null;
 
-            for (Direction dir : Direction.values()) {
-                BlockPos neighborPos = pos.relative(dir);
-                BlockEntity neighbor = level.getBlockEntity(neighborPos);
-                if (!(neighbor instanceof LogisticsGenericPipeBlockEntity pipeTile)) {
-                    continue;
-                }
-                if (!(pipeTile.pipe instanceof PipeLogisticsChassis chassis)) {
-                    continue;
-                }
-                // The chassis must be pointing at the clicked block
-                if (chassis.getPointedOrientation() != dir.getOpposite()) {
-                    continue;
-                }
+            final List<BlockPos> halves = new ArrayList<>(2);
+            halves.add(pos);
+            final BlockState state = level.getBlockState(pos);
+            if (state.getBlock() instanceof ChestBlock && state.getValue(ChestBlock.TYPE) != ChestType.SINGLE) {
+                halves.add(pos.relative(ChestBlock.getConnectedDirection(state)));
+            }
 
-                final List<WeakReference<AsyncQuicksortModule>> found = modules == null ? new ArrayList<>() : modules;
-                chassis.getModules().getModules()
-                    .filter(m -> m instanceof AsyncQuicksortModule)
-                    .forEach(m -> found.add(new WeakReference<>((AsyncQuicksortModule) m)));
-                if (!found.isEmpty()) {
-                    modules = found;
+            for (BlockPos half : halves) {
+                for (Direction dir : Direction.values()) {
+                    BlockPos neighborPos = half.relative(dir);
+                    BlockEntity neighbor = level.getBlockEntity(neighborPos);
+                    if (!(neighbor instanceof LogisticsGenericPipeBlockEntity pipeTile)) {
+                        continue;
+                    }
+                    if (!(pipeTile.pipe instanceof PipeLogisticsChassis chassis)) {
+                        continue;
+                    }
+                    // The chassis must be pointing at this half
+                    if (chassis.getPointedOrientation() != dir.getOpposite()) {
+                        continue;
+                    }
+
+                    final List<WeakReference<AsyncQuicksortModule>> found = modules == null ? new ArrayList<>() : modules;
+                    chassis.getModules().getModules()
+                        .filter(m -> m instanceof AsyncQuicksortModule)
+                        .forEach(m -> found.add(new WeakReference<>((AsyncQuicksortModule) m)));
+                    if (!found.isEmpty()) {
+                        modules = found;
+                    }
                 }
             }
 
