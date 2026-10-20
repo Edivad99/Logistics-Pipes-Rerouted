@@ -7,15 +7,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.commands.Confirmations;
-import logisticspipes.debug.DebugGuiController;
 import logisticspipes.network.DebugTarget;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -27,7 +24,7 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
  * What the player was pointing at, in answer to
  * {@link logisticspipes.network.to_client.debug.AskForDebugTargetMessage}.
  *
- * <p>Both debug tools ask the same question and get the same answer; {@link Purpose} says which of
+ * <p>Every debug tool asks the same question and gets the same answer; {@link Purpose} says which of
  * them to hand it to. They used to be two packets whose ask halves were the same code twice, each
  * with its own copy of a three-valued mode enum.
  */
@@ -47,7 +44,6 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
         }
         switch (message.purpose) {
             case ROUTING_TABLE -> debugRoutingTable(player, message.target);
-            case INSPECTOR -> inspect(player, message.target);
             case PIPE_LOG -> openPipeLog(player, message.target);
             case PIPE_DEBUG -> togglePipeDebug(player, message.target);
         }
@@ -111,29 +107,6 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
             be.pipe.debug.debugThisPipe ? "Debug enabled on server" : "Debug disabled on server"));
     }
 
-    private static void inspect(ServerPlayer player, DebugTarget target) {
-        if (target instanceof DebugTarget.Block(BlockPos pos)) {
-            final BlockEntity be = TargetLookup.blockEntityAt(player, pos, BlockEntity.class);
-            if (be == null) {
-                player.sendSystemMessage(
-                    Component.literal("No block entity at " + pos).withStyle(ChatFormatting.RED));
-                return;
-            }
-            Confirmations.ask(player, "Start debugging block entity " + be.getClass().getSimpleName(),
-                asked -> DebugGuiController.instance().startWatchingOf(be, asked));
-        } else if (target instanceof DebugTarget.Entity(int entityId)) {
-            final Entity entity = player.level().getEntity(entityId);
-            if (entity == null) {
-                player.sendSystemMessage(Component.literal("No entity found").withStyle(ChatFormatting.RED));
-                return;
-            }
-            Confirmations.ask(player, "Start debugging entity " + entity.getClass().getSimpleName(),
-                asked -> DebugGuiController.instance().startWatchingOf(entity, asked));
-        } else {
-            player.sendSystemMessage(Component.literal("No target found").withStyle(ChatFormatting.RED));
-        }
-    }
-
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
@@ -147,10 +120,6 @@ public record DebugTargetMessage(Purpose purpose, DebugTarget target) implements
          * Step through a routing table update, one pipe at a time.
          */
         ROUTING_TABLE,
-        /**
-         * Watch a block entity's or an entity's fields live.
-         */
-        INSPECTOR,
         /**
          * Follow a pipe's own log in a window.
          */

@@ -19,7 +19,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import logisticspipes.debug.DebugGuiController;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.ServerTickExecutor;
 
@@ -39,7 +38,6 @@ public class LPTickHandler {
 		FluidIdentifier.initFromNeoForge(true);
 		ClientTaskQueue.runQueued();
 		globalTick++;
-		DebugGuiController.instance().execClient();
 	}
 
 	@SubscribeEvent
@@ -47,7 +45,6 @@ public class LPTickHandler {
 		HudUpdateTick.tick();
 		globalTick++;
 		LPTickHandler.adjChecksDone = 0;
-		DebugGuiController.instance().execServer();
 		ServerTickExecutor.INSTANCE.tick();
 	}
 

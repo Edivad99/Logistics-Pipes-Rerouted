@@ -5,7 +5,6 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 import logisticspipes.LPConstants;
-import logisticspipes.network.bidirectional.DebugConnectionDataMessage;
 import logisticspipes.network.bidirectional.FluidSupplierMinModeMessage;
 import logisticspipes.network.bidirectional.FluidSupplierPartialsMessage;
 import logisticspipes.network.bidirectional.FuzzySlotFlagsMessage;
@@ -28,7 +27,6 @@ import logisticspipes.network.to_client.crafting.FluidCraftingAmountMessage;
 import logisticspipes.network.to_client.crafting.LikelyRecipeComponentsMessage;
 import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
 import logisticspipes.network.to_client.debug.AskForDebugTargetMessage;
-import logisticspipes.network.to_client.debug.OpenDebugPanelMessage;
 import logisticspipes.network.to_client.debug.OpenDebugScreenMessage;
 import logisticspipes.network.to_client.debug.OpenPipeLogMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
@@ -353,9 +351,6 @@ public class PacketHandler {
         registrar.playBidirectional(FluidSupplierPartialsMessage.TYPE,
                 FluidSupplierPartialsMessage.STREAM_CODEC,
                 FluidSupplierPartialsMessage::handle, FluidSupplierPartialsMessage::handle);
-        registrar.playBidirectional(DebugConnectionDataMessage.TYPE,
-                DebugConnectionDataMessage.STREAM_CODEC,
-                DebugConnectionDataMessage::handle, DebugConnectionDataMessage::handle);
     }
 
     private static void registerServerToClient(PayloadRegistrar registrar) {
@@ -437,8 +432,6 @@ public class PacketHandler {
                 ToggleClientPipeDebugMessage.STREAM_CODEC, ToggleClientPipeDebugMessage::handle);
         registrar.playToClient(LikelyRecipeComponentsMessage.TYPE,
                 LikelyRecipeComponentsMessage.STREAM_CODEC, LikelyRecipeComponentsMessage::handle);
-        registrar.playToClient(OpenDebugPanelMessage.TYPE,
-                OpenDebugPanelMessage.STREAM_CODEC, OpenDebugPanelMessage::handle);
         registrar.playToClient(UpdateStatusEntriesMessage.TYPE,
                 UpdateStatusEntriesMessage.STREAM_CODEC, UpdateStatusEntriesMessage::handle);
         registrar.playToClient(ChassisModuleContentMessage.TYPE,

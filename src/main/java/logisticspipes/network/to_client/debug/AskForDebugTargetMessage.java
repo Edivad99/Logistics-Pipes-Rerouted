@@ -17,8 +17,7 @@ import logisticspipes.network.to_server.debug.DebugTargetMessage.Purpose;
  * Asks the client what its crosshair is on.
  *
  * <p>Only the client knows: the server has no ray trace for a player's view. The answer comes back
- * as {@link DebugTargetMessage}, carrying the purpose so the server knows which of the two debug
- * tools asked.
+ * as {@link DebugTargetMessage}, carrying the purpose so the server knows which debug tool asked.
  */
 public record AskForDebugTargetMessage(Purpose purpose) implements CustomPacketPayload {
 

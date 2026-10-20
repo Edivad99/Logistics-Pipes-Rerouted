@@ -6,7 +6,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -16,7 +15,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.debug.DebugGuiController;
 import logisticspipes.network.to_client.debug.AskForDebugTargetMessage;
 import logisticspipes.network.to_client.debug.OpenDebugScreenMessage;
 import logisticspipes.network.to_client.debug.ToggleClientPipeDebugMessage;
@@ -37,9 +35,6 @@ final class DebugCommand {
     static LiteralArgumentBuilder<CommandSourceStack> build() {
         return Commands.literal("debug")
             .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-            .then(Commands.literal("self").executes(DebugCommand::self))
-            .then(Commands.literal("hand").executes(DebugCommand::hand))
-            .then(Commands.literal("look").executes(ask(Purpose.INSPECTOR)))
             .then(Commands.literal("routing").executes(ask(Purpose.ROUTING_TABLE)))
             .then(Commands.literal("show").executes(open(OpenDebugScreenMessage.Screen.ROUTING)))
             // The three toggles sit under their own literal: they only flip a flag on the pipe,
@@ -56,25 +51,6 @@ final class DebugCommand {
                 .then(Commands.literal("one").executes(step(DebugController.Step.ONE)))
                 .then(Commands.literal("all").executes(step(DebugController.Step.ALL)))
                 .then(Commands.literal("stop").executes(DebugCommand::stop)));
-    }
-
-    private static int self(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        final ServerPlayer player = ctx.getSource().getPlayerOrException();
-        DebugGuiController.instance().startWatchingOf(player, player);
-        ctx.getSource().sendSuccess(() -> Component.literal("Watching you."), false);
-        return 1;
-    }
-
-    private static int hand(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        final ServerPlayer player = ctx.getSource().getPlayerOrException();
-        final ItemStack held = player.getInventory().getItem(player.getInventory().getSelectedSlot());
-        if (held.isEmpty()) {
-            ctx.getSource().sendFailure(Component.literal("Hold the stack you want to debug"));
-            return 0;
-        }
-        DebugGuiController.instance().startWatchingOf(held, player);
-        ctx.getSource().sendSuccess(() -> Component.literal("Watching the held stack."), false);
-        return 1;
     }
 
     /**
