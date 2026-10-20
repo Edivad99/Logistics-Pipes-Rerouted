@@ -368,8 +368,21 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
             return Shapes.block();
         }
         if (pipe.isMultiBlock() && !pipe.actAsNormalPipe()) {
-            // The pipe center stays included so the main block is always targetable.
-            return Shapes.or(Shapes.create(PIPE_CENTER_BB), getMultiBlockShape((CoreMultiBlockPipe) pipe, pos));
+            // The pipe center stays included so the main block is always targetable. The union is
+            // kept on the pipe: Shapes.or re-optimizes the whole tube shape on every call.
+            CoreMultiBlockPipe multiBlockPipe = (CoreMultiBlockPipe) pipe;
+            VoxelShape mainShape = multiBlockPipe.getMainShape();
+            if (mainShape != null) {
+                return mainShape;
+            }
+            VoxelShape cellShape = getMultiBlockShape(multiBlockPipe, pos);
+            if (cellShape.isEmpty()) {
+                // Unconnected entry: the center cube alone.
+                return PIPE_SHAPES[0];
+            }
+            mainShape = Shapes.or(PIPE_SHAPES[0], cellShape);
+            multiBlockPipe.setMainShape(mainShape);
+            return mainShape;
         }
         int mask = 0;
         for (Direction dir : Direction.values()) {

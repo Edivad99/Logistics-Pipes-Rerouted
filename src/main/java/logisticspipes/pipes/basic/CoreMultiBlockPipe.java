@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ITubeOrientation;
@@ -44,6 +46,12 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
      * from, they never change once the pipe is placed. Collision runs on worker threads too.
      */
     private final Map<BlockPos, VoxelShape> cellShapes = new ConcurrentHashMap<>();
+    /**
+     * The main block's cell shape joined with the pipe center, kept for the same reason.
+     */
+    @Getter
+    @Setter
+    private volatile @Nullable VoxelShape mainShape;
 
     public CoreMultiBlockPipe(PipeMultiBlockTransportLogistics transport, Item item) {
         super(transport, item);
