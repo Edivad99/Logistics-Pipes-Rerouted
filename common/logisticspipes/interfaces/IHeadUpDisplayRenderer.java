@@ -3,6 +3,7 @@ package logisticspipes.interfaces;
 import net.minecraft.client.Minecraft;
 
 import logisticspipes.client.renderer.hud.HUDDrawContext;
+import logisticspipes.world.item.component.HUDComponent;
 
 public interface IHeadUpDisplayRenderer {
 
@@ -11,9 +12,9 @@ public interface IHeadUpDisplayRenderer {
 	 *                    pose. Passed down by the caller instead of being read from a global, so the HUD
 	 *                    render path carries no dependency on ambient state.
 	 */
-	void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft mc, IHUDConfig config);
+	void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft mc, HUDComponent config);
 
-	boolean display(IHUDConfig config);
+	boolean display(HUDComponent config);
 
 	boolean cursorOnWindow(int x, int y);
 

@@ -1,8 +1,5 @@
 package logisticspipes.network.to_server.config;
 
-import java.util.function.BiConsumer;
-import java.util.function.Predicate;
-
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -16,9 +13,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.Translations;
-import logisticspipes.hud.HUDConfig;
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.component.HUDComponent;
+import logisticspipes.world.item.component.HudSetting;
+import logisticspipes.world.item.component.LPDataComponents;
 
 /**
  * The player ticked one of the HUD glasses' checkboxes.
@@ -51,37 +49,14 @@ public record SetHudSettingMessage(int slot, HudSetting setting, boolean state)
         if (!glasses.is(LPItems.HUD_GLASSES.get())) {
             return;
         }
-        message.setting.apply(new HUDConfig(glasses), message.state, player);
+        glasses.set(LPDataComponents.HUD, glasses.getOrDefault(LPDataComponents.HUD, HUDComponent.DEFAULT)
+            .with(message.setting, message.state));
+        player.sendSystemMessage(Component.translatable(Translations.Chat.hudSetting(message.setting, message.state)));
         player.inventoryMenu.broadcastChanges();
     }
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
         return TYPE;
-    }
-
-    /**
-     * One switch on the HUD glasses, and the message shown when it is flipped.
-     */
-    public enum HudSetting {
-        CHASSIS(IHUDConfig::setChassisHUD, IHUDConfig::isChassisHUD),
-        CRAFTING(IHUDConfig::setHUDCrafting, IHUDConfig::isHUDCrafting),
-        INV_SYS_CON(IHUDConfig::setHUDInvSysCon, IHUDConfig::isHUDInvSysCon),
-        POWER_JUNCTION(IHUDConfig::setHUDPowerJunction, IHUDConfig::isHUDPowerLevel),
-        PROVIDER(IHUDConfig::setHUDProvider, IHUDConfig::isHUDProvider),
-        SATELLITE(IHUDConfig::setHUDSatellite, IHUDConfig::isHUDSatellite);
-
-        private final BiConsumer<IHUDConfig, Boolean> setter;
-        private final Predicate<IHUDConfig> getter;
-
-        HudSetting(BiConsumer<IHUDConfig, Boolean> setter, Predicate<IHUDConfig> getter) {
-            this.setter = setter;
-            this.getter = getter;
-        }
-
-        void apply(IHUDConfig config, boolean state, Player player) {
-            setter.accept(config, state);
-            player.sendSystemMessage(Component.translatable(Translations.Chat.hudSetting(this, getter.test(config))));
-        }
     }
 }

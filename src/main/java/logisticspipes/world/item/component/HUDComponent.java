@@ -8,33 +8,56 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 public record HUDComponent(
-    boolean HUDChassie,
-    boolean HUDCrafting,
-    boolean HUDInvSysCon,
-    boolean HUDPowerJunction,
-    boolean HUDProvider,
-    boolean HUDSatellite) {
+    boolean chassis,
+    boolean crafting,
+    boolean invSysCon,
+    boolean powerJunction,
+    boolean provider,
+    boolean satellite) {
 
     public static final HUDComponent DEFAULT = new HUDComponent(true, true, true, true, true, true);
 
+    /** Every panel off, for the routing debug HUD, which brings its own panels. */
+    public static final HUDComponent NONE = new HUDComponent(false, false, false, false, false, false);
+
     public static final Codec<HUDComponent> CODEC =
         RecordCodecBuilder.create(instance -> instance.group(
-            Codec.BOOL.fieldOf("hud_chassie").forGetter(HUDComponent::HUDChassie),
-            Codec.BOOL.fieldOf("hud_crafting").forGetter(HUDComponent::HUDCrafting),
-            Codec.BOOL.fieldOf("hud_inv_sys_con").forGetter(HUDComponent::HUDInvSysCon),
-            Codec.BOOL.fieldOf("hud_power_junction").forGetter(HUDComponent::HUDPowerJunction),
-            Codec.BOOL.fieldOf("hud_provider").forGetter(HUDComponent::HUDProvider),
-            Codec.BOOL.fieldOf("hud_satellite").forGetter(HUDComponent::HUDSatellite)
+            Codec.BOOL.fieldOf("chassis").forGetter(HUDComponent::chassis),
+            Codec.BOOL.fieldOf("crafting").forGetter(HUDComponent::crafting),
+            Codec.BOOL.fieldOf("inv_sys_con").forGetter(HUDComponent::invSysCon),
+            Codec.BOOL.fieldOf("power_junction").forGetter(HUDComponent::powerJunction),
+            Codec.BOOL.fieldOf("provider").forGetter(HUDComponent::provider),
+            Codec.BOOL.fieldOf("satellite").forGetter(HUDComponent::satellite)
         ).apply(instance, HUDComponent::new));
 
     public static final StreamCodec<FriendlyByteBuf, HUDComponent> STREAM_CODEC =
         StreamCodec.composite(
-            ByteBufCodecs.BOOL, HUDComponent::HUDChassie,
-            ByteBufCodecs.BOOL, HUDComponent::HUDCrafting,
-            ByteBufCodecs.BOOL, HUDComponent::HUDInvSysCon,
-            ByteBufCodecs.BOOL, HUDComponent::HUDPowerJunction,
-            ByteBufCodecs.BOOL, HUDComponent::HUDProvider,
-            ByteBufCodecs.BOOL, HUDComponent::HUDSatellite,
+            ByteBufCodecs.BOOL, HUDComponent::chassis,
+            ByteBufCodecs.BOOL, HUDComponent::crafting,
+            ByteBufCodecs.BOOL, HUDComponent::invSysCon,
+            ByteBufCodecs.BOOL, HUDComponent::powerJunction,
+            ByteBufCodecs.BOOL, HUDComponent::provider,
+            ByteBufCodecs.BOOL, HUDComponent::satellite,
             HUDComponent::new);
-}
 
+    public boolean get(HudSetting setting) {
+        return switch (setting) {
+            case CHASSIS -> chassis;
+            case CRAFTING -> crafting;
+            case INV_SYS_CON -> invSysCon;
+            case POWER_JUNCTION -> powerJunction;
+            case PROVIDER -> provider;
+            case SATELLITE -> satellite;
+        };
+    }
+
+    public HUDComponent with(HudSetting setting, boolean enabled) {
+        return new HUDComponent(
+            setting == HudSetting.CHASSIS ? enabled : chassis,
+            setting == HudSetting.CRAFTING ? enabled : crafting,
+            setting == HudSetting.INV_SYS_CON ? enabled : invSysCon,
+            setting == HudSetting.POWER_JUNCTION ? enabled : powerJunction,
+            setting == HudSetting.PROVIDER ? enabled : provider,
+            setting == HudSetting.SATELLITE ? enabled : satellite);
+    }
+}

@@ -2,11 +2,11 @@ package logisticspipes.client.renderer.hud;
 
 import net.minecraft.client.Minecraft;
 
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import logisticspipes.world.item.component.HUDComponent;
 
 public class HUDInvSysConnector extends BasicHUDGui {
 
@@ -19,7 +19,7 @@ public class HUDInvSysConnector extends BasicHUDGui {
 
     @Override
     public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted,
-        Minecraft minecraft, IHUDConfig config) {
+        Minecraft minecraft, HUDComponent config) {
         LPGuiGraphics.drawGuiBackGround(context, -50, -50, 50, 50, 0, false);
         super.renderHeadUpDisplay(context, distance, day, shifted, minecraft, config);
         int textColor = day ? 0xFF404040 : 0xff7f7f7f;
@@ -29,8 +29,8 @@ public class HUDInvSysConnector extends BasicHUDGui {
     }
 
     @Override
-    public boolean display(IHUDConfig config) {
-        if (!config.isHUDInvSysCon()) {
+    public boolean display(HUDComponent config) {
+        if (!config.invSysCon()) {
             return false;
         }
         if (display > System.currentTimeMillis()) {

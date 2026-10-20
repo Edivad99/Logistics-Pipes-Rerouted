@@ -11,14 +11,14 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import lombok.SneakyThrows;
 
-import logisticspipes.hud.HUDConfig;
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.network.to_server.config.SetHudSettingMessage;
-import logisticspipes.network.to_server.config.SetHudSettingMessage.HudSetting;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.world.inventory.HudSettingsMenu;
 import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.component.HUDComponent;
+import logisticspipes.world.item.component.HudSetting;
+import logisticspipes.world.item.component.LPDataComponents;
 
 public class HUDSettingsScreen extends LogisticsBaseGuiScreen<HudSettingsMenu> {
 
@@ -36,13 +36,12 @@ public class HUDSettingsScreen extends LogisticsBaseGuiScreen<HudSettingsMenu> {
     public void init() {
         super.init();
         if (!player.getInventory().getItem(slot).isEmpty()) {
-            IHUDConfig config = new HUDConfig(player.getInventory().getItem(slot));
-            addRenderableWidget(wire(new GuiCheckBox(0, leftPos + 30, topPos + 10, 12, 12, config.isChassisHUD())));
-            addRenderableWidget(wire(new GuiCheckBox(1, leftPos + 30, topPos + 30, 12, 12, config.isHUDCrafting())));
-            addRenderableWidget(wire(new GuiCheckBox(2, leftPos + 30, topPos + 50, 12, 12, config.isHUDInvSysCon())));
-            addRenderableWidget(wire(new GuiCheckBox(3, leftPos + 30, topPos + 70, 12, 12, config.isHUDPowerLevel())));
-            addRenderableWidget(wire(new GuiCheckBox(4, leftPos + 30, topPos + 90, 12, 12, config.isHUDProvider())));
-            addRenderableWidget(wire(new GuiCheckBox(5, leftPos + 30, topPos + 110, 12, 12, config.isHUDSatellite())));
+            final HUDComponent config = player.getInventory().getItem(slot)
+                .getOrDefault(LPDataComponents.HUD, HUDComponent.DEFAULT);
+            for (HudSetting setting : HudSetting.values()) {
+                addRenderableWidget(wire(new GuiCheckBox(setting.ordinal(), leftPos + 30,
+                    topPos + rowY(setting), 12, 12, config.get(setting))));
+            }
         } else {
             closeGui();
         }
@@ -68,11 +67,23 @@ public class HUDSettingsScreen extends LogisticsBaseGuiScreen<HudSettingsMenu> {
     @Override
     protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         super.extractLabels(guiGraphics, mouseX, mouseY);
-        guiGraphics.text(minecraft.font, "HUD Chassis Pipe", 50, 13, 0xFF4c4c4c, false);
-        guiGraphics.text(minecraft.font, "HUD Crafting Pipe", 50, 33, 0xFF4c4c4c, false);
-        guiGraphics.text(minecraft.font, "HUD InvSysCon Pipe", 50, 53, 0xFF4c4c4c, false);
-        guiGraphics.text(minecraft.font, "HUD Power Junction", 50, 73, 0xFF4c4c4c, false);
-        guiGraphics.text(minecraft.font, "HUD Provider Pipe", 50, 93, 0xFF4c4c4c, false);
-        guiGraphics.text(minecraft.font, "HUD Satellite Pipe", 50, 113, 0xFF4c4c4c, false);
+        for (HudSetting setting : HudSetting.values()) {
+            guiGraphics.text(minecraft.font, label(setting), 50, rowY(setting) + 3, 0xFF4c4c4c, false);
+        }
+    }
+
+    private static int rowY(HudSetting setting) {
+        return 10 + 20 * setting.ordinal();
+    }
+
+    private static String label(HudSetting setting) {
+        return switch (setting) {
+            case CHASSIS -> "HUD Chassis Pipe";
+            case CRAFTING -> "HUD Crafting Pipe";
+            case INV_SYS_CON -> "HUD InvSysCon Pipe";
+            case POWER_JUNCTION -> "HUD Power Junction";
+            case PROVIDER -> "HUD Provider Pipe";
+            case SATELLITE -> "HUD Satellite Pipe";
+        };
     }
 }

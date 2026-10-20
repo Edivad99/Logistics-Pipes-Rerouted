@@ -2,11 +2,11 @@ package logisticspipes.client.renderer.hud;
 
 import net.minecraft.client.Minecraft;
 
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsProviderLogistics;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import logisticspipes.world.item.component.HUDComponent;
 
 public class HUDProvider extends BasicHUDGui {
 
@@ -96,7 +96,7 @@ public class HUDProvider extends BasicHUDGui {
 
     @Override
     public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted,
-        Minecraft minecraft, IHUDConfig config) {
+        Minecraft minecraft, HUDComponent config) {
         LPGuiGraphics.drawGuiBackGround(context, -50, -55, 50, 55, 0, false);
         super.renderHeadUpDisplay(context, distance, day, shifted, minecraft, config);
 
@@ -133,8 +133,8 @@ public class HUDProvider extends BasicHUDGui {
     }
 
     @Override
-    public boolean display(IHUDConfig config) {
-        return pipe.getDisplayList().size() > 0 && config.isHUDProvider();
+    public boolean display(HUDComponent config) {
+        return pipe.getDisplayList().size() > 0 && config.provider();
     }
 
     @Override

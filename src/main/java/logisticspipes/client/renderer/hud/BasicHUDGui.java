@@ -6,8 +6,8 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 
 import logisticspipes.interfaces.IHUDButton;
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
+import logisticspipes.world.item.component.HUDComponent;
 
 public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 
@@ -19,7 +19,7 @@ public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
 
     @Override
     public void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft minecraft,
-        IHUDConfig config) {
+        HUDComponent config) {
         for (IHUDButton button : buttons) {
             button.renderAlways(context, shifted);
             if (button.shouldRenderButton()) {

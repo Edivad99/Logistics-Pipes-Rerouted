@@ -5,12 +5,12 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
+import logisticspipes.world.item.component.HUDComponent;
 
 public class HUDCrafting extends BasicHUDGui {
 
@@ -22,7 +22,7 @@ public class HUDCrafting extends BasicHUDGui {
 
     @Override
     public void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft minecraft,
-        IHUDConfig config) {
+        HUDComponent config) {
         if (!pipe.displayList.isEmpty()) {
             LPGuiGraphics.drawGuiBackGround(context, -50, -28, 50, 30, 0, false);
         } else {
@@ -54,14 +54,14 @@ public class HUDCrafting extends BasicHUDGui {
     }
 
     @Override
-    public boolean display(IHUDConfig config) {
-        return config.isHUDCrafting() && ((!pipe.hasCraftingSign() && pipe.getCraftedItems() != null)
-            || pipe.displayList.size() > 0);
+    public boolean display(HUDComponent config) {
+        return config.crafting() && ((!pipe.hasCraftingSign() && pipe.getCraftedItems() != null)
+            || !pipe.displayList.isEmpty());
     }
 
     @Override
     public boolean cursorOnWindow(int x, int y) {
-        if (pipe.displayList.size() > 0) {
+        if (!pipe.displayList.isEmpty()) {
             return -50 < x && x < 50 && -28 < y && y < 30;
         } else {
             return -30 < x && x < 30 && -22 < y && y < 25;

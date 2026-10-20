@@ -29,9 +29,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConfigs;
 import logisticspipes.api.IHUDArmor;
 import logisticspipes.client.renderer.LPRenderTypes;
-import logisticspipes.hud.HUDConfig;
 import logisticspipes.interfaces.IDebugHUDProvider;
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -40,6 +38,8 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.utils.tuples.Pair;
+import logisticspipes.world.item.component.HUDComponent;
+import logisticspipes.world.item.component.LPDataComponents;
 
 public class LogisticsHUDRenderer {
 
@@ -225,61 +225,9 @@ public class LogisticsHUDRenderer {
         }
         boolean cursorHandled = false;
         displayCross = false;
-        IHUDConfig config;
-        if (debugHUD == null) {
-            config = new HUDConfig(mc.player.getItemBySlot(EquipmentSlot.HEAD));
-        } else {
-            config = new IHUDConfig() {
-
-                @Override
-                public boolean isHUDSatellite() {
-                    return false;
-                }
-
-                @Override
-                public boolean isHUDProvider() {
-                    return false;
-                }
-
-                @Override
-                public boolean isHUDPowerLevel() {
-                    return false;
-                }
-
-                @Override
-                public boolean isHUDInvSysCon() {
-                    return false;
-                }
-
-                @Override
-                public boolean isHUDCrafting() {
-                    return false;
-                }
-
-                @Override
-                public boolean isChassisHUD() {
-                    return false;
-                }
-
-                @Override
-                public void setChassisHUD(boolean state) {}
-
-                @Override
-                public void setHUDCrafting(boolean state) {}
-
-                @Override
-                public void setHUDInvSysCon(boolean state) {}
-
-                @Override
-                public void setHUDPowerJunction(boolean state) {}
-
-                @Override
-                public void setHUDProvider(boolean state) {}
-
-                @Override
-                public void setHUDSatellite(boolean state) {}
-            };
-        }
+        final HUDComponent config = debugHUD == null
+            ? mc.player.getItemBySlot(EquipmentSlot.HEAD).getOrDefault(LPDataComponents.HUD, HUDComponent.DEFAULT)
+            : HUDComponent.NONE;
         IHeadUpDisplayRendererProvider thisIsLast = null;
         List<IHeadUpDisplayRendererProvider> toUse = list;
         if (debugHUD != null) {
@@ -439,7 +387,7 @@ public class LogisticsHUDRenderer {
         }
     }
 
-    private void displayOneView(IHeadUpDisplayRendererProvider renderer, IHUDConfig config, float partialTick,
+    private void displayOneView(IHeadUpDisplayRendererProvider renderer, HUDComponent config, float partialTick,
         boolean shifted, PoseStack poseStack, int packedLight) {
         Minecraft mc = Minecraft.getInstance();
         // The level-stage pose origin is the interpolated camera, not the player's feet as in 1.12.

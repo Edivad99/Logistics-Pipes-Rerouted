@@ -4,10 +4,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
 import logisticspipes.LPConstants;
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IPowerLevelDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.world.item.component.HUDComponent;
 
 public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer {
 
@@ -20,7 +20,7 @@ public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer
 
     @Override
     public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted,
-        Minecraft minecraft, IHUDConfig config) {
+        Minecraft minecraft, HUDComponent config) {
         LPGuiGraphics.drawGuiBackGround(context, -60, -40, 60, 40, 0, false);
         super.renderHeadUpDisplay(context, distance, day, shifted, minecraft, config);
         // blit() draws immediately and would write depth over the panel it sits on, which stipples the bar
@@ -40,8 +40,8 @@ public class HUDPowerLevel extends BasicHUDGui implements IHeadUpDisplayRenderer
     }
 
     @Override
-    public boolean display(IHUDConfig config) {
-        return !junction.isHUDInvalid() && config.isHUDPowerLevel();
+    public boolean display(HUDComponent config) {
+        return !junction.isHUDInvalid() && config.powerJunction();
     }
 
     @Override

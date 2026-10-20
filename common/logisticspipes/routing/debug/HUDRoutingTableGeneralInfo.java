@@ -7,12 +7,12 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import logisticspipes.client.renderer.hud.BasicHUDButton;
 import logisticspipes.client.renderer.hud.BasicHUDGui;
 import logisticspipes.client.renderer.hud.HUDDrawContext;
-import logisticspipes.interfaces.IHUDConfig;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.network.to_server.pipe.UntraceRoutingMessage;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.debug.ClientViewController.DebugInformation;
 import logisticspipes.utils.gui.LPGuiGraphics;
+import logisticspipes.world.item.component.HUDComponent;
 
 public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDisplayRenderer {
 
@@ -86,7 +86,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 	}
 
 	@Override
-	public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted, Minecraft mc, IHUDConfig config) {
+	public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted, Minecraft mc, HUDComponent config) {
 		if (route.isNew) {
 			line = -65;
 		} else {
@@ -148,7 +148,7 @@ public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDi
 	}
 
 	@Override
-	public boolean display(IHUDConfig config) {
+	public boolean display(HUDComponent config) {
 		return true;
 	}
 

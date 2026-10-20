@@ -21,13 +21,13 @@ import logisticspipes.Translations.Screen;
 import logisticspipes.Translations.Tooltip;
 import logisticspipes.inventory.ProviderMode;
 import logisticspipes.modules.ModuleActiveSupplier.SupplyMode;
-import logisticspipes.network.to_server.config.SetHudSettingMessage.HudSetting;
 import logisticspipes.pipes.PipeFluidSupplierMk2.MinMode;
 import logisticspipes.pipes.SatelliteNamingResult;
 import logisticspipes.pipes.upgrades.UpgradeTarget;
 import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.component.HudSetting;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.entity.LogisticsProgramCompilerBlockEntity.ProgramCategories;
 
