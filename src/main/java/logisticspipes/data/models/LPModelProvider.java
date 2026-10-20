@@ -10,9 +10,12 @@ import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.item.RangeSelectItemModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -76,9 +79,16 @@ public class LPModelProvider extends ModelProvider {
             itemModels.itemModelOutput.accept(item, ItemModelUtils.specialModel(
                 ModelLocationUtils.getModelLocation(item), LogisticsPipeItemRenderer.Unbaked.INSTANCE));
         }
+
+        final ModelTemplate solidBlockItem = ModelTemplates.create("block", TextureSlot.PARTICLE);
         for (Item item : specialRenderedItems(LogisticsSolidBlockItem.class)) {
+            final Identifier model = ModelLocationUtils.getModelLocation(item);
+            solidBlockItem.create(model,
+                TextureMapping.particle(new Material(
+                    LPConstants.rl("solid_block/" + BuiltInRegistries.ITEM.getKey(item).getPath()))),
+                itemModels.modelOutput);
             itemModels.itemModelOutput.accept(item, ItemModelUtils.specialModel(
-                ModelLocationUtils.getModelLocation(item), LogisticsSolidBlockItemRenderer.Unbaked.INSTANCE));
+                model, LogisticsSolidBlockItemRenderer.Unbaked.INSTANCE));
         }
     }
 
