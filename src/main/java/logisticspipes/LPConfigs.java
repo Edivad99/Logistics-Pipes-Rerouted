@@ -12,27 +12,28 @@ public class LPConfigs {
     public static final Common COMMON;
     private static final ModConfigSpec COMMON_SPEC;
 
+    public static final Client CLIENT;
+    private static final ModConfigSpec CLIENT_SPEC;
+
     static {
         final var commonPair = new ModConfigSpec.Builder().configure(Common::new);
         COMMON_SPEC = commonPair.getRight();
         COMMON = commonPair.getLeft();
+        final var clientPair = new ModConfigSpec.Builder().configure(Client::new);
+        CLIENT_SPEC = clientPair.getRight();
+        CLIENT = clientPair.getLeft();
     }
 
     public static void registerConfig(ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, LPConfigs.COMMON_SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, LPConfigs.CLIENT_SPEC);
     }
 
     public static class Common {
-
-        // Value holders (package-private, read in load())
         public final ModConfigSpec.IntValue LOGISTICS_DETECTION_LENGTH;
         public final ModConfigSpec.IntValue LOGISTICS_DETECTION_COUNT;
         public final ModConfigSpec.IntValue LOGISTICS_DETECTION_FREQUENCY;
-        public final ModConfigSpec.BooleanValue LOGISTICS_ORDERER_COUNT_INVERTWHEEL;
-        public final ModConfigSpec.BooleanValue LOGISTICS_ORDERER_PAGE_INVERTWHEEL;
-        public final ModConfigSpec.BooleanValue DISPLAY_POPUP;
         public final ModConfigSpec.IntValue MAX_UNROUTED_CONNECTIONS;
-        public final ModConfigSpec.IntValue LOGISTICS_HUD_RENDER_DISTANCE;
         public final ModConfigSpec.BooleanValue LOGISTICS_POWER_USAGE_DISABLED;
         public final ModConfigSpec.DoubleValue POWER_USAGE_MULTIPLIER;
         public final ModConfigSpec.DoubleValue COMPILER_SPEED;
@@ -58,22 +59,6 @@ public class LPConfigs {
             MAX_UNROUTED_CONNECTIONS = b.comment("Max unrouted connections per pipe")
                 .defineInRange("maxUnroutedConnections", 32, 1, 512);
             b.pop();
-            b.comment("Orderer GUI settings").push("orderer");
-            LOGISTICS_ORDERER_COUNT_INVERTWHEEL = b.comment("Invert mouse wheel for item count in orderer")
-                .define("invertCountWheel", false);
-            LOGISTICS_ORDERER_PAGE_INVERTWHEEL = b.comment("Invert mouse wheel for page navigation in orderer")
-                .define("invertPageWheel", false);
-            DISPLAY_POPUP = b.comment(
-                    "Set the default configuration for the popup of the Orderer Gui. Should it be used?")
-                .define("displayPopup", true);
-            b.pop();
-
-            b.comment("HUD settings").push("hud");
-            LOGISTICS_HUD_RENDER_DISTANCE = b.comment("HUD render distance in blocks")
-                .defineInRange("hudRenderDistance", 15, 1, 256);
-            OPAQUE = b.comment("Hide the items and fluids traveling through pipes, and stop syncing them to clients")
-                .define("opaque", false);
-            b.pop();
 
             b.comment("Power settings").push("power");
             LOGISTICS_POWER_USAGE_DISABLED = b.comment("Disable power usage entirely")
@@ -91,6 +76,8 @@ public class LPConfigs {
             COMPILER_SPEED = b.comment("Program compiler speed multiplier")
                 .defineInRange("compilerSpeed", 1.0, 0.01, 100.0);
             ENABLE_PARTICLE_FX = b.comment("Enable particle effects").define("enableParticleFx", true);
+            OPAQUE = b.comment("Hide the items and fluids traveling through pipes, and stop syncing them to clients")
+                .define("opaque", false);
             b.pop();
 
             b.comment("Multithreading settings").push(CATEGORY_MULTITHREAD);
@@ -113,12 +100,45 @@ public class LPConfigs {
         }
     }
 
-    public static void savePopupState() {
-        // Mirror LP1: write the current popup preference back to the config file and persist it
-        // immediately so the toggle survives a restart.
-        //		DISPLAY_POPUP_V.set(DISPLAY_POPUP);
-        //		DISPLAY_POPUP_V.save();
-        COMMON_SPEC.save();
+    public static class Client {
+
+        public static final int MAX_RENDER_DISTANCE = 256;
+
+        public final ModConfigSpec.BooleanValue LOGISTICS_ORDERER_COUNT_INVERTWHEEL;
+        public final ModConfigSpec.BooleanValue LOGISTICS_ORDERER_PAGE_INVERTWHEEL;
+        public final ModConfigSpec.BooleanValue DISPLAY_POPUP;
+        public final ModConfigSpec.IntValue LOGISTICS_HUD_RENDER_DISTANCE;
+        public final ModConfigSpec.IntValue RENDER_PIPE_DISTANCE;
+        public final ModConfigSpec.IntValue RENDER_PIPE_CONTENT_DISTANCE;
+
+        private Client(ModConfigSpec.Builder b) {
+            b.comment("Orderer GUI settings").push("orderer");
+            LOGISTICS_ORDERER_COUNT_INVERTWHEEL = b.comment("Invert mouse wheel for item count in orderer")
+                .define("invertCountWheel", false);
+            LOGISTICS_ORDERER_PAGE_INVERTWHEEL = b.comment("Invert mouse wheel for page navigation in orderer")
+                .define("invertPageWheel", false);
+            DISPLAY_POPUP = b.comment(
+                    "Set the default configuration for the popup of the Orderer Gui. Should it be used?")
+                .define("displayPopup", true);
+            b.pop();
+
+            b.comment("HUD settings").push("hud");
+            LOGISTICS_HUD_RENDER_DISTANCE = b.comment("HUD render distance in blocks")
+                .defineInRange("hudRenderDistance", 15, 1, 256);
+            b.pop();
+
+            b.comment("Pipe rendering settings").push("render");
+            RENDER_PIPE_DISTANCE = b.comment("How far away pipes are still drawn, in blocks")
+                .defineInRange("pipeRenderDistance", 48, 1, MAX_RENDER_DISTANCE);
+            RENDER_PIPE_CONTENT_DISTANCE = b.comment(
+                    "How far away the items traveling through pipes are still drawn, in blocks")
+                .defineInRange("pipeContentRenderDistance", 24, 1, MAX_RENDER_DISTANCE);
+            b.pop();
+        }
+    }
+
+    public static void saveClient() {
+        CLIENT_SPEC.save();
     }
 
     public enum PowerSourceMode {

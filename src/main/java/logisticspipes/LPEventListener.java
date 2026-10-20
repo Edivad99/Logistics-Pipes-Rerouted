@@ -22,7 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.TriState;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -50,18 +49,14 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforgespi.language.IModInfo;
 
 import vazkii.patchouli.api.PatchouliAPI;
 
 import logisticspipes.client.gui.GuiOverlay;
 import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
-import logisticspipes.config.ClientConfiguration;
-import logisticspipes.config.PlayerConfiguration;
 import logisticspipes.interfaces.IItemAdvancedExistence;
 import logisticspipes.modules.AsyncQuicksortModule;
-import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -69,9 +64,9 @@ import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.PlayerCollectionList;
-import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
 import logisticspipes.utils.string.ChatColor;
+import logisticspipes.world.attachment.LPAttachmentTypes;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class LPEventListener {
@@ -268,12 +263,6 @@ public class LPEventListener {
         if (event.getEntity().level() instanceof ServerLevel) {
             SimpleServiceLocator.securityStationManager.sendClientAuthorizationList(event.getEntity());
         }
-
-        ClientConfiguration config = LogisticsPipes.getServerConfigManager()
-            .getPlayerConfiguration(PlayerIdentifier.get(event.getEntity()));
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            PacketDistributor.sendToPlayer(serverPlayer, PlayerConfigMessage.of(config));
-        }
     }
 
     @SubscribeEvent
@@ -382,9 +371,7 @@ public class LPEventListener {
         if (!ModList.get().isLoaded(PatchouliAPI.MOD_ID)) {
             return;
         }
-        PlayerIdentifier identifier = PlayerIdentifier.get(event.getEntity());
-        PlayerConfiguration config = LogisticsPipes.getServerConfigManager().getPlayerConfiguration(identifier);
-        if (config.getHasCraftedLPItem() || LogisticsPipes.isDEBUG()) {
+        if (event.getEntity().getData(LPAttachmentTypes.RECEIVED_GUIDE_BOOK) || LogisticsPipes.isDEBUG()) {
             return;
         }
         ItemStack book = PatchouliAPI.get().getBookStack(LPConstants.rl("guide"));
@@ -392,7 +379,6 @@ public class LPEventListener {
             return;
         }
         event.getEntity().addItem(book);
-        config.setHasCraftedLPItem(true);
-        LogisticsPipes.getServerConfigManager().setPlayerConfiguration(identifier, config);
+        event.getEntity().setData(LPAttachmentTypes.RECEIVED_GUIDE_BOOK, true);
     }
 }

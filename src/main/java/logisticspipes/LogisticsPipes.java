@@ -36,8 +36,6 @@ import logisticspipes.client.ClientManager;
 import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
 import logisticspipes.commands.Confirmations;
 import logisticspipes.commands.LogisticsPipesCommand;
-import logisticspipes.config.ClientConfiguration;
-import logisticspipes.config.ServerConfigurationManager;
 import logisticspipes.data.LPLanguageProvider;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.LPSpriteSourceProvider;
@@ -78,6 +76,7 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.InventoryUtilFactory;
 import logisticspipes.utils.RoutedItemHelper;
 import logisticspipes.utils.ServerTickExecutor;
+import logisticspipes.world.attachment.LPAttachmentTypes;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.item.LPCreativeModeTabs;
 import logisticspipes.world.item.LPItems;
@@ -97,11 +96,6 @@ public class LogisticsPipes {
     @Getter
     private static final boolean DEBUG = !FMLEnvironment.isProduction();
     public static final Logger LOG = LogUtils.getLogger();
-
-    @Nullable
-    private static ClientConfiguration playerConfig;
-    @Nullable
-    private static ServerConfigurationManager serverConfigManager;
 
     @Nullable
     private Consumer<ServerStartedEvent> minecraftTestStartMethod = null;
@@ -132,6 +126,7 @@ public class LogisticsPipes {
         LPParticleTypes.register(modEventBus);
         LPRecipeSerializers.register(modEventBus);
         LPDataComponents.register(modEventBus);
+        LPAttachmentTypes.register(modEventBus);
     }
 
     // Mod Events
@@ -273,7 +268,6 @@ public class LogisticsPipes {
             LogisticsHUDRenderer.instance().clear();
         }
         ServerTickExecutor.INSTANCE.cleanup();
-        LogisticsPipes.serverConfigManager = null;
     }
 
     @SubscribeEvent
@@ -283,21 +277,5 @@ public class LogisticsPipes {
 
     public static boolean isTesting() {
         return SystemUtil.checkBooleanProperty("logisticspipes.test");
-    }
-
-    // ── Config accessors ─────────────────────────────────────────────────────
-
-    public static ClientConfiguration getClientPlayerConfig() {
-        if (LogisticsPipes.playerConfig == null) {
-            LogisticsPipes.playerConfig = new ClientConfiguration();
-        }
-        return LogisticsPipes.playerConfig;
-    }
-
-    public static ServerConfigurationManager getServerConfigManager() {
-        if (LogisticsPipes.serverConfigManager == null) {
-            LogisticsPipes.serverConfigManager = new ServerConfigurationManager();
-        }
-        return LogisticsPipes.serverConfigManager;
     }
 }

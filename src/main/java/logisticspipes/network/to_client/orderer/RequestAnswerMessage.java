@@ -54,9 +54,9 @@ public record RequestAnswerMessage(List<IResource> resources, boolean missing) i
         static void handle(RequestAnswerMessage message, IPayloadContext context) {
             final Player player = context.player();
             final var screen = Minecraft.getInstance().screen;
-            if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && screen instanceof OrdererScreen gui) {
+            if (LPConfigs.CLIENT.DISPLAY_POPUP.getAsBoolean() && screen instanceof OrdererScreen gui) {
                 gui.handleRequestAnswer(message.resources, message.missing, gui, player);
-            } else if (LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean() && screen instanceof RequestTableScreen gui) {
+            } else if (LPConfigs.CLIENT.DISPLAY_POPUP.getAsBoolean() && screen instanceof RequestTableScreen gui) {
                 gui.handleRequestAnswer(message.resources, message.missing, gui, player);
             } else if (message.missing) {
                 for (IResource resource : message.resources) {

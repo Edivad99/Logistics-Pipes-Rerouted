@@ -105,7 +105,7 @@ public class LogisticsHUDRenderer {
                 final BlockPos pipePos = pipe.getPos();
                 double dis = Math.hypot(pipePos.getX() - x + 0.5,
                         Math.hypot(pipePos.getY() - y + 0.5, pipePos.getZ() - z + 0.5));
-                if (dis < LPConfigs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75) {
+                if (dis < LPConfigs.CLIENT.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75) {
                     newList.add(new Pair<>(dis, (IHeadUpDisplayRendererProvider) pipe));
                     if (!list.contains(pipe)) {
                         ((IHeadUpDisplayRendererProvider) pipe).startWatching();
@@ -121,7 +121,7 @@ public class LogisticsHUDRenderer {
                 final BlockPos providerPos = provider.getPos();
                 double dis = Math.hypot(providerPos.getX() - x + 0.5,
                     Math.hypot(providerPos.getY() - y + 0.5, providerPos.getZ() - z + 0.5));
-                if (dis < LPConfigs.COMMON.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75
+                if (dis < LPConfigs.CLIENT.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75
                     && !provider.isHUDInvalid() && provider.isHUDExistent()) {
                     newList.add(new Pair<>(dis, provider));
                     if (!list.contains(provider)) {

@@ -21,7 +21,6 @@ import logisticspipes.network.to_client.block.TrackingTasksMessage;
 import logisticspipes.network.to_client.channel.ChannelInformationMessage;
 import logisticspipes.network.to_client.channel.ChannelManagerPopupMessage;
 import logisticspipes.network.to_client.channel.ChannelSelectPopupMessage;
-import logisticspipes.network.to_client.config.PlayerConfigMessage;
 import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
 import logisticspipes.network.to_client.crafting.CraftingModuleUpdateMessage;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
@@ -104,7 +103,6 @@ import logisticspipes.network.to_server.channel.RequestChannelManagerMessage;
 import logisticspipes.network.to_server.channel.RequestChannelSelectMessage;
 import logisticspipes.network.to_server.channel.SaveChannelMessage;
 import logisticspipes.network.to_server.config.SetHudSettingMessage;
-import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.network.to_server.crafting.ChangeFluidCraftingAmountMessage;
 import logisticspipes.network.to_server.crafting.ClearCraftingGridMessage;
 import logisticspipes.network.to_server.crafting.CrafterCleanupImportMessage;
@@ -258,8 +256,6 @@ public class PacketHandler {
                 SaveChannelMessage.STREAM_CODEC, SaveChannelMessage::handle);
         registrar.playToServer(DebugTargetMessage.TYPE,
                 DebugTargetMessage.STREAM_CODEC, DebugTargetMessage::handle);
-        registrar.playToServer(SetPlayerConfigMessage.TYPE,
-                SetPlayerConfigMessage.STREAM_CODEC, SetPlayerConfigMessage::handle);
         registrar.playToServer(QuickSortChestWatchMessage.TYPE,
                 QuickSortChestWatchMessage.STREAM_CODEC, QuickSortChestWatchMessage::handle);
         registrar.playToServer(RequestInvSysConContentMessage.TYPE,
@@ -451,8 +447,6 @@ public class PacketHandler {
                 OrdererContentMessage.STREAM_CODEC, OrdererContentMessage::handle);
         registrar.playToClient(OrderManagerContentMessage.TYPE,
                 OrderManagerContentMessage.STREAM_CODEC, OrderManagerContentMessage::handle);
-        registrar.playToClient(PlayerConfigMessage.TYPE,
-                PlayerConfigMessage.STREAM_CODEC, PlayerConfigMessage::handle);
         registrar.playToClient(AskForDebugTargetMessage.TYPE,
                 AskForDebugTargetMessage.STREAM_CODEC, AskForDebugTargetMessage::handle);
         registrar.playToClient(OpenDebugScreenMessage.TYPE,

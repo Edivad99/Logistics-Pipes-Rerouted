@@ -141,7 +141,7 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
         addRenderableWidget(
             hideWhileSmall.addChain(wire(new SmallGuiButton(11, right - 86, bottom - 15, 26, 10, "+++"), 11))); // +64
         popupCheck = new GuiCheckBox(8, leftPos + 209, bottom - 60, 14, 14,
-            LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean());
+            LPConfigs.CLIENT.DISPLAY_POPUP.getAsBoolean());
         popupCheck.setPressListener(b -> handleBtn(8, b));
         addRenderableWidget(hideWhileSmall.addChain(popupCheck)); // Popup
 
@@ -442,8 +442,8 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
             itemDisplay.add(3);
         } else if (id == 8) {
             GuiCheckBox button = (GuiCheckBox) guibutton;
-            LPConfigs.COMMON.DISPLAY_POPUP.set(button.change());
-            LPConfigs.savePopupState();
+            LPConfigs.CLIENT.DISPLAY_POPUP.set(button.change());
+            LPConfigs.saveClient();
         } else if (id == 13 && itemDisplay.getSelectedItem() != null) {
             final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem()
                 .makeStack(itemDisplay.getRequestCount());

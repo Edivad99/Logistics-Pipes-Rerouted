@@ -5,12 +5,8 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-
-import logisticspipes.LogisticsPipes;
+import logisticspipes.LPConfigs;
 import logisticspipes.Translations;
-import logisticspipes.config.ClientConfiguration;
-import logisticspipes.network.to_server.config.SetPlayerConfigMessage;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
@@ -48,18 +44,16 @@ public class LogisticsSettingsScreen extends LogisticsBaseTabGuiScreen<PlayerSet
 
         @Override
         public void initTab() {
-
-            ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
             if (renderDistance == null) {
                 renderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 40, 30, 15, false,
                     true, InputBar.Align.RIGHT);
-                renderDistance.setInteger(config.getRenderPipeDistance());
+                renderDistance.setInteger(LPConfigs.CLIENT.RENDER_PIPE_DISTANCE.getAsInt());
             }
             renderDistance.reposition(getLeftPos() + 15, getTopPos() + 40, 30, 15);
             if (contentRenderDistance == null) {
                 contentRenderDistance = new InputBar(font, getBaseScreen(), getLeftPos() + 15, getTopPos() + 70, 30, 15,
                     false, true, InputBar.Align.RIGHT);
-                contentRenderDistance.setInteger(config.getRenderPipeContentDistance());
+                contentRenderDistance.setInteger(LPConfigs.CLIENT.RENDER_PIPE_CONTENT_DISTANCE.getAsInt());
             }
             contentRenderDistance.reposition(getLeftPos() + 15, getTopPos() + 70, 30, 15);
             LogisticsSettingsScreen.this.addRenderableWidget(renderDistance);
@@ -109,18 +103,15 @@ public class LogisticsSettingsScreen extends LogisticsBaseTabGuiScreen<PlayerSet
 
         @Override
         public void guiClose() {
-            ClientConfiguration config = LogisticsPipes.getClientPlayerConfig();
-            try {
-                config.setRenderPipeDistance(renderDistance.getInteger());
-                config.setRenderPipeContentDistance(contentRenderDistance.getInteger());
-            } catch (Exception e) {
-                LogisticsPipes.LOG.error("Failed to update render distance config", e);
-            }
+            // set() does not check the range; an out-of-range value would only be reset on the next load.
+            LPConfigs.CLIENT.RENDER_PIPE_DISTANCE.set(
+                Math.clamp(renderDistance.getInteger(), 1, LPConfigs.Client.MAX_RENDER_DISTANCE));
+            LPConfigs.CLIENT.RENDER_PIPE_CONTENT_DISTANCE.set(
+                Math.clamp(contentRenderDistance.getInteger(), 1, LPConfigs.Client.MAX_RENDER_DISTANCE));
             //config.setUseNewRenderer(useNewRendererButton.getState());
             //config.setUseFallbackRenderer(useFallbackRendererButton.getState());
 
-            ClientPacketDistributor.sendToServer(SetPlayerConfigMessage.of(config));
-
+            LPConfigs.saveClient();
         }
     }
 }

@@ -31,8 +31,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Quaternionf;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.LPConfigs;
 import logisticspipes.LPConstants;
-import logisticspipes.LogisticsPipes;
 import logisticspipes.client.model.mesh.MeshRenderer;
 import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.client.model.solid.SolidBlockModelParts;
@@ -117,7 +117,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
      */
     @Override
     public int getViewDistance() {
-        return LogisticsPipes.getClientPlayerConfig().getRenderPipeDistance();
+        return LPConfigs.CLIENT.RENDER_PIPE_DISTANCE.getAsInt();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
         // The items traveling inside a pipe are the expensive half of this renderer, and they are
         // unreadable long before the pipe itself stops being visible, so they get their own
         // shorter distance.
-        final int contentDistance = LogisticsPipes.getClientPlayerConfig().getRenderPipeContentDistance();
+        final int contentDistance = LPConfigs.CLIENT.RENDER_PIPE_CONTENT_DISTANCE.getAsInt();
         state.renderContent = Vec3.atCenterOf(blockEntity.getBlockPos()).distanceToSqr(cameraPos)
             <= (double) contentDistance * contentDistance;
     }

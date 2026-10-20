@@ -318,13 +318,13 @@ public class ItemDisplay {
 
 		if (isShift && !isControl && isShiftPageChange()) {
 			if (wheel > 0) {
-				if (!LPConfigs.COMMON.LOGISTICS_ORDERER_PAGE_INVERTWHEEL.getAsBoolean()) {
+				if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_PAGE_INVERTWHEEL.getAsBoolean()) {
 					prevPage();
 				} else {
 					nextPage();
 				}
 			} else {
-				if (!LPConfigs.COMMON.LOGISTICS_ORDERER_PAGE_INVERTWHEEL.getAsBoolean()) {
+				if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_PAGE_INVERTWHEEL.getAsBoolean()) {
 					nextPage();
 				} else {
 					prevPage();
@@ -334,7 +334,7 @@ public class ItemDisplay {
 			int requestCount = requestCountBar.getInteger();
 			if (isShift && !isControl && !isShiftPageChange()) {
 				if (wheel > 0) {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - (wheel * getAmountChangeMode(4)));
 					} else {
 						if (requestCount == 1) {
@@ -343,7 +343,7 @@ public class ItemDisplay {
 						requestCount += wheel * getAmountChangeMode(4);
 					}
 				} else {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						if (requestCount == 1) {
 							requestCount -= 1;
 						}
@@ -354,13 +354,13 @@ public class ItemDisplay {
 				}
 			} else if (!isControl) {
 				if (wheel > 0) {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - (wheel * getAmountChangeMode(1)));
 					} else {
 						requestCount += wheel * getAmountChangeMode(1);
 					}
 				} else {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount += -(wheel * getAmountChangeMode(1));
 					} else {
 						requestCount = Math.max(1, requestCount + wheel * getAmountChangeMode(1));
@@ -368,7 +368,7 @@ public class ItemDisplay {
 				}
 			} else if (isControl && !isShift) {
 				if (wheel > 0) {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - wheel * getAmountChangeMode(2));
 					} else {
 						if (requestCount == 1) {
@@ -377,7 +377,7 @@ public class ItemDisplay {
 						requestCount += wheel * getAmountChangeMode(2);
 					}
 				} else {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						if (requestCount == 1) {
 							requestCount -= 1;
 						}
@@ -388,7 +388,7 @@ public class ItemDisplay {
 				}
 			} else if (isControl && isShift) {
 				if (wheel > 0) {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						requestCount = Math.max(1, requestCount - wheel * getAmountChangeMode(3));
 					} else {
 						if (requestCount == 1) {
@@ -397,7 +397,7 @@ public class ItemDisplay {
 						requestCount += wheel * getAmountChangeMode(3);
 					}
 				} else {
-					if (!LPConfigs.COMMON.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
+					if (!LPConfigs.CLIENT.LOGISTICS_ORDERER_COUNT_INVERTWHEEL.getAsBoolean()) {
 						if (requestCount == 1) {
 							requestCount -= 1;
 						}

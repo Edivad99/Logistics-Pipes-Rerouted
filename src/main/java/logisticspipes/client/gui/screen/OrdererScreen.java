@@ -95,7 +95,7 @@ public abstract class OrdererScreen<T extends OrdererMenu> extends LogisticsBase
         addRenderableWidget(wire(new SmallGuiButton(7, xCenter + 38, bottom - 26, 15, 10, "++"), 7)); // +10
         addRenderableWidget(wire(new SmallGuiButton(11, xCenter + 26, bottom - 15, 26, 10, "+++"), 11)); // +64
         popupCheck = new GuiCheckBox(8, leftPos + 9, bottom - 60, 14, 14,
-            LPConfigs.COMMON.DISPLAY_POPUP.getAsBoolean());
+            LPConfigs.CLIENT.DISPLAY_POPUP.getAsBoolean());
         popupCheck.setPressListener(b -> handleBtn(8, b));
         addRenderableWidget(popupCheck); // Popup
 
@@ -254,8 +254,8 @@ public abstract class OrdererScreen<T extends OrdererMenu> extends LogisticsBase
             itemDisplay.add(3);
         } else if (id == 8) {
             GuiCheckBox button = (GuiCheckBox) guibutton;
-            LPConfigs.COMMON.DISPLAY_POPUP.set(button.change());
-            LPConfigs.savePopupState();
+            LPConfigs.CLIENT.DISPLAY_POPUP.set(button.change());
+            LPConfigs.saveClient();
         } else if (id == 13 && itemDisplay.getSelectedItem() != null) {
             final ItemIdentifierStack stack = itemDisplay.getSelectedItem().getItem()
                 .makeStack(itemDisplay.getRequestCount());

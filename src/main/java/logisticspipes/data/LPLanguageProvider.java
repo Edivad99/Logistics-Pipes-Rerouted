@@ -558,7 +558,10 @@ public class LPLanguageProvider extends LanguageProvider {
 
         config("hud", "HUD");
         config("hudRenderDistance", "HUD Render Distance");
-        config("opaque", "Opaque Pipes");
+
+        config("render", "Pipe Rendering");
+        config("pipeRenderDistance", "Pipe Render Distance");
+        config("pipeContentRenderDistance", "Pipe Content Render Distance");
 
         config("power", "Power");
         config("powerUsageDisabled", "Disable Power Usage");
@@ -569,6 +572,7 @@ public class LPLanguageProvider extends LanguageProvider {
         config("logistics", "Logistics");
         config("compilerSpeed", "Compiler Speed");
         config("enableParticleFx", "Particle Effects");
+        config("opaque", "Opaque Pipes");
 
         config(LPConfigs.CATEGORY_MULTITHREAD, "Multithreading");
         config("threadCount", "Thread Count");
