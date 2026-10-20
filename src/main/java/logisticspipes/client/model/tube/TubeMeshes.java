@@ -5,6 +5,7 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.model.mesh.ObjMesh;
+import logisticspipes.client.model.pipe.PipeModelStore;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
@@ -42,6 +43,7 @@ public final class TubeMeshes {
             return NONE;
         }
 
+        PipeModelStore.ensureTubes();
         ITubeOrientation effective = orientation != null ? orientation : ownOrientation(pipe);
         if (effective == null) {
             return NONE;
@@ -65,8 +67,26 @@ public final class TubeMeshes {
         if (kind == null) {
             return NONE;
         }
+        PipeModelStore.ensureTubes();
         ObjMesh mesh = TubeModels.mesh(kind, kind.orientationWithoutPipe);
         return mesh.isEmpty() ? NONE : new TubeGeometry(mesh, kind.texture);
+    }
+
+    /**
+     * What the pipe block model needs to bake a placed tube into the chunk mesh, or null when
+     * the pipe is not a tube, has no orientation yet, or is a speedup, whose texture is not in
+     * the block atlas.
+     */
+    public static @Nullable TubeKey keyFor(@Nullable CoreUnroutedPipe pipe) {
+        TubeModels.Kind kind = kindOf(pipe);
+        if (kind == null || kind.sprite == null) {
+            return null;
+        }
+        ITubeOrientation orientation = ownOrientation(pipe);
+        if (orientation == null || !(orientation.getRenderOrientation() instanceof Enum<?> named)) {
+            return null;
+        }
+        return new TubeKey(kind, named.name());
     }
 
     /**

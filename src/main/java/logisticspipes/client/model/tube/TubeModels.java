@@ -11,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.model.LpObjModels;
@@ -178,6 +179,12 @@ public final class TubeModels {
         public final String groupToken;
         public final Identifier texture;
         /**
+         * The same texture as a block-atlas sprite, so the placed tube can be baked into the
+         * chunk mesh. Null for the speedup: its 440x37 texture would drop the mip levels of the
+         * whole block atlas to zero, so that tube stays on the block entity renderer.
+         */
+        public final @Nullable Identifier sprite;
+        /**
          * Orientation drawn when there is no placed tube to read one from — the item form.
          * These are the orientations LP1's five renderers returned from
          * {@code getModelsWithoutPipe()}.
@@ -188,6 +195,7 @@ public final class TubeModels {
             this.obj = obj;
             this.groupToken = groupToken;
             this.texture = LPConstants.rl("textures/blocks/pipes/" + texture + ".png");
+            this.sprite = texture.equals("hs-speedup") ? null : LPConstants.rl("blocks/pipes/" + texture);
             this.orientationWithoutPipe = orientationWithoutPipe;
         }
     }

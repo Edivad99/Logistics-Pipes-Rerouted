@@ -4,6 +4,8 @@ import net.minecraft.resources.Identifier;
 
 import net.neoforged.neoforge.model.data.ModelProperty;
 
+import logisticspipes.client.model.tube.TubeKey;
+
 /**
  * Model data keys the pipe block entity passes to {@link PipeBakedModel}.
  *
@@ -28,4 +30,9 @@ public final class PipeModelProperties {
      * Absent means "use the pipe frame sprite".
      */
     public static final ModelProperty<Identifier> PARTICLE_SPRITE = new ModelProperty<>();
+
+    /**
+     * Which high-speed tube to bake, and at which orientation.
+     */
+    public static final ModelProperty<TubeKey> TUBE = new ModelProperty<>();
 }

@@ -32,6 +32,14 @@
     },
     {
       "type": "minecraft:single",
+      "resource": "logisticspipes:blocks/pipes/hs-tube"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "logisticspipes:blocks/pipes/hs-tube-line"
+    },
+    {
+      "type": "minecraft:single",
       "resource": "logisticspipes:blocks/blank_pipe"
     },
     {

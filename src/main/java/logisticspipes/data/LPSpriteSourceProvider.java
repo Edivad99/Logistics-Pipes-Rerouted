@@ -29,6 +29,8 @@ public class LPSpriteSourceProvider extends SpriteSourceProvider {
             .addSource(singleFile("blocks/pipes/pipemodel-inactive"))
             .addSource(singleFile("blocks/pipes/innerbox"))
             .addSource(singleFile("blocks/pipes/glass_texture_center"))
+            .addSource(singleFile("blocks/pipes/hs-tube"))
+            .addSource(singleFile("blocks/pipes/hs-tube-line"))
             .addSource(singleFile("blocks/blank_pipe"))
             .addSource(singleFile("blocks/sideselection"))
 

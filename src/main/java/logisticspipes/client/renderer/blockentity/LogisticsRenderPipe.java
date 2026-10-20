@@ -167,15 +167,18 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
     }
 
     /**
-     * Draws the high-speed tube body.
+     * Draws the speedup tube's body, the one tube {@code PipeBakedModel} does not bake.
      *
-     * <p>Unlike the pipe frame, this cannot move into the chunk mesh: the tubes are textured
-     * with standalone PNGs rather than sprites stitched into the block atlas, and a
-     * {@code BakedQuad} can only reference an atlas sprite. So tubes keep immediate-mode
-     * rendering — but on the mesh engine, with no shared render state.</p>
+     * <p>The other tubes have their textures stitched into the block atlas and live in the
+     * chunk mesh. The speedup's 440x37 texture cannot join them without dropping the mip levels
+     * of the whole atlas, and a {@code BakedQuad} can only reference an atlas sprite, so this
+     * one keeps being emitted every frame.</p>
      */
     private void submitTubeGeometry(LogisticsGenericPipeBlockEntity blockEntity, PoseStack poseStack,
         SubmitNodeCollector collector, int packedLight, int packedOverlay) {
+        if (TubeMeshes.keyFor(blockEntity.pipe) != null) {
+            return;
+        }
         TubeMeshes.TubeGeometry tube = TubeMeshes.forPipe(blockEntity.pipe);
         if (tube.isEmpty()) {
             return;
@@ -253,9 +256,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
                 submitRequestTableBlock((PipeBlockRequestTable) blockEntity.pipe, blockEntity, poseStack, collector,
                     packedLight, packedOverlay);
             }
-            // The pipe frame comes from PipeBakedModel via the chunk mesh; only the tube
-            // bodies still need emitting here, because their textures are standalone PNGs
-            // rather than atlas sprites and so cannot be baked.
+            // The pipe frame and most tube bodies come from PipeBakedModel via the chunk mesh;
+            // only the speedup tube still needs emitting here.
             if (!inHand) {
                 submitTubeGeometry(blockEntity, poseStack, collector, packedLight, packedOverlay);
             }

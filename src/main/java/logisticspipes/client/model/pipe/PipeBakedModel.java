@@ -1,6 +1,9 @@
 package logisticspipes.client.model.pipe;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.minecraft.client.Minecraft;
@@ -24,6 +27,11 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.client.model.mesh.MeshBaker;
+import logisticspipes.client.model.mesh.ObjMesh;
+import logisticspipes.client.model.mesh.UvTransform;
+import logisticspipes.client.model.tube.TubeKey;
+import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.textures.TextureRegistrar;
 
 /**
@@ -58,6 +66,11 @@ public class PipeBakedModel implements DynamicBlockStateModel {
         .maximumSize(CACHE_SIZE)
         .build();
     /**
+     * Tube bodies, one entry per tube type and orientation actually placed. Unbounded because
+     * there are only a couple of dozen of those.
+     */
+    private final Map<TubeKey, List<BakedQuad>> tubeCache = new ConcurrentHashMap<>();
+    /**
      * The {@link PipeModelStore} generation the cache was filled against. Because the parts
      * are now assembled lazily, they can change after quads have already been cached.
      */
@@ -76,6 +89,7 @@ public class PipeBakedModel implements DynamicBlockStateModel {
      */
     public void clearCache() {
         quadCache.invalidateAll();
+        tubeCache.clear();
     }
 
     /**
@@ -85,20 +99,33 @@ public class PipeBakedModel implements DynamicBlockStateModel {
     @Override
     @Nullable
     public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
-        return level.getModelData(pos).get(PipeModelProperties.GEOMETRY);
+        ModelData data = level.getModelData(pos);
+        PipeGeometryKey key = data.get(PipeModelProperties.GEOMETRY);
+        return key != null ? key : data.get(PipeModelProperties.TUBE);
     }
 
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random,
         List<BlockStateModelPart> parts) {
-        PipeGeometryKey key = level.getModelData(pos).get(PipeModelProperties.GEOMETRY);
-        if (key == null || !PipeModelStore.isReady()) {
+        ModelData data = level.getModelData(pos);
+        PipeGeometryKey key = data.get(PipeModelProperties.GEOMETRY);
+        TubeKey tube = data.get(PipeModelProperties.TUBE);
+        if ((key == null && tube == null) || !PipeModelStore.isReady()) {
             return;
         }
 
         int generation = PipeModelStore.generation();
         if (cachedGeneration.getAndSet(generation) != generation) {
             quadCache.invalidateAll();
+            tubeCache.clear();
+        }
+
+        if (tube != null) {
+            List<BakedQuad> quads = tubeCache.computeIfAbsent(tube, PipeBakedModel::bakeTube);
+            if (!quads.isEmpty()) {
+                parts.add(new Part(quads, particleMaterial()));
+            }
+            return;
         }
 
         List<BakedQuad> quads = quadCache.getIfPresent(key);
@@ -109,6 +136,27 @@ public class PipeBakedModel implements DynamicBlockStateModel {
         if (!quads.isEmpty()) {
             parts.add(new Part(quads, particleMaterial()));
         }
+    }
+
+    /**
+     * A tube body on its block-atlas sprite. Baked double-sided because the chunk mesh culls back
+     * faces, where the block entity renderer drew the single-sided mesh with culling off; the two
+     * windings never show at once, so they do not fight for depth the way two copies did there.
+     * Not shaded, matching the directional-light-free render type the tubes had.
+     */
+    private static List<BakedQuad> bakeTube(TubeKey key) {
+        ObjMesh mesh = TubeModels.mesh(key.kind(), key.orientation());
+        Identifier spriteName = key.kind().sprite;
+        if (mesh.isEmpty() || spriteName == null) {
+            return List.of();
+        }
+        TextureAtlasSprite sprite = Minecraft.getInstance()
+            .getAtlasManager()
+            .getAtlasOrThrow(AtlasIds.BLOCKS)
+            .getSprite(spriteName);
+        List<BakedQuad> quads = new ArrayList<>();
+        MeshBaker.bake(quads, mesh.doubleSided(), sprite, UvTransform.IDENTITY, MeshBaker.WHITE, false);
+        return List.copyOf(quads);
     }
 
     /**
@@ -142,6 +190,13 @@ public class PipeBakedModel implements DynamicBlockStateModel {
                 .getAtlasManager()
                 .getAtlasOrThrow(AtlasIds.BLOCKS)
                 .getSprite(name), false);
+        }
+        TubeKey tube = data.get(PipeModelProperties.TUBE);
+        if (tube != null && tube.kind().sprite != null) {
+            return new Material.Baked(Minecraft.getInstance()
+                .getAtlasManager()
+                .getAtlasOrThrow(AtlasIds.BLOCKS)
+                .getSprite(tube.kind().sprite), false);
         }
         PipeGeometryKey key = data.get(PipeModelProperties.GEOMETRY);
         if (key != null) {

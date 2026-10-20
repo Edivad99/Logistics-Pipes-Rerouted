@@ -69,6 +69,18 @@ public final class PipeModelStore {
         return solidBlock;
     }
 
+    /**
+     * Builds the tube meshes if nothing has asked for the pipe parts yet. They are assembled
+     * together, and the first thing drawn on joining a world can be a tube in the hotbar: it
+     * found no mesh, fell back to the pipe frame, and the GUI kept that icon until it was
+     * redrawn.
+     */
+    public static void ensureTubes() {
+        if (dirty) {
+            ensureBuilt();
+        }
+    }
+
     public static void setSprites(PipeSprites newSprites) {
         sprites = newSprites;
         reportedNotReady = false;

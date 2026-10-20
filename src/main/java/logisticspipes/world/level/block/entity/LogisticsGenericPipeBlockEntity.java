@@ -43,6 +43,8 @@ import logisticspipes.asm.ModDependentField;
 import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelProperties;
+import logisticspipes.client.model.tube.TubeKey;
+import logisticspipes.client.model.tube.TubeMeshes;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.logic.LogicController;
 import logisticspipes.logic.interfaces.ILogicControllerTile;
@@ -766,13 +768,19 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         // These are the two conditions the removed immediate-mode path already gated on:
         // its early return for pipe blocks, and its actAsNormalPipe() check.
         if (pipe.isPipeBlock() || !pipe.actAsNormalPipe()) {
-            // No geometry, but the model is still asked for the break/hit particle sprite, and
-            // the frame's would be wrong for a pipe that never draws the frame.
+            // No frame, but the model is still asked for the break/hit particle sprite, and the
+            // frame's would be wrong for a pipe that never draws the frame. A tube body is baked
+            // by the same model instead of being re-emitted every frame.
+            ModelData.Builder data = ModelData.builder();
             Identifier particle = pipe.getParticleSprite();
-            if (particle == null) {
-                return ModelData.EMPTY;
+            if (particle != null) {
+                data.with(PipeModelProperties.PARTICLE_SPRITE, particle);
             }
-            return ModelData.of(PipeModelProperties.PARTICLE_SPRITE, particle);
+            TubeKey tube = TubeMeshes.keyFor(pipe);
+            if (tube != null) {
+                data.with(PipeModelProperties.TUBE, tube);
+            }
+            return data.build();
         }
         return ModelData.of(PipeModelProperties.GEOMETRY, PipeGeometryKey.of(this, pipe, visualState));
     }
