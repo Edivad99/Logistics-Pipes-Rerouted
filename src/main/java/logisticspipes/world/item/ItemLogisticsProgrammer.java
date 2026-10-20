@@ -45,17 +45,22 @@ public class ItemLogisticsProgrammer extends LogisticsItem {
                 String target = Objects.requireNonNull(stack.get(LPDataComponents.RECIPE_TARGET));
                 if (!target.isEmpty()) {
                     Item targetItem = BuiltInRegistries.ITEM.getValue(Identifier.parse(target));
-                    if (targetItem instanceof ItemModule) {
-                        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_MODULE));
-                        tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()));
-                    } else if (targetItem instanceof ItemUpgrade) {
-                        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_UPGRADE));
-                        tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()));
-                    } else if (targetItem instanceof ItemLogisticsPipe) {
-                        tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_PIPE));
-                        tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()));
-                    } else {
-                        addEmptyTooltip(tooltipAdder);
+                    final ChatFormatting firstLine = ChatFormatting.GRAY;
+                    final ChatFormatting secondLine = ChatFormatting.DARK_AQUA;
+                    switch (targetItem) {
+                        case ItemModule _ -> {
+                            tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_MODULE).withStyle(firstLine));
+                            tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()).withStyle(secondLine));
+                        }
+                        case ItemUpgrade _ -> {
+                            tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_UPGRADE).withStyle(firstLine));
+                            tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()).withStyle(secondLine));
+                        }
+                        case ItemLogisticsPipe _ -> {
+                            tooltipAdder.accept(Component.translatable(Translations.Tooltip.PROGRAMMER_PIPE).withStyle(firstLine));
+                            tooltipAdder.accept(Component.translatable(targetItem.getDescriptionId()).withStyle(secondLine));
+                        }
+                        default -> addEmptyTooltip(tooltipAdder);
                     }
                 }
             } else {

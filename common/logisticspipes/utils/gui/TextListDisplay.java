@@ -127,8 +127,8 @@ public class TextListDisplay {
 		if (hover != -1) {
 			final String hovered = list.getTextAt(hover);
 			if (hovered != null) {
-				LPGuiGraphics.drawToolTip(guiGraphics, mousePosX - gui.getLeftPos(), mousePosY - gui.getTopPos(),
-						Collections.singletonList(hovered), ChatFormatting.WHITE);
+				LPGuiGraphics.drawToolTip(guiGraphics, mousePosX, mousePosY,
+					Collections.singletonList(hovered), ChatFormatting.WHITE);
 			}
 		}
 	}
