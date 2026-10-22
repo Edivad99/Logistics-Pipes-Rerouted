@@ -234,31 +234,20 @@ public class LogisticsManager implements ILogisticsManager {
 	 */
 	@Override
 	public String getBetterRouterName(IRouter r) {
-
-		if (r.getPipe() instanceof PipeItemsCraftingLogistics) {
-			PipeItemsCraftingLogistics pipe = (PipeItemsCraftingLogistics) r.getPipe();
-			if (pipe.getCraftedItems() != null) {
-				List<ItemIdentifierStack> items = pipe.getCraftedItems();
-				if (items.size() == 1) {
-					return ("Crafter<" + items.get(0).getFriendlyName() + ">");
-				}
-				return ("Crafter< MULTIPLE ITEMS >");
-			}
-		}
-
-		if (r.getPipe() instanceof PipeItemsProviderLogistics) {
-			return ("Provider");
-		}
-
-		if (r.getPipe() instanceof PipeLogisticsChassis) {
-			return "Chassis";
-		}
-		if (r.getPipe() instanceof PipeItemsRequestLogistics) {
-			return "Request";
-		}
-
-		return r.getId().toString();
-
+        return switch (r.getPipe()) {
+            case PipeItemsCraftingLogistics pipe -> {
+                List<ItemIdentifierStack> items = pipe.getCraftedItems();
+                yield switch (items.size()) {
+                    case 0 -> "Crafter";
+                    case 1 -> "Crafter<" + items.getFirst().getFriendlyName() + ">";
+                    default -> "Crafter< MULTIPLE ITEMS >";
+                };
+            }
+            case PipeItemsProviderLogistics _ -> "Provider";
+            case PipeLogisticsChassis _ -> "Chassis";
+            case PipeItemsRequestLogistics _ -> "Request";
+            case null, default -> r.getId().toString();
+        };
 	}
 
 	/**
@@ -334,18 +323,15 @@ public class LogisticsManager implements ILogisticsManager {
 				}
 			}
 			ICraftItems crafter = (ICraftItems) r.destination.getPipe();
-			List<ItemIdentifierStack> craftedItems = crafter.getCraftedItems();
-			if (craftedItems != null) {
-				outer2:
-				for (ItemIdentifierStack craftedItem : craftedItems) {
-					if (craftedItem != null && !craftableItems.contains(craftedItem.getItem())) {
-						for (IFilter filter : r.filters) {
-							if (filter.isBlocked() == filter.isFilteredItem(craftedItem.getItem())) {
-								continue outer2;
-							}
+			outer2:
+			for (ItemIdentifierStack craftedItem : crafter.getCraftedItems()) {
+				if (!craftableItems.contains(craftedItem.getItem())) {
+					for (IFilter filter : r.filters) {
+						if (filter.isBlocked() == filter.isFilteredItem(craftedItem.getItem())) {
+							continue outer2;
 						}
-						craftableItems.add(craftedItem.getItem());
 					}
+					craftableItems.add(craftedItem.getItem());
 				}
 			}
 			used.set(r.destination.getSimpleID(), true);

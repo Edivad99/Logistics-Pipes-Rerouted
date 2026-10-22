@@ -137,7 +137,6 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe
     }
 
     @Override
-    @Deprecated
     public List<ItemIdentifierStack> getCraftedItems() {
         return craftingModule.getCraftedItems();
     }

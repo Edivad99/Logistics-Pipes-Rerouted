@@ -58,7 +58,7 @@ final class PipeSignRenderer {
     private static void submitCrafting(CraftingPipeSign sign, Font font, PoseStack poseStack,
         SubmitNodeCollector collector, int packedLight) {
         List<ItemIdentifierStack> craftables = sign.getPipe().getCraftedItems();
-        if (craftables == null || craftables.isEmpty()) {
+        if (craftables.isEmpty()) {
             submitEmpty(font, poseStack, collector, packedLight);
             return;
         }

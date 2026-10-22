@@ -290,9 +290,6 @@ public class ModuleCrafter extends LogisticsModule
     @Override
     public void collectSpecificInterests(Collection<ItemIdentifier> itemIdentifiers) {
         List<ItemIdentifierStack> result = getCraftedItems();
-        if (result == null) {
-            return;
-        }
 
         result.stream().map(ItemIdentifierStack::getItem).forEach(itemIdentifiers::add);
         /*
@@ -442,9 +439,6 @@ public class ModuleCrafter extends LogisticsModule
     public @Nullable ICraftingTemplate addCrafting(IResource toCraft) {
 
         List<ItemIdentifierStack> stack = getCraftedItems();
-        if (stack == null) {
-            return null;
-        }
         IReqCraftingTemplate template = null;
         if (getUpgradeManager().isFuzzyUpgrade() && outputFuzzy().nextSetBit(0) != -1) {
             for (ItemIdentifierStack craftable : stack) {
@@ -617,14 +611,10 @@ public class ModuleCrafter extends LogisticsModule
         return false;
     }
 
-    @Deprecated
     @Override
     public List<ItemIdentifierStack> getCraftedItems() {
-        List<ItemIdentifierStack> list = new ArrayList<>(1);
-        if (getCraftedItem() != null) {
-            list.add(getCraftedItem());
-        }
-        return list;
+        final ItemIdentifierStack crafted = getCraftedItem();
+        return crafted == null ? new ArrayList<>() : new ArrayList<>(List.of(crafted));
     }
 
     @Nullable
@@ -888,7 +878,7 @@ public class ModuleCrafter extends LogisticsModule
         }
 
         List<ItemIdentifierStack> wantedItem = getCraftedItems();
-        if (wantedItem == null || wantedItem.isEmpty()) {
+        if (wantedItem.isEmpty()) {
             return;
         }
 
@@ -1163,8 +1153,8 @@ public class ModuleCrafter extends LogisticsModule
     }
 
     protected int neededEnergy() {
-        return (int) (10 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) * Math
-            .pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
+        return (int) (10 * Math.pow(1.1, getUpgradeManager().getItemExtractionUpgrade()) *
+            Math.pow(1.2, getUpgradeManager().getItemStackExtractionUpgrade()));
     }
 
     protected int itemsToExtract() {

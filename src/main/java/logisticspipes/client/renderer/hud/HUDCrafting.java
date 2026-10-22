@@ -38,7 +38,7 @@ public class HUDCrafting extends BasicHUDGui {
         }
         List<ItemIdentifierStack> list = new ArrayList<>();
         List<ItemIdentifierStack> craftables = pipe.getCraftedItems();
-        if (craftables != null && !craftables.isEmpty()) {
+        if (!craftables.isEmpty()) {
             //TODO: handle multiple craftables.
             list.add(craftables.get(0));
         }
@@ -55,7 +55,7 @@ public class HUDCrafting extends BasicHUDGui {
 
     @Override
     public boolean display(HUDComponent config) {
-        return config.crafting() && ((!pipe.hasCraftingSign() && pipe.getCraftedItems() != null)
+        return config.crafting() && ((!pipe.hasCraftingSign() && !pipe.getCraftedItems().isEmpty())
             || !pipe.displayList.isEmpty());
     }
 

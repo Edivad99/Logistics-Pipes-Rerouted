@@ -9,8 +9,6 @@ package logisticspipes.interfaces.routing;
 
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
-
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public interface ICraftItems extends ICraft, IProvideItems, IItemSpaceControl, IRequireReliableTransport {
@@ -18,14 +16,10 @@ public interface ICraftItems extends ICraft, IProvideItems, IItemSpaceControl, I
 	//void canCraft(LogisticsTransaction transaction);
 
 	/**
-	 * some items do not have a specific list of things they can craft (ie, AE
-	 * crafting system, fuzzy crafting) in this case enumerating them all will
-	 * be slow/impossible.
-	 *
-	 * @deprecated getCraftedItems can be slow, instead ask if the item you are
-	 *             after can be crafted
+	 * Lists the items this crafter can make, for displays such as the request
+	 * screen, signs and the HUD. Crafters without a fixed set of outputs (ie,
+	 * AE crafting system, fuzzy crafting) may return an incomplete list, so to
+	 * check a specific item use {@link ICraft#canCraft} instead.
 	 */
-	@Deprecated
-	@Nullable
-	List<ItemIdentifierStack> getCraftedItems(); // list of all items that can be crafted.
+	List<ItemIdentifierStack> getCraftedItems();
 }
