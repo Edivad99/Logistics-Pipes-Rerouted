@@ -41,10 +41,10 @@ public class PowerProviderScreen extends LogisticsBaseGuiScreen<PowerProviderMen
         guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.STORED_ENERGY).append(":"), 40, 25,
             0xFF404040, false);
         guiGraphics.text(minecraft.font,
-            StringUtils.getStringWithSpacesFromInteger(junction.getDisplayPowerLevel()) + " " + junction.getBrand(), 40,
-            35, 0xFF404040, false);
+            StringUtils.getStringWithSpacesFromInteger(junction.getDisplayPowerLevel()) + " FE", 40, 35, 0xFF404040,
+            false);
         guiGraphics.text(minecraft.font,
-            "/ " + StringUtils.getStringWithSpacesFromInteger(junction.getMaxStorage()) + " " + junction.getBrand(), 40,
-            45, 0xFF404040, false);
+            "/ " + StringUtils.getStringWithSpacesFromInteger(junction.getMaxStorage()) + " FE", 40, 45, 0xFF404040,
+            false);
     }
 }

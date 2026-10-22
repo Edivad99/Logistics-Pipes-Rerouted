@@ -63,12 +63,12 @@ public class LPConfigs {
             b.comment("Power settings").push("power");
             LOGISTICS_POWER_USAGE_DISABLED = b.comment("Disable power usage entirely")
                 .define("powerUsageDisabled", false);
-            POWER_USAGE_MULTIPLIER = b.comment("Power usage multiplier")
-                .defineInRange("powerUsageMultiplier", 1.0, 0.0, 100.0);
-            LOGISTICS_CRAFTING_TABLE_POWER_USAGE = b.comment("LP power used per crafting operation")
+            POWER_USAGE_MULTIPLIER = b.comment("FE drawn from the power junction for each unit of power a pipe or block uses")
+                .defineInRange("powerUsageMultiplier", 2.0, 0.0, 100.0);
+            LOGISTICS_CRAFTING_TABLE_POWER_USAGE = b.comment("Power used per crafting operation, before powerUsageMultiplier")
                 .defineInRange("craftingTablePowerUsage", 250, 0, Integer.MAX_VALUE);
             POWER_SOURCE_MODE = b.comment(
-                    "How the power junction acquires FE. ADJACENT: pulls from any neighbouring IEnergyStorage each tick. CABLE: passive — FE cables push into the junction.")
+                    "How the FE power provider acquires FE. ADJACENT: pulls from every neighbouring energy storage each tick, and takes what cables push in. CABLE: passive, only takes what cables push in.")
                 .defineEnum("powerSourceMode", PowerSourceMode.ADJACENT);
             b.pop();
 
@@ -143,11 +143,11 @@ public class LPConfigs {
 
     public enum PowerSourceMode {
         /**
-         * Pull FE from any adjacent IEnergyStorage each tick (active).
+         * Pull FE from every adjacent energy storage each tick, on top of what cables push in.
          */
         ADJACENT,
         /**
-         * Accept FE pushed in by cables (passive, IEnergyStorage capability only).
+         * Only take the FE cables push in.
          */
         CABLE
     }

@@ -2,11 +2,9 @@ package logisticspipes.interfaces;
 
 public interface ISubSystemPowerProvider {
 
-	double getPowerLevel();
+	int getPowerLevel();
 
-	void requestPower(int destination, double amount);
+	void requestPower(int destination, int amount);
 
 	boolean usePaused();
-
-	String getBrand();
 }

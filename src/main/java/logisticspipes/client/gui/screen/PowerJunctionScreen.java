@@ -33,12 +33,11 @@ public class PowerJunctionScreen extends LogisticsBaseGuiScreen<PowerJunctionMen
         guiGraphics.text(minecraft.font, junction.getBlockState().getBlock().getName(), 30, 8, 0xFF404040, false);
         guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.STORED_ENERGY).append(":"), 40, 23,
             0xFF404040, false);
-        guiGraphics.text(minecraft.font, TextUtil.formatNumberWithCommas(junction.getPowerLevel()) + " LP", 40, 33,
+        guiGraphics.text(minecraft.font, TextUtil.formatNumberWithCommas(junction.getPowerLevel()) + " FE", 40, 33,
             0xFF404040, false);
         guiGraphics.text(minecraft.font,
-            "/ " + TextUtil.formatNumberWithCommas(LogisticsPowerJunctionBlockEntity.MAX_STORAGE) + " LP", 40, 43,
+            "/ " + TextUtil.formatNumberWithCommas(LogisticsPowerJunctionBlockEntity.MAX_STORAGE) + " FE", 40, 43,
             0xFF404040, false);
-        guiGraphics.text(minecraft.font, "10 FE = 5 LP", 30, 58, 0xFF404040, false);
     }
 
     @Override

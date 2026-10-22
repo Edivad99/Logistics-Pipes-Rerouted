@@ -9,6 +9,4 @@ public interface IPowerLevelDisplay {
 	int getMaxStorage();
 
 	boolean isHUDInvalid();
-
-	String getBrand();
 }

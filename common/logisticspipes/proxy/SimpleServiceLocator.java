@@ -19,7 +19,6 @@ import logisticspipes.inventory.tank.SpecialTankHandler;
 import logisticspipes.logistics.ILogisticsFluidManager;
 import logisticspipes.logistics.ILogisticsManager;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
-import logisticspipes.proxy.interfaces.IPowerProxy;
 import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.RouterManager;
@@ -107,12 +106,6 @@ public final class SimpleServiceLocator {
 
 	public static void setRoutedItemHelper(RoutedItemHelper helper) {
 		SimpleServiceLocator.routedItemHelper = helper;
-	}
-
-	public static IPowerProxy powerProxy;
-
-	public static void setPowerProxy(IPowerProxy proxy) {
-		SimpleServiceLocator.powerProxy = proxy;
 	}
 
 	public static IChannelManagerProvider channelManagerProvider;

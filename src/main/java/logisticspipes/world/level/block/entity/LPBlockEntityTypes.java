@@ -20,9 +20,9 @@ public class LPBlockEntityTypes {
 
     // NOTE: BlockEntity constructors must be migrated to (BlockPos, BlockState) before
     // these suppliers will compile. Stubs use placeholder suppliers for now.
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsFEPowerProviderBlockEntity>> POWER_PROVIDER_FE =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsPowerProviderBlockEntity>> POWER_PROVIDER_FE =
         deferredRegister.register("power_provider_fe",
-            () -> new BlockEntityType<>(LogisticsFEPowerProviderBlockEntity::new, LPBlocks.POWER_PROVIDER_FE.get()));
+            () -> new BlockEntityType<>(LogisticsPowerProviderBlockEntity::new, LPBlocks.POWER_PROVIDER_FE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LogisticsSecurityBlockEntity>> SECURITY_STATION =
         deferredRegister.register("security_station",
             () -> new BlockEntityType<>(LogisticsSecurityBlockEntity::new, LPBlocks.SECURITY_STATION.get()));

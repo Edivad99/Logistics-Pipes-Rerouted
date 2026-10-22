@@ -59,7 +59,6 @@ import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.property.PropertyUpdaterEventListener;
-import logisticspipes.proxy.PowerProxy;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.proxy.recipeproviders.LogisticsCraftingTable;
@@ -86,9 +85,9 @@ import logisticspipes.world.item.crafting.RegisterProgrammerRecipes;
 import logisticspipes.world.level.block.LPBlocks;
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
-import logisticspipes.world.level.block.entity.LogisticsFEPowerProviderBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
 
 @Mod(LPConstants.ID)
 public class LogisticsPipes {
@@ -142,13 +141,10 @@ public class LogisticsPipes {
         event.registerBlockEntity(Capabilities.Energy.BLOCK,
             LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionBlockEntity::getEnergyStorageCap);
         event.registerBlockEntity(Capabilities.Energy.BLOCK,
-            LPBlockEntityTypes.POWER_PROVIDER_FE.get(), LogisticsFEPowerProviderBlockEntity::getEnergyStorageCap);
+            LPBlockEntityTypes.POWER_PROVIDER_FE.get(), LogisticsPowerProviderBlockEntity::getEnergyStorageCap);
     }
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {
-
-        SimpleServiceLocator.setPowerProxy(new PowerProxy());
-
         SimpleServiceLocator.setPipeInformationManager(new PipeInformationManager());
         SimpleServiceLocator.setLogisticsFluidManager(new LogisticsFluidManager());
 

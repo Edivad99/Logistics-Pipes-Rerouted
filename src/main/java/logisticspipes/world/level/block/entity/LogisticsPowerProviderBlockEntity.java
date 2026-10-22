@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,19 +13,26 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.transfer.energy.DelegatingEnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.LPConfigs;
 import logisticspipes.client.renderer.hud.HUDPowerLevel;
 import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
-import logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IBlockWatchingHandler;
 import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
@@ -47,35 +52,64 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.inventory.PowerProviderMenu;
 
+/**
+ * Stores FE and hands it to the pipes on the network that carry an FE power supplier upgrade.
+ *
+ * <p>Pipes order what they are missing through {@link #requestPower}; every tick the orders are
+ * filled, scaled down when the provider cannot cover them all, and the energy is sent along the
+ * route with a laser to show it.</p>
+ */
 @CCType(name = "LogisticsPowerProvider")
-public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
+public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
     implements IBlockEntityMenuProvider, ISubSystemPowerProvider, IPowerLevelDisplay, IScreenOpenController,
     IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
 
     public static final int FE_COLOR = 0xff0000;
+    public static final int MAX_STORAGE = 10_000_000;
+    /**
+     * The most a single insertion takes in, which bounds what a cable or a pull from a neighbor
+     * moves per tick.
+     */
+    private static final int MAX_INSERT = 10_000;
+    private static final int MAX_PROVIDE_PER_TICK = 10_000;
 
-    // true if it needs more power, turns off at full, turns on at 50%.
-    public boolean needMorePowerTriggerCheck = true;
+    private final SimpleEnergyHandler storage =
+        new SimpleEnergyHandler(MAX_STORAGE, MAX_INSERT, MAX_PROVIDE_PER_TICK) {
 
-    protected Map<Integer, Double> orders = new HashMap<>();
-    protected BitSet reOrdered = new BitSet(ServerRouter.getBiggestSimpleID());
-    protected boolean pauseRequesting = false;
+            @Override
+            protected void onEnergyChanged(int previousAmount) {
+                setChanged();
+            }
+        };
 
-    protected double internalStorage = 0;
-    protected int maxMode = 1;
-    private double lastUpdateStorage = 0;
+    /**
+     * {@link #storage} as neighbors see it: they can fill it, but not pull from it. The provider
+     * hands its energy to the network itself.
+     */
+    private final EnergyHandler energyInterface = new DelegatingEnergyHandler(() -> storage) {
+
+        @Override
+        public int extract(int amount, TransactionContext transaction) {
+            return 0;
+        }
+    };
+
+    private final Map<Integer, Integer> orders = new HashMap<>();
+    private final BitSet reOrdered = new BitSet(ServerRouter.getBiggestSimpleID());
+    private boolean pauseRequesting = false;
+
+    private long lastSyncedAmount = 0;
     private final PlayerCollectionList guiListener = new PlayerCollectionList();
     private final PlayerCollectionList watcherList = new PlayerCollectionList();
     private final IHeadUpDisplayRenderer HUD;
     private boolean init = false;
 
-    protected LogisticsPowerProviderBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state);
+    public LogisticsPowerProviderBlockEntity(BlockPos pos, BlockState state) {
+        super(LPBlockEntityTypes.POWER_PROVIDER_FE.get(), pos, state);
         HUD = new HUDPowerLevel(this);
     }
 
@@ -86,73 +120,88 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
             LogisticsHUDRenderer.instance().add(this);
             init = true;
         }
-        distributePower();
     }
 
     @Override
     public void serverTick() {
         super.serverTick();
+        if (LPConfigs.COMMON.POWER_SOURCE_MODE.get() == LPConfigs.PowerSourceMode.ADJACENT) {
+            pullFromNeighbors();
+        }
         distributePower();
-        if (internalStorage != lastUpdateStorage) {
+        if (storage.getAmountAsLong() != lastSyncedAmount) {
             updateClients();
-            lastUpdateStorage = internalStorage;
+            lastSyncedAmount = storage.getAmountAsLong();
+        }
+    }
+
+    private void pullFromNeighbors() {
+        for (Direction direction : Direction.values()) {
+            if (EnergyHandlerUtil.isFull(storage)) {
+                return;
+            }
+            BlockEntity neighbor = level.getBlockEntity(getBlockPos().relative(direction));
+            if (neighbor == null) {
+                continue;
+            }
+            EnergyHandler neighborStorage = level.getCapability(Capabilities.Energy.BLOCK, neighbor.getBlockPos(),
+                neighbor.getBlockState(), neighbor, direction.getOpposite());
+            EnergyHandlerUtil.move(neighborStorage, storage, MAX_INSERT, null);
         }
     }
 
     /**
-     * Runs on both sides, as it did before the tick was split in two: {@code orders} is only ever
-     * filled server side, so on the client the requested total is zero and this comes down to
-     * clearing an empty map.
+     * Fills this tick's orders, all scaled by the same ratio when the provider cannot cover them.
      */
     private void distributePower() {
         pauseRequesting = false;
-        double globalRequest = orders.values().stream().reduce(Double::sum).orElse(0.0);
-        if (globalRequest > 0) {
-            final double fullfillRatio = Math.min(1, Math.min(internalStorage, getMaxProvidePerTick()) / globalRequest);
-            if (fullfillRatio > 0) {
-                final Function<NeighborBlockEntity<LogisticsGenericPipeBlockEntity>, @Nullable CoreRoutedPipe> getPipe =
-                    (NeighborBlockEntity<LogisticsGenericPipeBlockEntity> neighbor) -> (CoreRoutedPipe) neighbor.getBlockEntity().pipe;
-                orders.entrySet().stream()
-                    .map(routerIdToOrderCount -> new Pair<>(
-                        SimpleServiceLocator.routerManager.getRouter(routerIdToOrderCount.getKey()),
-                        Math.min(internalStorage, routerIdToOrderCount.getValue() * fullfillRatio)))
-                    .filter(destinationToPower -> destinationToPower.getValue1() != null
-                        && destinationToPower.getValue1().getPipe() != null)
-                    .forEach(destinationToPower -> new WorldCoordinatesWrapper(this)
-                        .allNeighborBlockEntities().stream()
-                        .flatMap(neighbor -> NeighborBlockEntityUtil.optionalIs(neighbor, LogisticsGenericPipeBlockEntity.class)
-                            .map(Stream::of).orElseGet(Stream::empty))
-                        .filter(neighbor -> neighbor.getBlockEntity().pipe instanceof CoreRoutedPipe &&
-                            !getPipe.apply(neighbor).stillNeedReplace())
-                        .flatMap(neighbor -> getPipe.apply(neighbor).getRouter()
-                            .getDistanceTo(destinationToPower.getValue1()).stream()
-                            .map(exitRoute -> new Pair<>(neighbor, exitRoute)))
-                        .filter(neighborToExit ->
-                            neighborToExit.getValue2().containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM) &&
-                                neighborToExit.getValue2().filters.stream().noneMatch(IFilter::blockPower))
-                        .findFirst()
-                        .ifPresent(neighborToSource -> {
-                            CoreRoutedPipe sourcePipe = getPipe.apply(neighborToSource.getValue1());
-                            if (sourcePipe.isInitialized()) {
-                                sourcePipe.getContainer().addLaser(neighborToSource.getValue1().getOurDirection(), 1,
-                                    getLaserColor(), true, true);
-                            }
-                            sendPowerLaserPackets(sourcePipe.getRouter(), destinationToPower.getValue1(),
-                                neighborToSource.getValue2().exitOrientation,
-                                neighborToSource.getValue2().exitOrientation != neighborToSource.getValue1()
-                                    .getDirection());
-                            internalStorage -= destinationToPower.getValue2();
-                            if (internalStorage <= 0) {
-                                internalStorage = 0; // because calculations with floats
-                            }
-                            handlePower(destinationToPower.getValue1().getPipe(), destinationToPower.getValue2());
-                        }));
+        long requested = orders.values().stream().mapToLong(Integer::longValue).sum();
+        if (requested > 0) {
+            double ratio = Math.min(1, (double) Math.min(storage.getAmountAsLong(), MAX_PROVIDE_PER_TICK) / requested);
+            for (Map.Entry<Integer, Integer> order : orders.entrySet()) {
+                IRouter destination = SimpleServiceLocator.routerManager.getRouter(order.getKey());
+                int amount = (int) (order.getValue() * ratio);
+                if (destination != null && destination.getPipe() != null && amount > 0) {
+                    deliver(destination, amount);
+                }
             }
         }
         orders.clear();
     }
 
-    protected abstract void handlePower(CoreRoutedPipe pipe, double toSend);
+    /**
+     * Sends {@code amount} to {@code destination} through the first neighboring pipe with a route to
+     * it that power may take.
+     */
+    private void deliver(IRouter destination, int amount) {
+        for (LPNeighborBlockEntity<BlockEntity> neighbor : new WorldCoordinatesWrapper(this).allNeighborBlockEntities()) {
+            if (!(neighbor.getBlockEntity() instanceof LogisticsGenericPipeBlockEntity pipeBlockEntity)
+                || !(pipeBlockEntity.pipe instanceof CoreRoutedPipe sourcePipe) || sourcePipe.stillNeedReplace()) {
+                continue;
+            }
+            for (ExitRoute route : sourcePipe.getRouter().getDistanceTo(destination)) {
+                if (!route.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)
+                    || route.filters.stream().anyMatch(IFilter::blockPower)) {
+                    continue;
+                }
+                int extracted;
+                try (Transaction transaction = Transaction.openRoot()) {
+                    extracted = storage.extract(amount, transaction);
+                    transaction.commit();
+                }
+                if (extracted == 0) {
+                    return;
+                }
+                if (sourcePipe.isInitialized()) {
+                    sourcePipe.getContainer().addLaser(neighbor.getOurDirection(), 1, FE_COLOR, true, true);
+                }
+                sendPowerLaserPackets(sourcePipe.getRouter(), destination, route.exitOrientation,
+                    route.exitOrientation != neighbor.getDirection());
+                destination.getPipe().handleFEPowerArrival(extracted);
+                return;
+            }
+        }
+    }
 
     private void sendPowerLaserPackets(IRouter sourceRouter, IRouter destinationRouter, Direction exitOrientation,
         boolean addBall) {
@@ -170,7 +219,7 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
                     int distance = part.getValue1().getDistanceToNextPowerPipe(exit.exitOrientation);
                     CoreRoutedPipe pipe = part.getValue1().getPipe();
                     if (pipe != null && pipe.isInitialized()) {
-                        pipe.getContainer().addLaser(exit.exitOrientation, distance, getLaserColor(), false,
+                        pipe.getContainer().addLaser(exit.exitOrientation, distance, FE_COLOR, false,
                             part.getValue3());
                     }
                     IRouter nextRouter = exit.destination; // Use new sourceRouter
@@ -194,18 +243,16 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
         }
     }
 
-    protected abstract double getMaxProvidePerTick();
-
     @CCCommand(description = "Returns the color for the power provided by this power provider")
-    protected abstract int getLaserColor();
+    protected int getLaserColor() {
+        return FE_COLOR;
+    }
 
     @Override
     @CCCommand(description = "Returns the max. amount of storable power")
-    public abstract int getMaxStorage();
-
-    @Override
-    @CCCommand(description = "Returns the power type stored in this power provider")
-    public abstract String getBrand();
+    public int getMaxStorage() {
+        return MAX_STORAGE;
+    }
 
     @Override
     public void setRemoved() {
@@ -224,7 +271,7 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
     }
 
     @Override
-    public void requestPower(int destination, double amount) {
+    public void requestPower(int destination, int amount) {
         if (pauseRequesting) {
             return;
         }
@@ -243,8 +290,8 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
 
     @Override
     @CCCommand(description = "Returns the current power level for this power provider")
-    public double getPowerLevel() {
-        return lastUpdateStorage;
+    public int getPowerLevel() {
+        return storage.getAmountAsInt();
     }
 
     @Override
@@ -255,15 +302,19 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        internalStorage = input.getDoubleOr("internalStorage", 0);
-        maxMode = input.getIntOr("maxMode", 0);
+        storage.deserialize(input);
+        // Older saves kept the stored energy apart, as a double, with "energy" only holding the
+        // small buffer cables pushed into.
+        double legacy = input.getDoubleOr("internalStorage", 0);
+        if (legacy > 0) {
+            storage.set((int) Math.min(MAX_STORAGE, storage.getAmountAsLong() + (long) legacy));
+        }
     }
 
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putDouble("internalStorage", internalStorage);
-        output.putInt("maxMode", maxMode);
+        storage.serialize(output);
     }
 
     @Override
@@ -319,25 +370,25 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
     }
 
     public void updateClients() {
-        final PowerProviderLevelMessage message = new PowerProviderLevelMessage(getBlockPos(), internalStorage);
+        final PowerProviderLevelMessage message = new PowerProviderLevelMessage(getBlockPos(), storage.getAmountAsInt());
         guiListener.send(message);
         watcherList.send(message);
     }
 
-    public void handlePowerPacket(double d) {
+    public void handlePowerPacket(int stored) {
         if (level.isClientSide()) {
-            internalStorage = d;
+            storage.set(stored);
         }
     }
 
     @Override
     public int getChargeState() {
-        return (int) Math.min(100F, internalStorage * 100 / getMaxStorage());
+        return (int) (storage.getAmountAsLong() * 100 / MAX_STORAGE);
     }
 
     @Override
     public int getDisplayPowerLevel() {
-        return internalStorage > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) internalStorage;
+        return storage.getAmountAsInt();
     }
 
     @Override
@@ -353,5 +404,9 @@ public abstract class LogisticsPowerProviderBlockEntity extends LogisticsSolidBl
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         return new PowerProviderMenu(containerId, inventory, this);
+    }
+
+    public EnergyHandler getEnergyStorageCap(@Nullable Direction side) {
+        return energyInterface;
     }
 }

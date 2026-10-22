@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.world.level.block.entity.LPBlockEntityTypes;
-import logisticspipes.world.level.block.entity.LogisticsFEPowerProviderBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
 
 public class LogisticsFEPowerProviderBlock extends LogisticsSolidBlock {
 
@@ -26,7 +26,7 @@ public class LogisticsFEPowerProviderBlock extends LogisticsSolidBlock {
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new LogisticsFEPowerProviderBlockEntity(pos, state);
+        return new LogisticsPowerProviderBlockEntity(pos, state);
     }
 
     @Nullable

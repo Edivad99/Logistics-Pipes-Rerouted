@@ -18,7 +18,7 @@ import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity
  * <p>A double rather than the junction's int because the providers keep fractional amounts while
  * converting between their own unit and the network's.
  */
-public record PowerProviderLevelMessage(BlockPos pos, double stored) implements CustomPacketPayload {
+public record PowerProviderLevelMessage(BlockPos pos, int stored) implements CustomPacketPayload {
 
     public static final Type<PowerProviderLevelMessage> TYPE =
         new Type<>(LPConstants.rl("power_provider_level"));
@@ -26,7 +26,7 @@ public record PowerProviderLevelMessage(BlockPos pos, double stored) implements 
     public static final StreamCodec<RegistryFriendlyByteBuf, PowerProviderLevelMessage> STREAM_CODEC =
         StreamCodec.composite(
             BlockPos.STREAM_CODEC, PowerProviderLevelMessage::pos,
-            ByteBufCodecs.DOUBLE, PowerProviderLevelMessage::stored,
+            ByteBufCodecs.VAR_INT, PowerProviderLevelMessage::stored,
             PowerProviderLevelMessage::new);
 
     public static void handle(PowerProviderLevelMessage message, IPayloadContext context) {
