@@ -31,8 +31,6 @@ import logisticspipes.client.renderer.hud.HUDDrawContext;
  */
 public final class LPGuiGraphics {
 
-    public static final Identifier WIDGETS_TEXTURE = Identifier.withDefaultNamespace(
-        "textures/gui/widgets.png");
     public static final Identifier SLOT_TEXTURE = LPConstants.rl("textures/gui/slot.png");
     public static final Identifier BIG_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-big.png");
     public static final Identifier SMALL_SLOT_TEXTURE = LPConstants.rl("textures/gui/slot-small.png");
@@ -102,12 +100,6 @@ public final class LPGuiGraphics {
     private static void doDrawSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y, Identifier slotDiskTexture) {
         LPGuiGraphics.zLevel = 0;
         guiGraphics.blit(RenderPipelines.GUI_TEXTURED, slotDiskTexture, x, y, 0.0f, 0.0f, 18, 18, 18, 18);
-        // 1-pixel darker inset border so the slot visually separates from the panel on light backgrounds.
-        final int borderColor = 0x80373737;
-        guiGraphics.fill(x, y, x + 18, y + 1, borderColor);
-        guiGraphics.fill(x, y + 17, x + 18, y + 18, borderColor);
-        guiGraphics.fill(x, y, x + 1, y + 18, borderColor);
-        guiGraphics.fill(x + 17, y, x + 18, y + 18, borderColor);
     }
 
     public static void drawSlotDiskBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
@@ -119,10 +111,6 @@ public final class LPGuiGraphics {
     }
 
     public static void drawSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y) {
-        doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
-    }
-
-    public static void drawSlotBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int color) {
         doDrawSlotBackground(guiGraphics, x, y, LPGuiGraphics.SLOT_TEXTURE);
     }
 
