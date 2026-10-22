@@ -33,12 +33,9 @@ import logisticspipes.interfaces.IPowerLevelDisplay;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.to_client.block.PowerJunctionLevelMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.world.inventory.PowerJunctionMenu;
 
-@CCType(name = "LogisticsPowerJunction")
 public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     implements IBlockEntityMenuProvider, ILogisticsPowerProvider, IPowerLevelDisplay, IScreenOpenController,
     IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
@@ -174,7 +171,6 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    @CCCommand(description = "Returns the currently stored power")
     public int getPowerLevel() {
         return storage.getAmountAsInt();
     }
@@ -185,7 +181,6 @@ public class LogisticsPowerJunctionBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    @CCCommand(description = "Returns the max. storable power")
     public int getMaxStorage() {
         return LogisticsPowerJunctionBlockEntity.MAX_STORAGE;
     }

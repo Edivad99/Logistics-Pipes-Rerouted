@@ -34,9 +34,6 @@ import logisticspipes.network.to_client.orderer.OrderManagerContentMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.CraftingPipeSign;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCQueued;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.IPromise;
 import logisticspipes.request.RequestTree;
@@ -53,7 +50,6 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-@CCType(name = "LogisticsPipes:Crafting")
 public class PipeItemsCraftingLogistics extends CoreRoutedPipe
     implements ICraftItems, IRequireReliableTransport, IHeadUpDisplayRendererProvider, IChangeListener,
     IOrderManagerContentReceiver, IHavePriority {
@@ -224,8 +220,6 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe
     }
 
     /* ComputerCraftCommands */
-    @CCCommand(description = "Imports the crafting recipe from the connected machine/crafter")
-    @CCQueued()
     public void reimport() {
         craftingModule.importFromCraftingTable(null);
     }

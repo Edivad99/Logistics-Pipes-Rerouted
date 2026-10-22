@@ -26,7 +26,6 @@ import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeTransportLogistics;
@@ -34,11 +33,10 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
-public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
+public abstract class CoreUnroutedPipe {
 
     public final PipeTransportLogistics transport;
     public final Item item;
-    private final Object[] ccTypeHolder = new Object[1];
     public DebugLogController debug = new DebugLogController(this);
     /**
      * Set once by {@link #setTile}; null only on the dummy instance an item keeps for type queries.
@@ -350,11 +348,6 @@ public abstract class CoreUnroutedPipe implements ILPCCTypeHolder {
     @Nullable
     public Level getLevelForHUD() {
         return getLevel();
-    }
-
-    @Override
-    public Object[] getTypeHolder() {
-        return ccTypeHolder;
     }
 
     protected void updateAdjacentCache() {

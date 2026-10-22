@@ -47,7 +47,6 @@ import logisticspipes.utils.tuples.Pair;
 public class ItemIdentifierInventory
 		implements ValueIOSerializable, IItemIdentifierInventory {
 
-	private final Object[] ccTypeHolder = new Object[1];
 	private final @Nullable ItemIdentifierStack[] contents;
 	private final String name;
 	private final int stackLimit;
@@ -542,11 +541,6 @@ public class ItemIdentifierInventory
 	@Override
 	public List<String> getClientInformation() {
 		return Arrays.stream(contents).filter(Objects::nonNull).map(String::valueOf).collect(Collectors.toList());
-	}
-
-	@Override
-	public Object[] getTypeHolder() {
-		return ccTypeHolder;
 	}
 
 	@Override

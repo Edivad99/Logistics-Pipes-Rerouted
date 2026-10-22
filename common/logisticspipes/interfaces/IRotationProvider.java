@@ -8,17 +8,12 @@ public interface IRotationProvider {
 	int getRotation();
 
 	default Direction getFacing() {
-		switch (getRotation()) {
-			case 0:
-				return Direction.WEST;
-			case 1:
-				return Direction.EAST;
-			case 2:
-				return Direction.NORTH;
-			case 3:
-			default:
-				return Direction.SOUTH;
-		}
+        return switch (getRotation()) {
+            case 0 -> Direction.WEST;
+            case 1 -> Direction.EAST;
+            case 2 -> Direction.NORTH;
+            default -> Direction.SOUTH;
+        };
 	}
 
 	@Deprecated

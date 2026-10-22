@@ -18,7 +18,6 @@ import logisticspipes.utils.string.ChatColor;
 
 public class FluidResource implements IResource {
 
-	private final Object[] ccTypeHolder = new Object[1];
 	private final FluidIdentifier liquid;
     @Getter
     @Nullable
@@ -115,11 +114,6 @@ public class FluidResource implements IResource {
 	@Override
 	public ItemIdentifierStack getDisplayItem() {
 		return liquid.getItemIdentifier().makeStack(amount);
-	}
-
-	@Override
-	public Object[] getTypeHolder() {
-		return ccTypeHolder;
 	}
 
 }

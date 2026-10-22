@@ -58,7 +58,6 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.WeakInternCache;
 import logisticspipes.world.item.LogisticsFluidContainer;
 
@@ -72,7 +71,7 @@ import logisticspipes.world.item.LogisticsFluidContainer;
  * "different" item, I made this cache here A ItemIdentifier is
  * immutable, singleton and most importantly UNIQUE!
  */
-public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTypeHolder {
+public final class ItemIdentifier implements Comparable<ItemIdentifier> {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemIdentifier> STREAM_CODEC =
         StreamCodec.composite(
@@ -106,7 +105,6 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
      * canonical (sanitized), see {@link #get(Item, DataComponentPatch)}.
      */
     public final DataComponentPatch components;
-    private final Object[] ccTypeHolder = new Object[1];
     /**
      * Allocation-order tiebreaker, so that {@link #compareTo} can be a total order consistent with
      * {@link #equals} even when two identities render the same {@link #sortKey()}. Replaces the old
@@ -190,21 +188,6 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         return ItemIdentifier.getOrCreatePatched(new ItemKey(itemStack.getItem(), patch));
     }
 
-    /**
-     * Returns every interned identity of {@code item} whose damage matches, i.e. all component
-     * variants of that item/damage pair. ComputerCraft API surface only.
-     */
-    public static List<ItemIdentifier> getMatchingNBTIdentifier(Item item, int itemData) {
-        //inefficient, we'll have to add another map if this becomes a bottleneck
-        ArrayList<ItemIdentifier> resultlist = new ArrayList<>(16);
-        ItemIdentifier.patchedIdentifiers.forEachValue(t -> {
-            if (t.item == item && t.getDamageValue() == itemData) {
-                resultlist.add(t);
-            }
-        });
-        return resultlist;
-    }
-
     @Nullable
     private static Map<Item, String> getCreativeTabNameMap() {
         Map<Item, String> map = ItemIdentifier.creativeTabNameByItem;
@@ -248,112 +231,6 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
             }
             ItemIdentifier.creativeTabNameByItem = map;
             return map;
-        }
-    }
-
-    private static Map<Integer, Object> getArrayAsMap(int[] array) {
-        HashMap<Integer, Object> map = new HashMap<>();
-        int i = 0;
-        for (int object : array) {
-            map.put(i, object);
-            i++;
-        }
-        return map;
-    }
-
-    private static Map<Integer, Object> getArrayAsMap(byte[] array) {
-        HashMap<Integer, Object> map = new HashMap<>();
-        int i = 1;
-        for (byte object : array) {
-            map.put(i, object);
-            i++;
-        }
-        return map;
-    }
-
-    @Nullable
-    public static Map<Object, Object> getNBTBaseAsMap(@Nullable Tag nbt)
-        throws SecurityException, IllegalArgumentException {
-        if (nbt == null) {
-            return null;
-        }
-
-        if (nbt instanceof ByteTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "ByteTag");
-            map.put("value", ((ByteTag) nbt).byteValue());
-            return map;
-        } else if (nbt instanceof ByteArrayTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "ByteArrayTag");
-            map.put("value", ItemIdentifier.getArrayAsMap(((ByteArrayTag) nbt).getAsByteArray()));
-            return map;
-        } else if (nbt instanceof DoubleTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "DoubleTag");
-            map.put("value", ((DoubleTag) nbt).doubleValue());
-            return map;
-        } else if (nbt instanceof FloatTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "FloatTag");
-            map.put("value", ((FloatTag) nbt).floatValue());
-            return map;
-        } else if (nbt instanceof IntTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "IntTag");
-            map.put("value", ((IntTag) nbt).intValue());
-            return map;
-        } else if (nbt instanceof IntArrayTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "IntArrayTag");
-            map.put("value", ItemIdentifier.getArrayAsMap(((IntArrayTag) nbt).getAsIntArray()));
-            return map;
-        } else if (nbt instanceof ListTag) {
-            HashMap<Integer, Object> content = new HashMap<>();
-            int i = 1;
-            for (Object object : ((ListTag) nbt)) {
-                if (object instanceof Tag) {
-                    content.put(i, ItemIdentifier.getNBTBaseAsMap((Tag) object));
-                }
-                i++;
-            }
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "ListTag");
-            map.put("value", content);
-            return map;
-        } else if (nbt instanceof CompoundTag) {
-            HashMap<Object, Object> content = new HashMap<>();
-            HashMap<Integer, Object> keys = new HashMap<>();
-            int i = 1;
-            for (String key : ((CompoundTag) nbt).keySet()) {
-                Tag value = ((CompoundTag) nbt).get(key);
-                content.put(key, ItemIdentifier.getNBTBaseAsMap(value));
-                keys.put(i, key);
-                i++;
-            }
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "CompoundTag");
-            map.put("value", content);
-            map.put("keys", keys);
-            return map;
-        } else if (nbt instanceof LongTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "LongTag");
-            map.put("value", ((LongTag) nbt).longValue());
-            return map;
-        } else if (nbt instanceof ShortTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "ShortTag");
-            map.put("value", ((ShortTag) nbt).shortValue());
-            return map;
-        } else if (nbt instanceof StringTag) {
-            HashMap<Object, Object> map = new HashMap<>();
-            map.put("type", "StringTag");
-            map.put("value", ((StringTag) nbt).value());
-            return map;
-        } else {
-            throw new UnsupportedOperationException(
-                "Unsupported net.minecraft.nbt.Tag of type:" + nbt.getClass().getName());
         }
     }
 
@@ -723,11 +600,6 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier>, ILPCCTy
         } else {
             sb.append(nbt.getClass().getName()).append("(?)");
         }
-    }
-
-    @Override
-    public Object[] getTypeHolder() {
-        return ccTypeHolder;
     }
 
     // A key to look up an ItemIdentifier by Item + component patch. DataComponentPatch is immutable

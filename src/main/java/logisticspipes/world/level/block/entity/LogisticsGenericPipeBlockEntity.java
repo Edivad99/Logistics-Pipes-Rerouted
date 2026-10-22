@@ -3,7 +3,6 @@ package logisticspipes.world.level.block.entity;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,11 +35,8 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.connection.ConnectionType;
-import logisticspipes.asm.ModDependentField;
-import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelProperties;
 import logisticspipes.client.model.tube.TubeKey;
@@ -89,13 +85,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     private final EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers = new EnumMap<>(Direction.class);
     public int statePacketId = 0;
     public Set<BlockPos> subMultiBlock = new HashSet<>();
-    public boolean[] turtleConnect = new boolean[7];
-    @ModDependentField(modId = LPConstants.computerCraftModID)
-    public @Nullable HashMap<Object, Direction> connections; // IComputerAccess — CC not ported
-    @ModDependentField(modId = LPConstants.computerCraftModID)
-    public @Nullable Object currentPC; // IComputerAccess — CC not ported
-    @ModDependentField(modId = LPConstants.openComputersModID)
-    public @Nullable Object node; // was: Node (OC removed from classpath)
     public LogicController logicController = new LogicController();
     public boolean[] pipeConnectionsBuffer = new boolean[6];
     @Nullable
@@ -337,10 +326,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
             pipe.triggerConnectionCheck();
         }
         blockNeighborChange = true;
-        // ComputerCraft turtles cannot exist on 1.20.1 — no neighbor is ever a turtle.
-        for (int i = 0; i < 6; i++) {
-            turtleConnect[i] = false;
-        }
     }
 
     /* IPipeInformationProvider */
@@ -355,10 +340,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
             pipe.serialize(output);
         } else if (coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
             output.putString(NBT_PIPE_ID, coreState.pipeIdName);
-        }
-
-        for (int i = 0; i < turtleConnect.length; i++) {
-            output.putBoolean("turtleConnect_" + i, turtleConnect[i]);
         }
 
         output.putChild("logicController", logicController);
@@ -397,10 +378,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
                 getBlockPos(), savedPipeId);
         }
 
-        for (int i = 0; i < turtleConnect.length; i++) {
-            turtleConnect[i] = input.getBooleanOr("turtleConnect_" + i, false);
-        }
-
         logicController.deserialize(input.childOrEmpty("logicController"));
     }
 
@@ -430,24 +407,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
         }
         return pipe.canPipeConnect(with, side);
-    }
-
-    // ComputerCraft is not available on 1.20.1 — these retain the former dummy-proxy semantics.
-    public void queueEvent(String event, Object[] arguments) {
-    }
-
-    public void handleMessage(int computerId, Object message, int sourceId) {
-    }
-
-    public boolean getTurtleConnect() {
-        return false;
-    }
-
-    public void setTurtleConnect(boolean flag) {
-    }
-
-    public int getLastCCID() {
-        return 0;
     }
 
     public ItemStack insertItem(Direction from, ItemStack stack) {
@@ -603,53 +562,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     public boolean isOpaque() {
         return pipe.isOpaque();
-    }
-
-    // OC methods — @Override removed, types replaced with Object (OC not on classpath)
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    @Nullable
-    public Object node() {
-        return node;
-    }
-
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    public void onConnect(Object node1) {
-    }
-
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    public void onDisconnect(Object node1) {
-    }
-
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    public void onMessage(Object message) {
-    }
-
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    public Object[] invoke(String s, Object context, Object arguments) {
-        // TODO: OC not available on classpath — BaseWrapperClass.WRAPPER and isDirectCall are OC-specific
-        return new Object[0];
-    }
-
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    public String[] methods() {
-        return new String[] { "getPipe" };
-    }
-
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    @Nullable
-    public Object sidedNode(Direction side) {
-        if (this.getBlockEntity(side) instanceof LogisticsGenericPipeBlockEntity ||
-            this.getBlockEntity(side) instanceof LogisticsSolidBlockEntity) {
-            return null;
-        } else {
-            return node();
-        }
-    }
-
-    @ModDependentMethod(modId = LPConstants.openComputersModID)
-    public boolean canConnect(Direction side) {
-        return !(this.getBlockEntity(side) instanceof LogisticsGenericPipeBlockEntity) &&
-            !(this.getBlockEntity(side) instanceof LogisticsSolidBlockEntity);
     }
 
     public void initialize(@Nullable CoreUnroutedPipe pipe) {

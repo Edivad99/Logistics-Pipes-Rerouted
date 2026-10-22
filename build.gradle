@@ -163,6 +163,13 @@ repositories {
         name 'TOP'
         url 'https://maven.k-4u.nl'
     }
+    maven {
+        name 'CC: Tweaked'
+        url 'https://maven.squiddev.cc'
+        content {
+            includeGroup 'cc.tweaked'
+        }
+    }
 }
 
 configurations {
@@ -196,11 +203,17 @@ dependencies {
     //    transitive = false
     //}
 
+    // The "forge" artifacts are CC: Tweaked's NeoForge build.
+    compileOnly "cc.tweaked:cc-tweaked-$minecraft_version-core-api:$cct_version"
+    compileOnly "cc.tweaked:cc-tweaked-$minecraft_version-common-api:$cct_version"
+    compileOnly "cc.tweaked:cc-tweaked-$minecraft_version-forge-api:$cct_version"
+    //localRuntime "cc.tweaked:cc-tweaked-$minecraft_version-forge:$cct_version"
+
     compileOnly "maven.modrinth:tesseract:$tesseract_version"
     compileOnly "maven.modrinth:supermartijn642s-core-lib:$sm_core_lib_version"
-    localRuntime "maven.modrinth:tesseract:$tesseract_version"
-    localRuntime "maven.modrinth:supermartijn642s-core-lib:$sm_core_lib_version"
-    localRuntime "maven.modrinth:supermartijn642s-config-lib:$sm_config_lib_version"
+    //localRuntime "maven.modrinth:tesseract:$tesseract_version"
+    //localRuntime "maven.modrinth:supermartijn642s-core-lib:$sm_core_lib_version"
+    //localRuntime "maven.modrinth:supermartijn642s-config-lib:$sm_config_lib_version"
 
     //localRuntime "curse.maven:mekanism-268560:7904058"
     localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758761"

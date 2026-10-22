@@ -2,7 +2,6 @@ package logisticspipes.pipes.basic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -53,14 +52,12 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
-import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.Translations;
 import logisticspipes.api.connection.Adjacent;
 import logisticspipes.api.property.PropertyHolder;
 import logisticspipes.api.property.PropertyUtil;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
-import logisticspipes.asm.ModDependentMethod;
 import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
 import logisticspipes.connection.AdjacentFactory;
 import logisticspipes.connection.NoAdjacent;
@@ -69,7 +66,6 @@ import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.IPipeUpgradeManager;
-import logisticspipes.interfaces.IQueueCCEvent;
 import logisticspipes.interfaces.ISecurityProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.IWatchingHandler;
@@ -99,11 +95,6 @@ import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.PipeSignType;
 import logisticspipes.pipes.upgrades.UpgradeManager;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.computers.CCConstants;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCDirectCall;
-import logisticspipes.proxy.computers.interfaces.CCSecurtiyCheck;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
@@ -111,7 +102,6 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.routing.order.LogisticsOrderManager;
-import logisticspipes.security.PermissionException;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -132,9 +122,8 @@ import logisticspipes.world.item.ItemPipeController;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
-@CCType(name = "LogisticsPipes:Normal")
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe
-    implements IRequestItems, ITrackStatistics, ILevelProvider, IWatchingHandler, IPipeServiceProvider, IQueueCCEvent,
+    implements IRequestItems, ITrackStatistics, ILevelProvider, IWatchingHandler, IPipeServiceProvider,
     ILPPositionProvider {
 
     private static int PIPE_COUNT = 0;
@@ -799,7 +788,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         return router;
     }
 
-    @CCCommand(description = "Returns the Internal LogisticsModule for this pipe")
     public abstract @Nullable LogisticsModule getLogisticsModule();
 
     @Override
@@ -1143,13 +1131,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         return false;
     }
 
-    @Override
-    public void queueEvent(String event, Object[] arguments) {
-        if (getContainer() != null) {
-            getContainer().queueEvent(event, arguments);
-        }
-    }
-
     public boolean stillNeedReplace() {
         return stillNeedReplace;
     }
@@ -1204,20 +1185,6 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Override
     public boolean preventRemove() {
         return preventRemove;
-    }
-
-    @CCSecurtiyCheck
-    public void checkCCAccess() throws PermissionException {
-        ISecurityProvider sec = getSecurityProvider();
-        if (sec != null) {
-            int id = -1;
-            if (getContainer() != null) {
-                id = getContainer().getLastCCID();
-            }
-            if (!sec.getAllowCC(id)) {
-                throw new PermissionException();
-            }
-        }
     }
 
     public void queueUnroutedItemInformation(ItemIdentifierStack item, ItemRoutingInformation information) {
@@ -1298,128 +1265,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         crashReportCategory.setDetail("Router", getRouter().toString());
     }
 
-    /* --- CCCommands --- */
-    @CCCommand(description = "Returns the Router UUID as an integer; all pipes have a unique ID (runtime stable)")
     public int getRouterId() {
         return getRouter().getSimpleID();
-    }
-
-    @CCCommand(description = "Returns the Router UUID; all pipes have a unique ID (lifetime stable)")
-    public String getRouterUUID() {
-        return getRouter().getId().toString();
-    }
-
-    @CCCommand(description = "Returns the Router UUID for the givvin router Id")
-    public @Nullable String getRouterUUID(Double id) {
-        IRouter router = SimpleServiceLocator.routerManager.getRouter(id.intValue());
-        if (router == null) {
-            return null;
-        }
-        return router.getId().toString();
-    }
-
-    @CCCommand(description = "Returns the TurtleConnect targeted for this Turtle on this LogisticsPipe")
-    @CCDirectCall
-    public boolean getTurtleConnect() {
-        if (getContainer() != null) {
-            return getContainer().getTurtleConnect();
-        }
-        return false;
-    }
-
-    @CCCommand(description = "Sets the TurtleConnect targeted for this Turtle on this LogisticsPipe")
-    @CCDirectCall
-    public void setTurtleConnect(Boolean flag) {
-        if (getContainer() != null) {
-            getContainer().setTurtleConnect(flag);
-        }
-    }
-
-    @CCCommand(description = "Returns true if the computer is allowed to interact with the connected pipe.", needPermission = false)
-    public boolean canAccess() {
-        ISecurityProvider sec = getSecurityProvider();
-        if (sec != null) {
-            int id = -1;
-            if (getContainer() != null) {
-                id = getContainer().getLastCCID();
-            }
-            return sec.getAllowCC(id);
-        }
-        return true;
-    }
-
-    @CCCommand(description = "Sends a message to the given computerId over the LP network. Event: "
-        + CCConstants.LP_CC_MESSAGE_EVENT)
-    @CCDirectCall
-    public void sendMessage(final Double computerId, final Object message) {
-        int sourceId = -1;
-        if (getContainer() != null) {
-            sourceId = getContainer().getLastCCID(); // always 0 — ComputerCraft not available on 1.20.1
-        }
-        final int fSourceId = sourceId;
-        BitSet set = new BitSet(ServerRouter.getBiggestSimpleID());
-        getRouter().getIRoutersByCost().stream()
-            .filter(exit -> !set.get(exit.destination.getSimpleID()))
-            .forEach(exit -> {
-                exit.destination.queueTask(10,
-                    (pipe, router1) -> pipe.handleMessage(computerId.intValue(), message, fSourceId));
-                set.set(exit.destination.getSimpleID());
-            });
-    }
-
-    @CCCommand(description = "Sends a broadcast message to all Computer connected to this LP network. Event: "
-        + CCConstants.LP_CC_BROADCAST_EVENT)
-    @CCDirectCall
-    public void sendBroadcast(final String message) {
-        int sourceId = -1;
-        if (getContainer() != null) {
-            sourceId = getContainer().getLastCCID(); // always 0 — ComputerCraft not available on 1.20.1
-        }
-        final int fSourceId = sourceId;
-        BitSet set = new BitSet(ServerRouter.getBiggestSimpleID());
-        getRouter().getIRoutersByCost().stream()
-            .filter(exit -> !set.get(exit.destination.getSimpleID()))
-            .forEach(exit -> {
-                exit.destination.queueTask(10, (pipe, router1) -> pipe.handleBroadcast(message, fSourceId));
-                set.set(exit.destination.getSimpleID());
-            });
-    }
-
-    @CCCommand(description = "Returns the access to the pipe of the given router UUID")
-    @ModDependentMethod(modId = LPConstants.computerCraftModID)
-    @CCDirectCall
-    public @Nullable Object getPipeForUUID(String sUuid) throws PermissionException {
-        if (!getUpgradeManager().hasCCRemoteControlUpgrade()) {
-            throw new PermissionException();
-        }
-        UUID uuid = UUID.fromString(sUuid);
-        int id = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
-        IRouter router = SimpleServiceLocator.routerManager.getRouter(id);
-        if (router == null) {
-            return null;
-        }
-        return router.getPipe();
-    }
-
-    @CCCommand(description = "Returns the global LP object which is used to access general LP methods.", needPermission = false)
-    @CCDirectCall
-    public @Nullable Object getLP() throws PermissionException {
-        return null;//LogisticsPipes.getComputerLP();
-    }
-
-    @CCCommand(description = "Returns true if the pipe has an internal module")
-    public boolean hasLogisticsModule() {
-        return getLogisticsModule() != null;
-    }
-
-    private void handleMessage(int computerId, Object message, int sourceId) {
-        if (getContainer() != null) {
-            getContainer().handleMessage(computerId, message, sourceId);
-        }
-    }
-
-    private void handleBroadcast(String message, int sourceId) {
-        queueEvent(CCConstants.LP_CC_BROADCAST_EVENT, new Object[] { sourceId, message });
     }
 
     public void onWrenchClicked(Player entityplayer) {

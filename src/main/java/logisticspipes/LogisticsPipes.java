@@ -21,7 +21,6 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
@@ -48,6 +47,7 @@ import logisticspipes.data.LPSpriteSourceProvider;
 import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.entity.FakePlayers;
+import logisticspipes.integrations.computercraft.ComputerCraftIntegration;
 import logisticspipes.integrations.tesseract.TesseractConnection;
 import logisticspipes.integrations.top.LPTopPlugin;
 import logisticspipes.inventory.InventoryUtilFactory;
@@ -126,6 +126,9 @@ public class LogisticsPipes {
         LPRecipeSerializers.register(modEventBus);
         LPDataComponents.register(modEventBus);
         LPAttachmentTypes.register(modEventBus);
+        if (ModList.get().isLoaded(LPConstants.COMPUTERCRAFT_MOD_ID)) {
+            ComputerCraftIntegration.register(modEventBus);
+        }
     }
 
     // Mod Events
@@ -142,6 +145,10 @@ public class LogisticsPipes {
             LPBlockEntityTypes.POWER_JUNCTION.get(), LogisticsPowerJunctionBlockEntity::getEnergyStorageCap);
         event.registerBlockEntity(Capabilities.Energy.BLOCK,
             LPBlockEntityTypes.POWER_PROVIDER_FE.get(), LogisticsPowerProviderBlockEntity::getEnergyStorageCap);
+
+        if (ModList.get().isLoaded(LPConstants.COMPUTERCRAFT_MOD_ID)) {
+            ComputerCraftIntegration.registerCapabilities(event);
+        }
     }
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {
@@ -150,6 +157,9 @@ public class LogisticsPipes {
 
         if (ModList.get().isLoaded(LPConstants.TOP_MOD_ID)) {
             InterModComms.sendTo(LPConstants.TOP_MOD_ID, "getTheOneProbe", LPTopPlugin::new);
+        }
+        if (ModList.get().isLoaded(LPConstants.COMPUTERCRAFT_MOD_ID)) {
+            ComputerCraftIntegration.registerGenericMethods();
         }
 
         RegisterProgrammerRecipes.loadRecipes();
@@ -224,11 +234,7 @@ public class LogisticsPipes {
 
     private void handleLoadComplete(FMLLoadCompleteEvent event) {
         SpecialInventoryHandlerManager.load();
-
-        // Dead-mod integrations removed (BuildCraft, Thermal Dynamics/Expansion, IC2, EnderCore,
-        // MCMultiPart) — none of these mods exist on 1.20.1.
         SimpleServiceLocator.addCraftingRecipeProvider(new LogisticsCraftingTableRecipeProvider());
-
         FluidIdentifier.initFromNeoForge(false);
     }
 
@@ -241,10 +247,6 @@ public class LogisticsPipes {
     }
 
     // NeoForge Events
-    @SubscribeEvent
-    public void beforeStart(ServerAboutToStartEvent event) {
-    }
-
     @SubscribeEvent
     public void serverStarted(ServerStartedEvent event) {
         if (minecraftTestStartMethod != null) {

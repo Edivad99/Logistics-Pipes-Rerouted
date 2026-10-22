@@ -196,12 +196,10 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		if (id == null) {
 			return null;
 		}
-		for (LogisticsSecurityBlockEntity tile : security.keySet()) {
-			if (id.equals(tile.getSecId())) {
-				return tile;
-			}
-		}
-		return null;
+		return security.keySet().stream()
+			.filter(blockEntity -> id.equals(blockEntity.getSecId()))
+			.findFirst()
+			.orElse(null);
 	}
 
 	@Override
@@ -246,7 +244,7 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 
 	@Override
 	public boolean isAuthorized(String id) {
-		if (authorized.isEmpty() || id == null) {
+		if (authorized.isEmpty()) {
 			return false;
 		}
 		return authorized.contains(id);

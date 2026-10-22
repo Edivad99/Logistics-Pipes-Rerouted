@@ -13,7 +13,6 @@ import logisticspipes.utils.string.ChatColor;
 
 public class ItemResource implements IResource {
 
-	private final Object[] ccTypeHolder = new Object[1];
 	private final ItemIdentifierStack stack;
 	/** Null on the client, which only ever displays a resource. */
 	private final @Nullable IRequestItems requester;
@@ -123,11 +122,6 @@ public class ItemResource implements IResource {
 	@Override
 	public ItemIdentifierStack getDisplayItem() {
 		return stack;
-	}
-
-	@Override
-	public Object[] getTypeHolder() {
-		return ccTypeHolder;
 	}
 
 	@Override

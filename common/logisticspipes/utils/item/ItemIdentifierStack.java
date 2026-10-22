@@ -33,10 +33,9 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.tuples.Triplet;
 
-public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack>, ILPCCTypeHolder {
+public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack> {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, ItemIdentifierStack> STREAM_CODEC =
         StreamCodec.composite(
@@ -59,7 +58,6 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
                 optionals -> optionals.stream().map(item -> item.orElse(null)).toList(),
                 items -> items.stream().map(Optional::ofNullable).toList());
 
-    private final Object[] ccTypeHolder = new Object[1];
     @Getter
     private final ItemIdentifier item;
     @Setter
@@ -204,11 +202,6 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
             return getStackSize() - o.getStackSize();
         }
         return c;
-    }
-
-    @Override
-    public Object[] getTypeHolder() {
-        return ccTypeHolder;
     }
 
 }

@@ -1,6 +1,5 @@
 package logisticspipes.modules;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -29,20 +28,13 @@ import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.ModuleWatchMessage;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
-import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
 
-@CCType(name = "LogisticsModule")
-public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeHolder, PropertyHolder {
+public abstract class LogisticsModule implements ValueIOSerializable, PropertyHolder {
 
-    private final Object[] ccTypeHolder = new Object[1];
     protected @Nullable ILevelProvider worldProvider;
     protected @Nullable IPipeServiceProvider service;
     @Getter
@@ -181,11 +173,6 @@ public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeH
         return false;
     }
 
-    public List<CCSinkResponder> queueCCSinkEvent(ItemIdentifierStack item) {
-        return new ArrayList<>(0);
-    }
-
-    @CCCommand(description = "Returns true if the Pipe has a gui")
     public boolean hasGui() {
         return this instanceof IModuleMenuProvider;
     }
@@ -210,11 +197,6 @@ public abstract class LogisticsModule implements ValueIOSerializable, ILPCCTypeH
             in = Objects.toString(worldProvider.getLevel());
         }
         return String.format("%s at %s in %s", getClass().getName(), at, in);
-    }
-
-    @Override
-    public Object[] getTypeHolder() {
-        return ccTypeHolder;
     }
 
     public void finishInit() {

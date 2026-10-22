@@ -1,6 +1,5 @@
 package logisticspipes.modules;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,10 +23,8 @@ import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.property.SlottedModule;
 import logisticspipes.property.SlottedModuleListProperty;
 import logisticspipes.property.UpgradeManagerListProperty;
-import logisticspipes.proxy.computers.objects.CCSinkResponder;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.ChassisMenu;
 
 public class ChassisModule extends LogisticsModule implements IModuleMenuProvider {
@@ -180,18 +177,6 @@ public class ChassisModule extends LogisticsModule implements IModuleMenuProvide
             }
         }
         return false;
-    }
-
-    @Override
-    public List<CCSinkResponder> queueCCSinkEvent(ItemIdentifierStack item) {
-        List<CCSinkResponder> list = new ArrayList<>();
-        for (SlottedModule slottedModule : modules) {
-            final LogisticsModule module = slottedModule.module();
-            if (module != null) {
-                list.addAll(module.queueCCSinkEvent(item));
-            }
-        }
-        return list;
     }
 
     @Override

@@ -80,8 +80,6 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.property.AdjacentProperty;
 import logisticspipes.property.SlottedModule;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.IPromise;
 import logisticspipes.request.RequestTree;
@@ -106,7 +104,6 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
 
-@CCType(name = "LogisticsChassiePipe")
 public class PipeLogisticsChassis extends CoreRoutedPipe
     implements ICraftItems, IBufferItems, ISimpleInventoryEventHandler, ISendRoutedItem, IProvideItems,
     IHeadUpDisplayRendererProvider, ISendQueueContentReceiver, IChassisPipe, PropertyHolder {
@@ -676,16 +673,6 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
             }
         }
         return false;
-    }
-
-    @CCCommand(description = "Returns the LogisticsModule for the given slot number starting by 1")
-    public @Nullable LogisticsModule getModuleInSlot(Double i) {
-        return getSubModule((int) (i - 1));
-    }
-
-    @CCCommand(description = "Returns the size of this Chassis pipe")
-    public Integer getChassieSize() {
-        return getChassisSize();
     }
 
     @Override

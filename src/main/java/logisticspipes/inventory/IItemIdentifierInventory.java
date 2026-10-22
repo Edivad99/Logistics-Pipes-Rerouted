@@ -8,13 +8,12 @@ import net.minecraft.world.Container;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IClientInformationProvider;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 
-public interface IItemIdentifierInventory extends Container, ILPCCTypeHolder, IClientInformationProvider {
+public interface IItemIdentifierInventory extends Container, IClientInformationProvider {
 
     Map<ItemIdentifier, Integer> getItemsAndCount();
 

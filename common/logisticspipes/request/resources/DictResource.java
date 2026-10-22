@@ -19,7 +19,6 @@ import logisticspipes.utils.string.ChatColor;
 
 public class DictResource implements IResource {
 
-	private final Object[] ccTypeHolder = new Object[1];
 	/** Null on the client, which only ever displays a resource. */
 	private final @Nullable IRequestItems requester;
 	public ItemIdentifierStack stack;
@@ -192,11 +191,6 @@ public class DictResource implements IResource {
 
 	public Identifier getIdentifier() {
 		return new Identifier();
-	}
-
-	@Override
-	public Object[] getTypeHolder() {
-		return ccTypeHolder;
 	}
 
 	public boolean useOreDict() {

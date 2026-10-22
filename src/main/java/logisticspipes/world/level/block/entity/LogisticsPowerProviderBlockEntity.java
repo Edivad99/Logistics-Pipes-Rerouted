@@ -45,8 +45,6 @@ import logisticspipes.network.to_client.block.PowerProviderLevelMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
@@ -63,7 +61,6 @@ import logisticspipes.world.inventory.PowerProviderMenu;
  * filled, scaled down when the provider cannot cover them all, and the energy is sent along the
  * route with a laser to show it.</p>
  */
-@CCType(name = "LogisticsPowerProvider")
 public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
     implements IBlockEntityMenuProvider, ISubSystemPowerProvider, IPowerLevelDisplay, IScreenOpenController,
     IHeadUpDisplayBlockRendererProvider, IBlockWatchingHandler {
@@ -243,13 +240,11 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
         }
     }
 
-    @CCCommand(description = "Returns the color for the power provided by this power provider")
-    protected int getLaserColor() {
+    public int getLaserColor() {
         return FE_COLOR;
     }
 
     @Override
-    @CCCommand(description = "Returns the max. amount of storable power")
     public int getMaxStorage() {
         return MAX_STORAGE;
     }
@@ -289,7 +284,6 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    @CCCommand(description = "Returns the current power level for this power provider")
     public int getPowerLevel() {
         return storage.getAmountAsInt();
     }

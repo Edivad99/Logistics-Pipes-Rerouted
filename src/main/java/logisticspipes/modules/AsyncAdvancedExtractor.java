@@ -35,7 +35,6 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.AdvancedExtractorIncludeMessage;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.ItemUtil;
 import logisticspipes.utils.item.ItemIdentifierInventory;
@@ -170,7 +169,6 @@ public class AsyncAdvancedExtractor extends AsyncModule<ExtractorJob, @Nullable 
         extractor.runSyncWork();
     }
 
-    @CCCommand(description = "Returns the FilterInventory of this Module")
     @Override
     public IItemIdentifierInventory getFilterInventory() {
         return filterInventory;

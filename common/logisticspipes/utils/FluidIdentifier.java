@@ -32,7 +32,6 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
@@ -41,7 +40,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
  * identity. Since 1.21 that identity is {@link Fluid} plus a {@link DataComponentPatch}, mirroring
  * how {@link FluidStack} itself is built.
  */
-public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHolder {
+public class FluidIdentifier implements Comparable<FluidIdentifier> {
 
 	// Cache key. DataComponentPatch is immutable with value-based equals/hashCode, so a record
 	// covers all the bookkeeping this needs.
@@ -57,7 +56,6 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 	private final static WeakInternCache<FluidKey, FluidIdentifier> patchedIdentifiers =
 			WeakInternCache.create("[%s] FluidIdentifier Cleanup Thread".formatted(LPConstants.NAME));
 
-	private final Object[] ccTypeHolder = new Object[1];
 
 	public final Fluid fluid;
 	/**
@@ -350,8 +348,4 @@ public class FluidIdentifier implements Comparable<FluidIdentifier>, ILPCCTypeHo
 		return getFluidID() + (components.isEmpty() ? "" : ":" + sortKey());
 	}
 
-	@Override
-	public Object[] getTypeHolder() {
-		return ccTypeHolder;
-	}
 }

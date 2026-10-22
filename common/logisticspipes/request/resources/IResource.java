@@ -5,7 +5,6 @@ import net.minecraft.network.codec.StreamCodec;
 
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 
-import logisticspipes.proxy.computers.interfaces.ILPCCTypeHolder;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -13,7 +12,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 /**
  * With Destination and amount
  */
-public interface IResource extends ILPCCTypeHolder {
+public interface IResource {
 
 	/**
 	 * Tag and body: the tag says which of the three implementations follows.

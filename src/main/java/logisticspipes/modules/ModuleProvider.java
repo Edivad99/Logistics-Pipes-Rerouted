@@ -57,8 +57,6 @@ import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
 import logisticspipes.request.resources.DictResource;
@@ -77,7 +75,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.ProviderMenu;
 
-@CCType(name = "Provider Module")
 public class ModuleProvider extends LogisticsModule implements SneakyDirection, ILegacyActiveModule,
     IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleInventoryReceive,
     IModuleMenuProvider {
@@ -373,7 +370,6 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 
     /*** GUI STUFF ***/
 
-    @CCCommand(description = "Returns the FilterInventory of this Module")
     public IItemIdentifierInventory getFilterInventory() {
         return filterInventory;
     }

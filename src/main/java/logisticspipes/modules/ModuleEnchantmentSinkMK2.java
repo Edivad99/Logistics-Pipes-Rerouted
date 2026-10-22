@@ -32,8 +32,6 @@ import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.proxy.computers.interfaces.CCCommand;
-import logisticspipes.proxy.computers.interfaces.CCType;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
@@ -44,7 +42,6 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.LPMenuTypes;
 import logisticspipes.world.inventory.SimpleFilterMenu;
 
-@CCType(name = "EnchantmentSink Module MK2")
 public class ModuleEnchantmentSinkMK2 extends LogisticsModule
     implements SimpleFilter, IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver,
     ISimpleInventoryEventHandler, IModuleInventoryReceive, IModuleMenuProvider {
@@ -78,7 +75,6 @@ public class ModuleEnchantmentSinkMK2 extends LogisticsModule
     }
 
     @Override
-    @CCCommand(description = "Returns the FilterInventory of this Module")
     public IItemIdentifierInventory getFilterInventory() {
         return filterInventory;
     }

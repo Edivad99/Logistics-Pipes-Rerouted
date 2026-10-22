@@ -304,11 +304,6 @@ public class ItemIdentifierInventoryProperty
     }
 
     @Override
-    public Object[] getTypeHolder() {
-        return inv.getTypeHolder();
-    }
-
-    @Override
     public List<String> getClientInformation() {
         return inv.getClientInformation();
     }
