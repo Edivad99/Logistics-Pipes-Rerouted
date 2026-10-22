@@ -1,4 +1,4 @@
-package logisticspipes.integrations.progressprovider;
+package logisticspipes.crafting;
 
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;

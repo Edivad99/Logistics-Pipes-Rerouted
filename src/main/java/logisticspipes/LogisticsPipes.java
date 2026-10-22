@@ -39,13 +39,15 @@ import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.connection.special.RegisterSpecialConnectionsEvent;
 import logisticspipes.connection.special.SpecialBlockEntityConnection;
 import logisticspipes.connection.special.SpecialPipeConnection;
+import logisticspipes.crafting.FurnaceProgressProvider;
+import logisticspipes.crafting.LogisticsCraftingTableRecipeProvider;
+import logisticspipes.crafting.MachineProgressProvider;
 import logisticspipes.data.LPLanguageProvider;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.LPSpriteSourceProvider;
 import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.entity.FakePlayers;
-import logisticspipes.integrations.progressprovider.FurnaceProgressProvider;
 import logisticspipes.integrations.tesseract.TesseractConnection;
 import logisticspipes.integrations.top.LPTopPlugin;
 import logisticspipes.inventory.InventoryUtilFactory;
@@ -60,8 +62,6 @@ import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.property.PropertyUpdaterEventListener;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.progressprovider.MachineProgressProvider;
-import logisticspipes.proxy.recipeproviders.LogisticsCraftingTable;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.channels.ChannelManagerProvider;
@@ -227,7 +227,7 @@ public class LogisticsPipes {
 
         // Dead-mod integrations removed (BuildCraft, Thermal Dynamics/Expansion, IC2, EnderCore,
         // MCMultiPart) — none of these mods exist on 1.20.1.
-        SimpleServiceLocator.addCraftingRecipeProvider(new LogisticsCraftingTable());
+        SimpleServiceLocator.addCraftingRecipeProvider(new LogisticsCraftingTableRecipeProvider());
 
         FluidIdentifier.initFromNeoForge(false);
     }

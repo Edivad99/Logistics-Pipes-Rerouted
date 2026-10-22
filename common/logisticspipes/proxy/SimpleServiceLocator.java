@@ -11,6 +11,8 @@ import java.util.LinkedList;
 
 import logisticspipes.connection.special.SpecialBlockEntityConnection;
 import logisticspipes.connection.special.SpecialPipeConnection;
+import logisticspipes.crafting.ICraftingRecipeProvider;
+import logisticspipes.crafting.MachineProgressProvider;
 import logisticspipes.interfaces.ISecurityStationManager;
 import logisticspipes.interfaces.routing.IChannelConnectionManager;
 import logisticspipes.interfaces.routing.IChannelManagerProvider;
@@ -18,8 +20,6 @@ import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.inventory.tank.SpecialTankHandler;
 import logisticspipes.logistics.ILogisticsFluidManager;
 import logisticspipes.logistics.ILogisticsManager;
-import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
-import logisticspipes.proxy.progressprovider.MachineProgressProvider;
 import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.pathfinder.PipeInformationManager;

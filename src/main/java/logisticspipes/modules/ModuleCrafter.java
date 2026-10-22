@@ -60,8 +60,8 @@ import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.logistics.LogisticsManager;
-import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.crafting.CraftingDummyInventoryMessage;
@@ -74,11 +74,10 @@ import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
-import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.interfaces.IFuzzyRecipeProvider;
 import logisticspipes.request.DictCraftingTemplate;
 import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.IPromise;
@@ -103,9 +102,9 @@ import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.DelayedGeneric;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.PlayerCollectionList;
+import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.BufferMode;
 import logisticspipes.utils.SinkReply.FixedPriority;
-import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -741,12 +740,8 @@ public class ModuleCrafter extends LogisticsModule
                     neighbor -> SimpleServiceLocator.craftingRecipeProviders.stream()
                         .filter(provider -> provider.importRecipe(neighbor.getBlockEntity(), dummyInventory))
                         .map(provider1 -> new Pair<>(neighbor, provider1))).findFirst()
-                .ifPresent(neighborProviderPair -> {
-                    if (neighborProviderPair.getValue2() instanceof IFuzzyRecipeProvider fuzzyRecipeProvider) {
-                        fuzzyRecipeProvider.importFuzzyFlags(neighborProviderPair.getValue1().getBlockEntity(),
-                            dummyInventory.getSlotAccess(), fuzzyFlags);
-                    }
-                });
+                .ifPresent(neighborProviderPair -> neighborProviderPair.getValue2().importFuzzyFlags(
+                    neighborProviderPair.getValue1().getBlockEntity(), dummyInventory.getSlotAccess(), fuzzyFlags));
 
             // Send inventory as message
             final List<ItemStack> slots = new ArrayList<>(dummyInventory.getContainerSize());
@@ -816,7 +811,7 @@ public class ModuleCrafter extends LogisticsModule
 
         final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
             .filter(neighbor -> neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
-                .anyMatch(provider -> provider.canOpenGui(neighbor.getBlockEntity())))
+                .anyMatch(provider -> provider.canOpenScreen(neighbor.getBlockEntity())))
             .anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getBlockEntity().getBlockPos()));
         if (!guiOpened) {
             LogisticsPipes.LOG.warn("Ignored open attached GUI request at {} @ {}", player.level(), getBlockPos());
@@ -835,11 +830,11 @@ public class ModuleCrafter extends LogisticsModule
                 cacheAreAllOrdersToBuffer();
             }
             if (service.getItemOrderManager().isFirstOrderWatched()) {
-                BlockEntity tile = lastAccessedCrafter.get();
-                if (tile != null) {
+                BlockEntity blockEntity = lastAccessedCrafter.get();
+                if (blockEntity != null) {
                     service.getItemOrderManager()
                         .setMachineProgress(
-                            SimpleServiceLocator.machineProgressProvider.getProgressForBlockEntity(tile));
+                            SimpleServiceLocator.machineProgressProvider.getProgressForBlockEntity(blockEntity));
                 } else {
                     service.getItemOrderManager().setMachineProgress((byte) 0);
                 }

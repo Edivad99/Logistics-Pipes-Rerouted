@@ -1,4 +1,4 @@
 @NullMarked
-package logisticspipes.proxy.recipeproviders;
+package logisticspipes.crafting;
 
 import org.jspecify.annotations.NullMarked;
