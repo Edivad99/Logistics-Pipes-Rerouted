@@ -441,30 +441,17 @@ public class PipeTransportLogistics {
 	}
 
 	public void readjustSpeed(LPTravelingItemServer item) {
-		float defaultBoost;
+		float defaultBoost = switch (item.getTransportMode()) {
+            case Default -> 20F;
+            case Passive -> 25F;
+            case Active -> 30F;
+            case Unknown -> 20F;
+        };
 
-		switch (item.getTransportMode()) {
-			case Default:
-				defaultBoost = 20F;
-				break;
-			case Passive:
-				defaultBoost = 25F;
-				break;
-			case Active:
-				defaultBoost = 30F;
-				break;
-			case Unknown:
-				defaultBoost = 20F;
-				break;
-			default:
-				defaultBoost = 20F;
-				break;
-
-		}
-
-		if (isRouted) {
-			float multiplyerSpeed = 1.0F + (0.02F * getRoutedPipe().getUpgradeManager().getSpeedUpgradeCount());
-			float multiplyerPower = 1.0F + (0.03F * getRoutedPipe().getUpgradeManager().getSpeedUpgradeCount());
+        if (isRouted) {
+            int speedUpgradeCount = getRoutedPipe().getUpgradeManager().getSpeedUpgradeCount();
+			float multiplyerSpeed = 1.0F + (0.02F * speedUpgradeCount);
+			float multiplyerPower = 1.0F + (0.03F * speedUpgradeCount);
 
 			float add = Math.max(item.getSpeed(), LPConstants.PIPE_NORMAL_SPEED * defaultBoost * multiplyerPower) - item.getSpeed();
 			if (getRoutedPipe().useEnergy((int) (add * 50 + 0.5))) {
@@ -525,14 +512,15 @@ public class PipeTransportLogistics {
 					if (arrivingItem.getInfo().targetInfo instanceof ChassiTargetInformation) {
 						positionInt = ((ChassiTargetInformation) arrivingItem.getInfo().targetInfo).getModuleSlot();
 						slot = ModulePositionType.SLOT;
-					} else if (LogisticsPipes.isDEBUG() && container.pipe instanceof PipeLogisticsChassis) {
-						LogisticsPipes.LOG.warn("[ItemInsertion] info not for chassis pipe: {}", arrivingItem, new RuntimeException("stack trace"));
+					} else if (container.pipe instanceof PipeLogisticsChassis) {
+						// An item bounced back into the chassis's own inventory, or one whose route was
+						// lost, no longer belongs to a module; it goes in under the pipe's upgrades.
+						LogisticsPipes.LOG.debug("[ItemInsertion] info not for chassis pipe: {}", arrivingItem);
 					}
 					slotManager = getRoutedPipe().getUpgradeManager(slot, positionInt);
 				}
-				if (arrivingItem.getAdditionalTargetInformation() instanceof ITargetSlotInformation) {
+				if (arrivingItem.getAdditionalTargetInformation() instanceof ITargetSlotInformation information) {
 
-					ITargetSlotInformation information = (ITargetSlotInformation) arrivingItem.getAdditionalTargetInformation();
 					if (util instanceof ISpecialInsertion) {
 						int slot = information.getTargetSlot();
 						int amount = information.getAmount();
@@ -641,8 +629,8 @@ public class PipeTransportLogistics {
 	}
 
 	public final boolean canPipeConnect_internal(BlockEntity tile, Direction side) {
-		if (tile instanceof LogisticsGenericPipeBlockEntity) {
-			if (((LogisticsGenericPipeBlockEntity) tile).pipe != null && ((LogisticsGenericPipeBlockEntity) tile).pipe.isHSTube() && !((LogisticsGenericPipeBlockEntity) tile).pipe.actAsNormalPipe()) {
+		if (tile instanceof LogisticsGenericPipeBlockEntity genericPipeBlockEntity) {
+			if (genericPipeBlockEntity.pipe != null && genericPipeBlockEntity.pipe.isHSTube() && !genericPipeBlockEntity.pipe.actAsNormalPipe()) {
 				return false;
 			}
 		}
@@ -831,9 +819,8 @@ public class PipeTransportLogistics {
 
     @Nullable
 	public CoreUnroutedPipe getNextPipe(Direction output) {
-		BlockEntity tile = container.getBlockEntity(output);
-		if (tile instanceof LogisticsGenericPipeBlockEntity) {
-			return ((LogisticsGenericPipeBlockEntity) tile).pipe;
+		if (container.getBlockEntity(output) instanceof LogisticsGenericPipeBlockEntity genericPipeBlockEntity) {
+			return genericPipeBlockEntity.pipe;
 		}
 		return null;
 	}
