@@ -12,6 +12,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+import net.neoforged.fml.ModList;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Quaternionf;
 
@@ -25,8 +27,8 @@ import logisticspipes.utils.item.ItemIdentifierStack;
  * Draws what each kind of pipe sign shows onto the board {@link LogisticsRenderPipe} has already
  * put in place.
  *
- * <p>The text sits on four lines: the item's numeric id, two lines the sign fills as it likes, and
- * the item's name.</p>
+ * <p>The text sits on four lines: the mod the item comes from, two lines the sign fills as it likes,
+ * and the item's name.</p>
  */
 final class PipeSignRenderer {
 
@@ -43,6 +45,11 @@ final class PipeSignRenderer {
      * Widest a line may be, in font units, before it is cut short.
      */
     private static final int MAX_TEXT_WIDTH = 90;
+    /**
+     * Smallest the mod name shrinks to before it is cut short instead: any smaller and it stops
+     * being readable on a sign.
+     */
+    private static final float MIN_MOD_NAME_SCALE = 0.6F;
 
     private PipeSignRenderer() {
     }
@@ -66,7 +73,7 @@ final class PipeSignRenderer {
         submitItem(stack, poseStack, collector, packedLight);
 
         beginText(poseStack);
-        submitIdLine(stack, font, poseStack, collector, packedLight);
+        submitModLine(stack, font, poseStack, collector, packedLight);
         String satellite = sign.getPipe().getLogisticsModule().clientSideSatelliteNames.satelliteName();
         if (!satellite.isEmpty()) {
             submitLine("Sat: " + satellite, 1, font, poseStack, collector, packedLight);
@@ -86,7 +93,7 @@ final class PipeSignRenderer {
         submitItem(stack, poseStack, collector, packedLight);
 
         beginText(poseStack);
-        submitIdLine(stack, font, poseStack, collector, packedLight);
+        submitModLine(stack, font, poseStack, collector, packedLight);
         submitLine("Amount:", 1, font, poseStack, collector, packedLight);
         submitLine(TextUtil.getThreeDigitFormattedNumber(sign.amount, false), 2, font, poseStack, collector,
             packedLight);
@@ -110,10 +117,32 @@ final class PipeSignRenderer {
         poseStack.scale(1.0F / 90.0F, 1.0F / 90.0F, 1.0F / 90.0F);
     }
 
-    private static void submitIdLine(ItemStack stack, Font font, PoseStack poseStack, SubmitNodeCollector collector,
+    /**
+     * The first line: the mod the item comes from. A long name is drawn smaller to fit,
+     * down to {@link #MIN_MOD_NAME_SCALE}, and cut short past that.
+     */
+    private static void submitModLine(ItemStack stack, Font font, PoseStack poseStack, SubmitNodeCollector collector,
         int packedLight) {
-        String id = String.format("ID: %d", BuiltInRegistries.ITEM.getId(stack.getItem()));
-        submitLine(id, 0, font, poseStack, collector, packedLight);
+        String name = modName(stack);
+        float scale = Math.clamp((float) MAX_TEXT_WIDTH / font.width(name), MIN_MOD_NAME_SCALE, 1.0F);
+        String text = cut(name, font, MAX_TEXT_WIDTH / scale);
+        poseStack.pushPose();
+        // Shrunk about the middle of the line, so a smaller name stays centred where a full-size one would be.
+        poseStack.translate(0.0F, lineY(0) + font.lineHeight * (1.0F - scale) / 2.0F, 0.0F);
+        poseStack.scale(scale, scale, 1.0F);
+        submitText(text, -font.width(text) / 2.0F, 0.0F, poseStack, collector, packedLight);
+        poseStack.popPose();
+    }
+
+    /**
+     * The display name of the mod that registered {@code stack}'s item, or its namespace if no
+     * loaded mod claims it.
+     */
+    private static String modName(ItemStack stack) {
+        String namespace = BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace();
+        return ModList.get().getModContainerById(namespace)
+            .map(container -> container.getModInfo().getDisplayName())
+            .orElse(namespace);
     }
 
     /**
@@ -121,18 +150,22 @@ final class PipeSignRenderer {
      */
     private static void submitNameLine(String name, Font font, PoseStack poseStack, SubmitNodeCollector collector,
         int packedLight) {
-        String text = cut(name, font);
-        submitText(text, -font.width(text) / 2.0F - 15, 3, poseStack, collector, packedLight);
+        String text = cut(name, font, MAX_TEXT_WIDTH);
+        submitText(text, -font.width(text) / 2.0F - 15, lineY(3), poseStack, collector, packedLight);
     }
 
     private static void submitLine(String text, int line, Font font, PoseStack poseStack,
         SubmitNodeCollector collector, int packedLight) {
-        submitText(text, -font.width(text) / 2.0F, line, poseStack, collector, packedLight);
+        submitText(text, -font.width(text) / 2.0F, lineY(line), poseStack, collector, packedLight);
     }
 
-    private static void submitText(String text, float x, int line, PoseStack poseStack, SubmitNodeCollector collector,
+    private static float lineY(int line) {
+        return line * 10 - 4 * 5;
+    }
+
+    private static void submitText(String text, float x, float y, PoseStack poseStack, SubmitNodeCollector collector,
         int packedLight) {
-        collector.submitText(poseStack, x, line * 10 - 4 * 5, Component.literal(text).getVisualOrderText(), false,
+        collector.submitText(poseStack, x, y, Component.literal(text).getVisualOrderText(), false,
             Font.DisplayMode.NORMAL, packedLight, TEXT_COLOR, 0, 0);
     }
 
@@ -149,7 +182,6 @@ final class PipeSignRenderer {
         // plane of the sign. Not zero: the faces still need distinct depths to sort against
         // each other, they just need a thickness nobody can see.
         poseStack.scale(0.25F, 0.25F, 0.25F * FLAT_ITEM_DEPTH);
-        // renderStatic is gone: resolve the stack to a render state and submit it.
         Minecraft minecraft = Minecraft.getInstance();
         ItemStackRenderState renderState = new ItemStackRenderState();
         minecraft.getItemModelResolver()
@@ -159,15 +191,15 @@ final class PipeSignRenderer {
     }
 
     /**
-     * {@code name}, cut short with an ellipsis if it would not fit on the sign.
+     * {@code name}, cut short with an ellipsis if it would be {@code maxWidth} wide or more.
      */
-    private static String cut(String name, Font font) {
-        if (font.width(name) < MAX_TEXT_WIDTH) {
+    private static String cut(String name, Font font, float maxWidth) {
+        if (font.width(name) < maxWidth) {
             return name;
         }
         StringBuilder sum = new StringBuilder();
         for (int i = 0; i < name.length(); i++) {
-            if (font.width(sum.toString() + name.charAt(i) + "...") < MAX_TEXT_WIDTH) {
+            if (font.width(sum.toString() + name.charAt(i) + "...") < maxWidth) {
                 sum.append(name.charAt(i));
             } else {
                 return sum + "...";
