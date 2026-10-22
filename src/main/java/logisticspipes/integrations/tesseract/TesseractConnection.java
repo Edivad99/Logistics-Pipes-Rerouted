@@ -13,7 +13,7 @@ import com.supermartijn642.tesseract.manager.Channel;
 import com.supermartijn642.tesseract.manager.TesseractReference;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.interfaces.routing.ISpecialBlockEntityConnection;
+import logisticspipes.connection.special.ISpecialBlockEntityConnection;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;

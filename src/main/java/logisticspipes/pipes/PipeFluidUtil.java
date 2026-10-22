@@ -17,13 +17,13 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
-import logisticspipes.interfaces.ISpecialTankAccessHandler;
+import logisticspipes.inventory.tank.ISpecialTankAccessHandler;
+import logisticspipes.inventory.tank.SpecialTankUtil;
+import logisticspipes.inventory.tank.TankUtil;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
-import logisticspipes.utils.SpecialTankUtil;
-import logisticspipes.utils.TankUtil;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
@@ -94,7 +94,7 @@ public final class PipeFluidUtil {
     public static List<BlockEntity> getAllTankTiles(FluidRoutedPipe pipe) {
         List<BlockEntity> result = new ArrayList<>();
         for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : getAdjacentTanks(pipe, false)) {
-            result.addAll(SimpleServiceLocator.specialTankHandler.getBaseTileFor(pair.getValue1().getBlockEntity()));
+            result.addAll(SimpleServiceLocator.specialTankHandler.getBaseBlockEntitiesFor(pair.getValue1().getBlockEntity()));
         }
         return result;
     }

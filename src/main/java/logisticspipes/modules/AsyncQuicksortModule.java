@@ -13,8 +13,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
 import logisticspipes.api.property.Property;
-import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
+import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.logistics.PassiveSinkFinder;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.QuickSortStateMessage;

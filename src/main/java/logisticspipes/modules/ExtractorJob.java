@@ -13,8 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
-import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
+import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.logistics.PassiveSinkFinder;
 import logisticspipes.particle.Particles;
 import logisticspipes.routing.AsyncRouting;

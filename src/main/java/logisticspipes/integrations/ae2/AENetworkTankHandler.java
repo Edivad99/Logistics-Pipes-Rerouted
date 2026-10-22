@@ -17,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.provider.ISpecialTankUtilProvider;
 import logisticspipes.api.util.ITankUtil;
-import logisticspipes.utils.NetworkTankUtil;
+import logisticspipes.inventory.tank.NetworkTankUtil;
 
 /**
  * Exposes the fluids of an Applied Energistics network to the fluid pipes, the counterpart of

@@ -20,7 +20,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.inventory.ProviderMode;
-import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
+import logisticspipes.inventory.SpecialInventoryHandler;
 import logisticspipes.utils.item.ItemIdentifier;
 
 /**
@@ -28,14 +28,14 @@ import logisticspipes.utils.item.ItemIdentifier;
  * pipe placed against an ME Interface (or any other block that hosts a grid node) can see and
  * supply what the network stores.
  *
- * <p>Reads, extracts and inserts. Insertion is not optional: {@code InventoryUtilFactory} and
- * {@code InventoryHelper} both consult the special handlers <i>before</i> falling back to the
- * block's {@code IItemHandler} capability, so as soon as this handler claims a block it also owns
- * the delivery path. A handler that refused insertion would not merely lack a feature, it would
- * take away the capability-based insertion that worked before it existed.</p>
+ * <p>Reads, extracts and inserts. Insertion is not optional: {@code InventoryUtilFactory} consults
+ * the special handlers <i>before</i> falling back to the block's {@code IItemHandler} capability, for
+ * insertion as much as for reading, so as soon as this handler claims a block it also owns the
+ * delivery path. A handler that refused insertion would not merely lack a feature, it would take
+ * away the capability-based insertion that worked before it existed.</p>
  *
  * <p>An ME network has no slots, so the {@code AbstractContainerMenu} adapter part of
- * {@link logisticspipes.interfaces.IInventoryUtil} is served by a synthetic slot view: one slot per
+ * {@link logisticspipes.inventory.IInventoryUtil} is served by a synthetic slot view: one slot per
  * distinct item type, ordered by {@link ItemIdentifier#compareTo}. That order is deterministic, but
  * the view is only as stable as the network itself — an index is not a durable handle.</p>
  */
@@ -67,24 +67,19 @@ public class AEInterfaceInventoryHandler extends SpecialInventoryHandler impleme
     /* Factory */
 
     @Override
-    public boolean init() {
-        return true;
-    }
-
-    @Override
-    public boolean isType(BlockEntity tile, @Nullable Direction dir) {
-        return AE2Networks.findStorage(tile, dir) != null;
+    public boolean isType(BlockEntity blockEntity, @Nullable Direction direction) {
+        return AE2Networks.findStorage(blockEntity, direction) != null;
     }
 
     @Nullable
     @Override
-    public SpecialInventoryHandler getUtilForTile(BlockEntity blockEntity, @Nullable Direction direction,
+    public SpecialInventoryHandler getUtilForBlockEntity(BlockEntity blockEntity, @Nullable Direction direction,
         ProviderMode mode) {
         MEStorage found = AE2Networks.findStorage(blockEntity, direction);
         if (found == null) {
             return null;
         }
-        int reserve = mode.getHideOnePerStack() || mode.getHideOnePerType() ? 1 : 0;
+        int reserve = mode.isHideOnePerStack() || mode.isHideOnePerType() ? 1 : 0;
         return new AEInterfaceInventoryHandler(found, AE2Networks.actionSource(blockEntity), reserve);
     }
 
@@ -229,7 +224,7 @@ public class AEInterfaceInventoryHandler extends SpecialInventoryHandler impleme
     }
 
     /**
-     * Follows {@link logisticspipes.utils.transactor.Transactor#add}: the returned stack carries the
+     * Follows {@link logisticspipes.inventory.transactor.Transactor#add}: the returned stack carries the
      * amount that was <i>accepted</i>, not the leftover. Getting this backwards destroys items --
      * {@code PipeTransportLogistics#insertArrivingItem} subtracts the returned count from the
      * traveling stack and drops the rest.

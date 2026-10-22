@@ -14,25 +14,25 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
-import logisticspipes.interfaces.ISpecialTankAccessHandler;
-import logisticspipes.interfaces.ISpecialTankUtil;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvideFluids;
 import logisticspipes.interfaces.routing.IRequestFluid;
-import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.inventory.tank.ISpecialTankAccessHandler;
+import logisticspipes.inventory.tank.ISpecialTankUtil;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
+import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.routing.FluidLogisticsPromise;
-import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
+import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LogisticsFluidOrder;
-import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.Textures;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -151,7 +151,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
             if (pair.getValue2() instanceof ISpecialTankUtil util) {
                 fallback = false;
                 ISpecialTankAccessHandler handler = util.getSpecialHandler();
-                BlockEntity tile = util.getTileEntity();
+                BlockEntity tile = util.getBlockEntity();
                 Map<FluidIdentifier, Long> tmp = handler.getAvailableLiquid(tile);
                 for (Entry<FluidIdentifier, Long> entry : tmp.entrySet()) {
                     if (map.containsKey(entry.getKey())) {
@@ -216,7 +216,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
             if (pair.getValue2() instanceof ISpecialTankUtil util) {
                 fallback = false;
                 ISpecialTankAccessHandler handler = util.getSpecialHandler();
-                BlockEntity tile = util.getTileEntity();
+                BlockEntity tile = util.getBlockEntity();
                 Map<FluidIdentifier, Long> map = handler.getAvailableLiquid(tile);
                 if (map.containsKey(fluid)) {
                     long addition = (containedAmount.get()) + map.get(fluid);
@@ -276,7 +276,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
             if (pair.getValue2() instanceof ISpecialTankUtil util) {
                 fallback = false;
                 ISpecialTankAccessHandler handler = util.getSpecialHandler();
-                BlockEntity tile = util.getTileEntity();
+                BlockEntity tile = util.getBlockEntity();
                 handler.getAvailableLiquid(tile).keySet().stream()
                     .map(FluidIdentifier::getItemIdentifier)
                     .forEach(itemIdentifiers::add);

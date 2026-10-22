@@ -9,21 +9,21 @@ package logisticspipes.proxy;
 
 import java.util.LinkedList;
 
+import logisticspipes.connection.special.SpecialBlockEntityConnection;
+import logisticspipes.connection.special.SpecialPipeConnection;
 import logisticspipes.interfaces.ISecurityStationManager;
 import logisticspipes.interfaces.routing.IChannelConnectionManager;
 import logisticspipes.interfaces.routing.IChannelManagerProvider;
+import logisticspipes.inventory.InventoryUtilFactory;
+import logisticspipes.inventory.tank.SpecialTankHandler;
 import logisticspipes.logistics.ILogisticsFluidManager;
 import logisticspipes.logistics.ILogisticsManager;
 import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.proxy.interfaces.IPowerProxy;
 import logisticspipes.proxy.progressprovider.MachineProgressProvider;
-import logisticspipes.proxy.specialconnection.SpecialPipeConnection;
-import logisticspipes.proxy.specialconnection.SpecialBlockEntityConnection;
-import logisticspipes.proxy.specialtankhandler.SpecialTankHandler;
 import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.pathfinder.PipeInformationManager;
-import logisticspipes.utils.InventoryUtilFactory;
 import logisticspipes.utils.RoutedItemHelper;
 
 public final class SimpleServiceLocator {

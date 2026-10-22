@@ -40,14 +40,15 @@ import logisticspipes.LPEventListener;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.IBufferItems;
-import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IItemAdvancedExistence;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.ITargetSlotInformation;
-import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.inventory.IInventoryUtil;
+import logisticspipes.inventory.transactor.ITransactor;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
+import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PipeItemBufferMessage;
@@ -55,11 +56,10 @@ import logisticspipes.network.to_client.pipe.TravellingItemContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeContentMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
-import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
+import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
@@ -69,13 +69,12 @@ import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.CacheHolder.CacheTypes;
-import logisticspipes.utils.InventoryHelper;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.SyncList;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.transactor.ITransactor;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
 
@@ -579,7 +578,7 @@ public class PipeTransportLogistics {
 		// A sneaky upgrade points at a side of its own choosing, which need not be the side the item
 		// arrived from -- and a block can expose an item handler on one face and not another. No
 		// handler there means nothing was inserted, so the caller moves on to the next side.
-		final ITransactor transactor = InventoryHelper.getTransactorFor(tile, insertion);
+		final ITransactor transactor = SimpleServiceLocator.inventoryUtilFactory.getTransactor(tile, insertion);
 		if (transactor == null) {
 			return false;
 		}

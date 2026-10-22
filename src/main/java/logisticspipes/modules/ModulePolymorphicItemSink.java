@@ -6,11 +6,11 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
-import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.SinkReply.FixedPriority;
+import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 
 public class ModulePolymorphicItemSink extends LogisticsModule {

@@ -18,5 +18,5 @@ public interface ISpecialTankHandler {
     boolean isType(@Nullable BlockEntity blockEntity);
 
     /** The blocks holding the fluid. Only asked when {@link #isType} said yes. */
-    List<BlockEntity> getBaseTilesFor(BlockEntity blockEntity);
+    List<BlockEntity> getBaseBlockEntitiesFor(BlockEntity blockEntity);
 }

@@ -9,9 +9,9 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.connection.NeighborBlockEntityUtil;
-import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.inventory.IInventoryUtil;
 
 /**
  * The inventories a pipe can reach, seen from the side a sneaky upgrade points at.

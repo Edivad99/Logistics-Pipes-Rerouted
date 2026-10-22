@@ -19,7 +19,7 @@ import com.refinedmods.refinedstorage.common.support.resource.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.inventory.ProviderMode;
-import logisticspipes.proxy.specialinventoryhandler.SpecialInventoryHandler;
+import logisticspipes.inventory.SpecialInventoryHandler;
 import logisticspipes.utils.item.ItemIdentifier;
 
 /**
@@ -27,8 +27,8 @@ import logisticspipes.utils.item.ItemIdentifier;
  * {@link logisticspipes.integrations.ae2.AEInterfaceInventoryHandler}.
  *
  * <p>Reads, extracts and inserts. Insertion is not optional here either: {@code InventoryUtilFactory}
- * and {@code InventoryHelper} consult the special handlers <i>before</i> the block's
- * {@code IItemHandler} capability, so claiming a block also takes over its delivery path.</p>
+ * consults the special handlers <i>before</i> the block's {@code IItemHandler} capability, for insertion
+ * as much as for reading, so claiming a block also takes over its delivery path.</p>
  *
  * <p>The way in is the capability RS publishes for exactly this purpose,
  * {@code RefinedStorageNeoForgeApi#getNetworkNodeContainerProviderCapability}, rather than an
@@ -63,23 +63,18 @@ public class RSInterfaceInventoryHandler extends SpecialInventoryHandler impleme
     /* Factory */
 
     @Override
-    public boolean init() {
-        return true;
-    }
-
-    @Override
-    public boolean isType(BlockEntity tile, @Nullable Direction dir) {
-        return RSNetworks.findStorage(tile, dir) != null;
+    public boolean isType(BlockEntity blockEntity, @Nullable Direction direction) {
+        return RSNetworks.findStorage(blockEntity, direction) != null;
     }
 
     @Nullable
     @Override
-    public SpecialInventoryHandler getUtilForTile(BlockEntity tile, @Nullable Direction direction, ProviderMode mode) {
-        StorageNetworkComponent found = RSNetworks.findStorage(tile, direction);
+    public SpecialInventoryHandler getUtilForBlockEntity(BlockEntity blockEntity, @Nullable Direction direction, ProviderMode mode) {
+        StorageNetworkComponent found = RSNetworks.findStorage(blockEntity, direction);
         if (found == null) {
             return null;
         }
-        int reserve = mode.getHideOnePerStack() || mode.getHideOnePerType() ? 1 : 0;
+        int reserve = mode.isHideOnePerStack() || mode.isHideOnePerType() ? 1 : 0;
         return new RSInterfaceInventoryHandler(found, reserve);
     }
 
@@ -217,7 +212,7 @@ public class RSInterfaceInventoryHandler extends SpecialInventoryHandler impleme
     }
 
     /**
-     * Follows {@link logisticspipes.utils.transactor.Transactor#add}: the returned stack carries the
+     * Follows {@link logisticspipes.inventory.transactor.Transactor#add}: the returned stack carries the
      * amount that was <i>accepted</i>, not the leftover. Getting this backwards destroys items --
      * {@code PipeTransportLogistics#insertArrivingItem} subtracts the returned count from the
      * travelling stack and drops the rest.

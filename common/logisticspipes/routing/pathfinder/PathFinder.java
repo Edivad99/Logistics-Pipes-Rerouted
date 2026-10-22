@@ -29,13 +29,12 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.provider.ILogisticsPowerProvider;
+import logisticspipes.connection.special.SpecialPipeConnection.ConnectionInformation;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IChannelRoutingConnection;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.specialconnection.SpecialPipeConnection.ConnectionInformation;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IPaintPath;
 import logisticspipes.routing.LaserData;
@@ -45,6 +44,7 @@ import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListen
 import logisticspipes.utils.OneList;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Quartet;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * Examines all pipe connections and their forks to locate all connected routers

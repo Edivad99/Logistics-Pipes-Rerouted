@@ -14,12 +14,12 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.Property;
-import logisticspipes.interfaces.IInventoryUtil;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
+import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.network.ModuleTarget;
-import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
+import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.property.SlottedModule;
 import logisticspipes.property.SlottedModuleListProperty;
