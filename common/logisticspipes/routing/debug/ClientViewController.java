@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -28,7 +27,7 @@ public class ClientViewController implements IDebugHUDProvider {
 
 	private @Nullable BlockPos mainPipe = null;
 	private int tick = 0;
-	private final List<BlockPos> canidates = new ArrayList<>();
+	private final List<BlockPos> candidates = new ArrayList<>();
 	/** The candidate list as the debug screen shows it, rebuilt on every step. */
 	private final List<Component> candidateLines = new ArrayList<>();
 
@@ -69,14 +68,14 @@ public class ClientViewController implements IDebugHUDProvider {
 		if (mainPipe != null) {
 			PipeFXRenderHandler.spawnGenericParticle(Particles.WHITE_SPARKLE, mainPipe.getX(), mainPipe.getY(), mainPipe.getZ(), 1);
 		}
-		for (BlockPos pos : canidates) {
+		for (BlockPos pos : candidates) {
 			PipeFXRenderHandler.spawnGenericParticle(Particles.ORANGE_SPARKLE, pos.getX(), pos.getY(), pos.getZ(), 1);
 		}
 	}
 
 	public void clear() {
 		mainPipe = null;
-		canidates.clear();
+		candidates.clear();
 		listHUD.clear();
 		HUDPositions.clear();
 	}
@@ -88,7 +87,7 @@ public class ClientViewController implements IDebugHUDProvider {
 
 	public void addCandidate(RouteDebugInfo route) {
 		BlockPos pos = route.destination();
-		canidates.add(pos);
+		candidates.add(pos);
 		getDebugInformation(pos).isNew = true;
 		getDebugInformation(pos).newIndex = route.index();
 	}
@@ -132,7 +131,7 @@ public class ClientViewController implements IDebugHUDProvider {
 		}
 		listHUD.addAll(HUDPositions.entrySet().stream()
 				.map(entry -> new HUDRoutingTableDebugProvider(new HUDRoutingTableGeneralInfo(entry.getValue()), entry.getKey()))
-				.collect(Collectors.toList()));
+				.toList());
 	}
 
 	@Override
