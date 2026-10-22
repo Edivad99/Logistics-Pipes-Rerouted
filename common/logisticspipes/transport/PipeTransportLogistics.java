@@ -21,6 +21,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.SectionPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -87,6 +88,9 @@ public class PipeTransportLogistics {
 		private @Nullable Direction face;
 		private boolean hasRoute;
 	}
+
+	private static final String TRAVELING_ITEMS_KEY = "travelingEntities";
+	private static final String BUFFER_KEY = "buffercontents";
 
 	private final int bufferTimeOut = 20 * 2; // 2 Seconds
 	/**
@@ -397,26 +401,37 @@ public class PipeTransportLogistics {
 		return new RoutingResult(value, true);
 	}
 
+	/**
+	 * Drops what {@link #serialize} writes for the server alone from a copy of the saved data meant
+	 * for a client. The traveling items there are server items, and the client learns about items
+	 * and the buffer through their own packets.
+	 */
+	public static void removeServerOnlyData(CompoundTag tag) {
+		tag.remove(TRAVELING_ITEMS_KEY);
+		tag.remove(BUFFER_KEY);
+	}
+
 	public void deserialize(ValueInput input) {
 
-		for (ValueInput dataTag : input.childrenListOrEmpty("travelingEntities")) {
+		for (ValueInput dataTag : input.childrenListOrEmpty(TRAVELING_ITEMS_KEY)) {
 			try {
 				LPTravelingItem item = new LPTravelingItemServer(dataTag);
 
 				if (item.isCorrupted()) {
+					LogisticsPipes.LOG.warn("Dropped a traveling item whose stack could not be read");
 					continue;
 				}
 
 				items.scheduleLoad(item);
 			} catch (Throwable t) {
-				// It may be the case that entities cannot be reloaded between
-				// two versions - ignore these errors.
+				// It may be the case that entities cannot be reloaded between two versions.
+				LogisticsPipes.LOG.warn("Dropped a traveling item that could not be loaded", t);
 			}
 		}
 
 		itemBuffer.clear();
 
-		for (ValueInput bufferEntry : input.childrenListOrEmpty("buffercontents")) {
+		for (ValueInput bufferEntry : input.childrenListOrEmpty(BUFFER_KEY)) {
 			ItemStack stack = ItemStackLoader.loadItemStack(bufferEntry);
 			itemBuffer.add(new Triplet<>(ItemIdentifierStack.getFromStack(stack), new Pair<>(bufferTimeOut, 0), null));
 		}
@@ -425,14 +440,14 @@ public class PipeTransportLogistics {
 
 	public void serialize(ValueOutput output) {
 
-		ValueOutput.ValueOutputList travelingEntities = output.childrenList("travelingEntities");
-		for (LPTravelingItem item : items) {
+		ValueOutput.ValueOutputList travelingEntities = output.childrenList(TRAVELING_ITEMS_KEY);
+		for (LPTravelingItem item : items.itemsToSave()) {
 			if (item instanceof LPTravelingItemServer) {
 				((LPTravelingItemServer) item).serialize(travelingEntities.addChild());
 			}
 		}
 
-		ValueOutput.ValueOutputList bufferContents = output.childrenList("buffercontents");
+		ValueOutput.ValueOutputList bufferContents = output.childrenList(BUFFER_KEY);
 		for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> stack : itemBuffer) {
 			ItemStackLoader.saveItemStack(bufferContents.addChild(), stack.getValue1().makeNormalStack());
 		}
@@ -505,18 +520,15 @@ public class PipeTransportLogistics {
 					return;
 				}
 				final ISlotUpgradeManager slotManager;
-				{
-					ModulePositionType slot = null;
-					int positionInt = -1;
-					if (arrivingItem.getInfo().targetInfo instanceof ChassiTargetInformation) {
-						positionInt = ((ChassiTargetInformation) arrivingItem.getInfo().targetInfo).getModuleSlot();
-						slot = ModulePositionType.SLOT;
-					} else if (container.pipe instanceof PipeLogisticsChassis) {
+				if (arrivingItem.getInfo().targetInfo instanceof ChassiTargetInformation chassiTarget) {
+					slotManager = getRoutedPipe().getUpgradeManager(ModulePositionType.SLOT, chassiTarget.getModuleSlot());
+				} else {
+					if (container.pipe instanceof PipeLogisticsChassis) {
 						// An item bounced back into the chassis's own inventory, or one whose route was
 						// lost, no longer belongs to a module; it goes in under the pipe's upgrades.
 						LogisticsPipes.LOG.debug("[ItemInsertion] info not for chassis pipe: {}", arrivingItem);
 					}
-					slotManager = getRoutedPipe().getUpgradeManager(slot, positionInt);
+					slotManager = getRoutedPipe().getOriginalUpgradeManager();
 				}
 				if (arrivingItem.getAdditionalTargetInformation() instanceof ITargetSlotInformation information) {
 

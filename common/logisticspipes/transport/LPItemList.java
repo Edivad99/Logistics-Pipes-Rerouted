@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Iterables;
 
 public class LPItemList implements Iterable<LPTravelingItem> {
 
@@ -100,6 +101,14 @@ public class LPItemList implements Iterable<LPTravelingItem> {
 		loadScheduledItems();
 		removeScheduledItems();
 		purgeBadItems();
+	}
+
+	/**
+	 * Every item the pipe holds, including the ones read from disk that {@link #flush} has not
+	 * added yet: a pipe that has not ticked since it loaded still owns them.
+	 */
+	Iterable<LPTravelingItem> itemsToSave() {
+		return Iterables.concat(items.values(), toLoad);
 	}
 
 	@Override

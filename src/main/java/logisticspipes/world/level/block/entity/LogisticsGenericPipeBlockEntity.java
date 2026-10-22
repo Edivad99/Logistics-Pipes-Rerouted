@@ -64,6 +64,7 @@ import logisticspipes.routing.pathfinder.changedetection.TEControl;
 import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
+import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
@@ -283,6 +284,8 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         sendInitPacket = true;
         CompoundTag nbt = saveWithoutMetadata(registries);
+        PipeTransportLogistics.removeServerOnlyData(nbt);
+        CoreRoutedPipe.removeServerOnlyData(nbt);
         UpdateTagPayload.write(nbt, PipeStateMessage.STREAM_CODEC, describeForClient());
         return nbt;
     }

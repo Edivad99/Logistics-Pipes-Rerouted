@@ -22,6 +22,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -137,6 +138,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     ILPPositionProvider {
 
     private static int PIPE_COUNT = 0;
+    private static final String SEND_QUEUE_KEY = "sendqueue";
     public final PlayerCollectionList watchers = new PlayerCollectionList();
     protected final PriorityBlockingQueue<ItemRoutingInformation> inTransitToMe =
         new PriorityBlockingQueue<>(10, new ItemRoutingInformation.DelayComparator());
@@ -705,7 +707,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         output.putChild("upgradeManager", upgradeManager);
         output.putChild("powerHandler", powerHandler);
 
-        ValueOutput.ValueOutputList sendqueue = output.childrenList("sendqueue");
+        ValueOutput.ValueOutputList sendqueue = output.childrenList(SEND_QUEUE_KEY);
         for (Triplet<IRoutedItem, Direction, ItemSendMode> p : sendQueue) {
             ValueOutput tagentry = sendqueue.addChild();
             p.getValue1().serialize(tagentry.child("entityitem"));
@@ -728,6 +730,14 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
     }
 
+    /**
+     * Drops the send queue from a copy of the saved data meant for a client: its items are server
+     * items, and the client only sees them once they are in a pipe.
+     */
+    public static void removeServerOnlyData(CompoundTag tag) {
+        tag.remove(SEND_QUEUE_KEY);
+    }
+
     @Override
     public void deserialize(ValueInput input) {
         super.deserialize(input);
@@ -747,7 +757,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         powerHandler.deserialize(input.childOrEmpty("powerHandler"));
 
         sendQueue.clear();
-        for (ValueInput tagentry : input.childrenListOrEmpty("sendqueue")) {
+        for (ValueInput tagentry : input.childrenListOrEmpty(SEND_QUEUE_KEY)) {
             LPTravelingItemServer item = new LPTravelingItemServer(tagentry.childOrEmpty("entityitem"));
             Direction from = Direction.values()[tagentry.getByteOr("from", (byte) 0)];
             ItemSendMode mode = ItemSendMode.values()[tagentry.getByteOr("mode", (byte) 0)];
