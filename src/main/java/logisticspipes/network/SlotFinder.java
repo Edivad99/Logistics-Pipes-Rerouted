@@ -24,7 +24,6 @@ import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
 import logisticspipes.proxy.SimpleServiceLocator;
-import logisticspipes.proxy.interfaces.ICraftingRecipeProvider;
 import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
@@ -63,11 +62,6 @@ public final class SlotFinder {
         final boolean opened = pipe.getRoutingPipe().getAvailableAdjacent().inventories().stream()
                 .filter(neighbor -> NeighborBlockEntityUtil.getInventoryUtil(neighbor) instanceof ISpecialInsertion)
                 .anyMatch(neighbor -> {
-                    for (ICraftingRecipeProvider provider : SimpleServiceLocator.craftingRecipeProviders) {
-                        if (provider.canOpenGui(neighbor.getBlockEntity())) {
-                            return true;
-                        }
-                    }
                     final BlockPos pos = neighbor.getBlockEntity().getBlockPos();
                     if (!BlockMenus.openFor(serverPlayer, pos)) {
                         return false;
