@@ -17,7 +17,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PipeFluidUpdateMessage;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.utils.SafeTimeTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.transfer.LPFluidTank;
@@ -128,7 +128,7 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 		super.onNeighborBlockChange();
 
 		for (Direction direction : Direction.values()) {
-			if (!SimpleServiceLocator.pipeInformationManager.canConnect(container, container.getBlockEntity(PipeFluidTransportLogistics.orientations[direction.ordinal()]), PipeFluidTransportLogistics.orientations[direction.ordinal()])) {
+			if (!PipeInformationManager.canConnect(container, container.getBlockEntity(PipeFluidTransportLogistics.orientations[direction.ordinal()]), PipeFluidTransportLogistics.orientations[direction.ordinal()])) {
 				if (!getWorld().isClientSide()) {
 					FluidStack stack = sideTanks[direction.ordinal()].getFluid();
 					if (stack != null && !stack.isEmpty()) {
@@ -247,6 +247,6 @@ public class PipeFluidTransportLogistics extends PipeTransportLogistics {
 
 	@Override
 	protected boolean isPipeCheck(BlockEntity tile) {
-		return SimpleServiceLocator.pipeInformationManager.isPipe(tile);
+		return PipeInformationManager.isPipe(tile);
 	}
 }

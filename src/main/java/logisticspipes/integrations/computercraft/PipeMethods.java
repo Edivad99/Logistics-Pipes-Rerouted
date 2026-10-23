@@ -16,14 +16,15 @@ import dan200.computercraft.api.lua.MethodResult;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISecurityProvider;
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.PipeItemsRequestLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestHandler;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.IRouter;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
@@ -152,8 +153,8 @@ final class PipeMethods {
         } catch (IllegalArgumentException e) {
             throw new LuaException("Not a UUID: " + arguments.getString(0));
         }
-        int id = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
-        IRouter router = SimpleServiceLocator.routerManager.getRouter(id);
+        int id = RouterManager.get().getIDforUUID(uuid);
+        IRouter router = RouterManager.get().getRouter(id);
         CoreRoutedPipe target = router == null ? null : router.getPipe();
         return values(target == null ? null : new RemotePipe(target.getContainer(), computerId));
     }
@@ -181,11 +182,11 @@ final class PipeMethods {
     }
 
     private static Map<ItemIdentifier, Integer> availableItems(CoreRoutedPipe pipe) {
-        return SimpleServiceLocator.logisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
+        return LogisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
     }
 
     private static List<ItemIdentifier> craftableItems(CoreRoutedPipe pipe) {
-        return SimpleServiceLocator.logisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
+        return LogisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
     }
 
     /**

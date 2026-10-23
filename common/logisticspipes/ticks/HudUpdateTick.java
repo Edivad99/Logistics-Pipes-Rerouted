@@ -3,8 +3,8 @@ package logisticspipes.ticks;
 import java.util.BitSet;
 
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
+import logisticspipes.routing.RouterManager;
 
 public class HudUpdateTick {
 
@@ -37,7 +37,7 @@ public class HudUpdateTick {
 		//cork the compressor
 		while (HudUpdateTick.firstRouter != -1 && slotSentCount < HudUpdateTick.inventorySlotsToUpdatePerTick) {
 			HudUpdateTick.routersNeedingUpdate.clear(HudUpdateTick.firstRouter);
-			IRouter currentRouter = SimpleServiceLocator.routerManager.getServerRouter(HudUpdateTick.firstRouter);
+			IRouter currentRouter = RouterManager.get().getServerRouter(HudUpdateTick.firstRouter);
 			if (currentRouter != null) {
 				CoreRoutedPipe pipe = currentRouter.getCachedPipe();
 				if (pipe != null) {

@@ -33,8 +33,8 @@ import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestTree;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -63,7 +63,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe
                 if (super.canPipeConnect(tile, dir)) {
                     return true;
                 }
-                if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
+                if (PipeInformationManager.isPipe(tile)) {
                     return false;
                 }
                 ITankUtil tank = PipeFluidUtil.getTankUtilForBE(tile, dir.getOpposite());
@@ -110,7 +110,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe
         if (util == null) {
             return;
         }
-        if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
+        if (PipeInformationManager.isPipe(tile)) {
             return;
         }
         final ItemIdentifierStack idStack = data.getItemIdentifierStack();

@@ -19,9 +19,18 @@ import net.minecraft.world.level.Level;
  * with a single manager shared by both sides of a singleplayer game the only thing left to ask was
  * the name of the calling thread.
  */
-public class ClientRouterManager {
+public final class ClientRouterManager {
+
+    private static final ClientRouterManager INSTANCE = new ClientRouterManager();
 
     private final List<IRouter> routers = new ArrayList<>();
+
+    private ClientRouterManager() {
+    }
+
+    public static ClientRouterManager get() {
+        return INSTANCE;
+    }
 
     /** The router for the pipe at these coordinates, created on first sight. */
     public IRouter getOrCreateRouter(UUID id, Level level, BlockPos pos) {

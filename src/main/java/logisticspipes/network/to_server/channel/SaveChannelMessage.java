@@ -10,14 +10,14 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.interfaces.routing.IChannelManager;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.routing.channels.ChannelInformation.AccessRights;
+import logisticspipes.routing.channels.ChannelManager;
 import logisticspipes.utils.PlayerIdentifier;
 
 /**
@@ -45,14 +45,13 @@ public record SaveChannelMessage(Optional<UUID> channel, String name, AccessRigh
             SaveChannelMessage::new);
 
     public static void handle(SaveChannelMessage message, IPayloadContext context) {
-        if (message.name.isBlank()) {
+        if (message.name.isBlank() || !(context.player() instanceof ServerPlayer player)) {
             return;
         }
-        final IChannelManager manager =
-            SimpleServiceLocator.channelManagerProvider.getChannelManager(context.player().level());
+        final ChannelManager manager = ChannelManager.get(player.level());
         final UUID security = message.security.orElse(null);
         if (message.channel.isEmpty()) {
-            manager.createNewChannel(message.name, PlayerIdentifier.get(context.player()), message.rights, security);
+            manager.createNewChannel(message.name, PlayerIdentifier.get(player), message.rights, security);
             return;
         }
         final UUID id = message.channel.get();
@@ -62,7 +61,7 @@ public record SaveChannelMessage(Optional<UUID> channel, String name, AccessRigh
             .ifPresent(channel -> apply(manager, channel, message, security));
     }
 
-    private static void apply(IChannelManager manager, ChannelInformation channel, SaveChannelMessage message,
+    private static void apply(ChannelManager manager, ChannelInformation channel, SaveChannelMessage message,
         UUID security) {
         final UUID id = channel.getChannelIdentifier();
         // The name is optional -- a channel can be saved without one -- so the comparison starts

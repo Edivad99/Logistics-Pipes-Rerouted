@@ -30,22 +30,39 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.interfaces.ISecurityStationManager;
-import logisticspipes.interfaces.routing.IChannelConnectionManager;
 import logisticspipes.network.to_client.security.SecurityAuthorizedListMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.channels.ChannelConnection;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
-public class RouterManager implements IChannelConnectionManager, ISecurityStationManager {
+/**
+ * The routers, security stations and channel connections of the running server.
+ *
+ * <p>Replaced by an empty one when the server stops, so nothing of one world is left over in the
+ * next one of a singleplayer session.
+ */
+public final class RouterManager {
+
+	private static volatile RouterManager instance = new RouterManager();
 
 	private final ArrayList<@Nullable ServerRouter> routersServer = new ArrayList<>();
 	private final Map<UUID, Integer> uuidMap = new HashMap<>();
 
 	private final WeakHashMap<LogisticsSecurityBlockEntity, @Nullable Void> security = new WeakHashMap<>();
-	private List<String> authorized = new LinkedList<>();
+	private final List<String> authorized = new LinkedList<>();
 
 	private final ArrayList<ChannelConnection> channelConnectedPipes = new ArrayList<>();
+
+	private RouterManager() {
+	}
+
+	public static RouterManager get() {
+		return instance;
+	}
+
+	public static void reset() {
+		instance = new RouterManager();
+	}
 
 	@Nullable
 	public IRouter getRouter(int id) {
@@ -118,14 +135,12 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		return routersServer.get(id) != null;
 	}
 
-	@Override
 	public boolean hasChannelConnection(IRouter router) {
 		return channelConnectedPipes.stream()
 				.filter(con -> con.routers.size() > 1)
 				.anyMatch(con -> con.routers.contains(router.getSimpleID()));
 	}
 
-	@Override
 	public boolean addChannelConnection(UUID ident, IRouter router) {
 		if (!(router instanceof ServerRouter)) {
 			return false;
@@ -144,7 +159,6 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		return true;
 	}
 
-	@Override
 	public List<CoreRoutedPipe> getConnectedPipes(IRouter router) {
 		Optional<ChannelConnection> channel = channelConnectedPipes.stream()
 				.filter(con -> con.routers.contains(router.getSimpleID()))
@@ -160,7 +174,6 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 				.orElse(Collections.emptyList());
 	}
 
-	@Override
 	public void removeChannelConnection(IRouter router) {
 		if (!(router instanceof ServerRouter)) {
 			return;
@@ -174,24 +187,14 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		}
 	}
 
-	public void serverStopClean() {
-		channelConnectedPipes.clear();
-		routersServer.clear();
-		uuidMap.clear();
-		security.clear();
-	}
-
-
-	@Override
 	public void add(LogisticsSecurityBlockEntity tile) {
 		security.put(tile, null);
 		UUID secId = tile.getSecId();
-		if (secId != null) {
+		if (secId != null && tile.isAuthorized()) {
 			authorizeUUID(secId);
 		}
 	}
 
-	@Override
 	public @Nullable LogisticsSecurityBlockEntity getStation(@Nullable UUID id) {
 		if (id == null) {
 			return null;
@@ -202,7 +205,6 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 			.orElse(null);
 	}
 
-	@Override
 	public void remove(LogisticsSecurityBlockEntity tile) {
 		security.remove(tile);
 		UUID secId = tile.getSecId();
@@ -220,13 +222,11 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		}
 	}
 
-	@Override
 	public void deauthorizeUUID(UUID id) {
 		authorized.remove(id.toString());
 		sendClientAuthorizationList();
 	}
 
-	@Override
 	public void authorizeUUID(UUID id) {
 		if (!authorized.contains(id.toString())) {
 			authorized.add(id.toString());
@@ -234,7 +234,6 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		sendClientAuthorizationList();
 	}
 
-	@Override
 	public boolean isAuthorized(@Nullable UUID id) {
 		if (authorized.isEmpty() || id == null) {
 			return false;
@@ -242,7 +241,6 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		return authorized.contains(id.toString());
 	}
 
-	@Override
 	public boolean isAuthorized(String id) {
 		if (authorized.isEmpty()) {
 			return false;
@@ -250,17 +248,10 @@ public class RouterManager implements IChannelConnectionManager, ISecurityStatio
 		return authorized.contains(id);
 	}
 
-	@Override
-	public void setClientAuthorizationList(List<String> list) {
-		authorized = list;
-	}
-
-	@Override
 	public void sendClientAuthorizationList() {
 		PacketDistributor.sendToAllPlayers(new SecurityAuthorizedListMessage(List.copyOf(authorized)));
 	}
 
-	@Override
 	public void sendClientAuthorizationList(Player player) {
 		if (player instanceof ServerPlayer serverPlayer) {
 			PacketDistributor.sendToPlayer(serverPlayer, new SecurityAuthorizedListMessage(List.copyOf(authorized)));

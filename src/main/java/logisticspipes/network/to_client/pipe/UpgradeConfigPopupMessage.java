@@ -18,7 +18,7 @@ import logisticspipes.client.gui.popup.DisconnectionConfigurationPopup;
 import logisticspipes.client.gui.popup.SneakyConfigurationPopup;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
@@ -56,7 +56,7 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
     private static List<BlockPos> extractableSides(LogisticsGenericPipeBlockEntity container) {
         final List<BlockPos> inventories = new WorldCoordinatesWrapper(container).connectedBlockEntities()
             .stream()
-            .filter(neighbor -> SimpleServiceLocator.pipeInformationManager.isNotAPipe(neighbor.getBlockEntity()))
+            .filter(neighbor -> PipeInformationManager.isNotAPipe(neighbor.getBlockEntity()))
             .map(neighbor -> neighbor.getBlockEntity().getBlockPos())
             .collect(Collectors.toList());
         if (!inventories.isEmpty()) {

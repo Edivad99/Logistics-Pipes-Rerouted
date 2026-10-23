@@ -50,7 +50,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.connection.LPNeighborBlockEntity;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 
 public class WorldCoordinatesWrapper {
 
@@ -83,13 +83,12 @@ public class WorldCoordinatesWrapper {
 
     public List<LPNeighborBlockEntity<BlockEntity>> connectedBlockEntities() {
         BlockEntity pipe = getBlockEntity();
-        if (pipe == null || SimpleServiceLocator.pipeInformationManager.isNotAPipe(pipe)) {
+        if (pipe == null || PipeInformationManager.isNotAPipe(pipe)) {
             LogisticsPipes.LOG.warn("The coordinates didn't hold a pipe at all", new Throwable("Stack trace"));
             return List.of();
         }
         return allNeighborBlockEntities().stream()
-            .filter(adjacent -> SimpleServiceLocator.pipeInformationManager
-                .canConnect(pipe, adjacent.getBlockEntity(), adjacent.getDirection()))
+            .filter(adjacent -> PipeInformationManager.canConnect(pipe, adjacent.getBlockEntity(), adjacent.getDirection()))
             .toList();
     }
 

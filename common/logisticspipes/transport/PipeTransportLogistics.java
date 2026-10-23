@@ -40,6 +40,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.LPEventListener;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
+import logisticspipes.connection.special.SpecialBlockEntityConnection;
 import logisticspipes.interfaces.IBufferItems;
 import logisticspipes.interfaces.IItemAdvancedExistence;
 import logisticspipes.interfaces.ISlotUpgradeManager;
@@ -47,6 +48,7 @@ import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.ITargetSlotInformation;
 import logisticspipes.inventory.IInventoryUtil;
+import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.inventory.transactor.ITransactor;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -62,9 +64,9 @@ import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -189,7 +191,7 @@ public class PipeTransportLogistics {
 							next.getValue2().setValue1(bufferTimeOut);
 						}
 					} else {
-						LPTravelingItemServer item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(next.getValue1());
+						LPTravelingItemServer item = new LPTravelingItemServer(next.getValue1());
 						item.setDoNotBuffer(true);
 						item.setBufferCounter(next.getValue2().getValue2() + 1);
 						toAdd.add(item);
@@ -269,7 +271,7 @@ public class PipeTransportLogistics {
 	}
 
 	public int injectItem(IRoutedItem item, Direction inputOrientation) {
-		return injectItem((LPTravelingItem) SimpleServiceLocator.routedItemHelper.getServerTravelingItem(item), inputOrientation);
+		return injectItem((LPTravelingItem) item, inputOrientation);
 	}
 
 	/**
@@ -336,7 +338,7 @@ public class PipeTransportLogistics {
 			Direction dir = iter.next();
 			BlockPos pos = getPipe().getPos().relative(dir);
 			BlockEntity tile = getWorld().getBlockEntity(pos);
-			if (!SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
+			if (!PipeInformationManager.isPipe(tile)) {
 				iter.remove();
 			} else if (!canPipeConnect(tile, dir)) {
 				iter.remove();
@@ -496,16 +498,16 @@ public class PipeTransportLogistics {
 			}
 		}
 		boolean isSpecialConnectionInformationTransition = false;
-		if (SimpleServiceLocator.specialtileconnection.needsInformationTransition(tile)) {
+		if (SpecialBlockEntityConnection.get().needsInformationTransition(tile)) {
 			isSpecialConnectionInformationTransition = true;
-			SimpleServiceLocator.specialtileconnection.transmit(Objects.requireNonNull(tile), arrivingItem);
+			SpecialBlockEntityConnection.get().transmit(Objects.requireNonNull(tile), arrivingItem);
 		}
-		if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
+		if (PipeInformationManager.isPipe(tile)) {
 			if (passToNextPipe(arrivingItem, Objects.requireNonNull(tile))) {
 				return;
 			}
 		} else {
-			IInventoryUtil util = SimpleServiceLocator.inventoryUtilFactory.getInventoryUtil(tile, dir.getOpposite());
+			IInventoryUtil util = InventoryUtilFactory.get().getInventoryUtil(tile, dir.getOpposite());
 			if (util != null && isRouted) {
 				getRoutedPipe().getCacheHolder().trigger(CacheTypes.Inventory);
 
@@ -590,7 +592,7 @@ public class PipeTransportLogistics {
 		// A sneaky upgrade points at a side of its own choosing, which need not be the side the item
 		// arrived from -- and a block can expose an item handler on one face and not another. No
 		// handler there means nothing was inserted, so the caller moves on to the next side.
-		final ITransactor transactor = SimpleServiceLocator.inventoryUtilFactory.getTransactor(tile, insertion);
+		final ITransactor transactor = InventoryUtilFactory.get().getTransactor(tile, insertion);
 		if (transactor == null) {
 			return false;
 		}
@@ -620,7 +622,7 @@ public class PipeTransportLogistics {
 	}
 
 	protected void handleTileReachedClient(LPTravelingItemClient arrivingItem, @Nullable BlockEntity tile, @Nullable Direction dir) {
-		if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
+		if (PipeInformationManager.isPipe(tile)) {
 			passToNextPipe(arrivingItem, tile);
 		}
 		// Just ignore any other case
@@ -652,7 +654,7 @@ public class PipeTransportLogistics {
 					return !((tile instanceof LogisticsPowerJunctionBlockEntity || tile instanceof ISubSystemPowerProvider) && ori.getAxis() == Direction.Axis.Y);
 				}
 			}
-			IInventoryUtil util = SimpleServiceLocator.inventoryUtilFactory.getInventoryUtil(tile, side.getOpposite());
+			IInventoryUtil util = InventoryUtilFactory.get().getInventoryUtil(tile, side.getOpposite());
 			if (util != null) {
 				return true;
 			}
@@ -666,7 +668,7 @@ public class PipeTransportLogistics {
 	}
 
 	protected boolean isPipeCheck(BlockEntity tile) {
-		return SimpleServiceLocator.pipeInformationManager.isItemPipe(tile);
+		return PipeInformationManager.isPipe(tile);
 	}
 
 	protected void reachedEnd(LPTravelingItem item) {
@@ -706,7 +708,7 @@ public class PipeTransportLogistics {
 	}
 
 	protected boolean passToNextPipe(LPTravelingItem item, BlockEntity tile) {
-		IPipeInformationProvider information = SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(tile);
+		IPipeInformationProvider information = PipeInformationManager.getInformationProviderFor(tile);
 		if (information != null) {
 			item.setPosition(item.getPosition() - getPipeLength());
 			item.setYaw(item.getYaw() + (getYawDiff(item)));
@@ -812,7 +814,7 @@ public class PipeTransportLogistics {
 	}
 
 	public void sendItem(ItemStack stackToSend) {
-		this.injectItem((LPTravelingItem) SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend), Direction.UP);
+		this.injectItem(new LPTravelingItemServer(stackToSend), Direction.UP);
 	}
 
     @Nullable

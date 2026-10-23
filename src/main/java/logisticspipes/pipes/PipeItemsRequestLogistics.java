@@ -12,9 +12,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestItems;
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
@@ -71,7 +71,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
     public void enabledUpdateEntity() {
         super.enabledUpdateEntity();
         if (getLevel().getGameTime() % 1200 == 0) {
-            history.addLast(SimpleServiceLocator.logisticsManager.getAvailableItems(getRouter().getIRoutersByCost()));
+            history.addLast(LogisticsManager.getAvailableItems(getRouter().getIRoutersByCost()));
             if (history.size() > 20) {
                 history.removeFirst();
             }

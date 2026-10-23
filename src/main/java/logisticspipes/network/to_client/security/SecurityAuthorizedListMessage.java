@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.security.ClientAuthorizations;
 
 /**
  * Who is authorized on the security stations, for the client's copy of the list.
@@ -30,7 +30,7 @@ public record SecurityAuthorizedListMessage(List<String> authorized) implements 
             SecurityAuthorizedListMessage::new);
 
     public static void handle(SecurityAuthorizedListMessage message, IPayloadContext context) {
-        SimpleServiceLocator.securityStationManager.setClientAuthorizationList(message.authorized);
+        ClientAuthorizations.set(message.authorized);
     }
 
     @Override

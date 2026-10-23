@@ -25,13 +25,13 @@ import logisticspipes.interfaces.routing.ICraft;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestTree.ActiveRequestType;
 import logisticspipes.request.RequestTree.workWeightedSorter;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
@@ -96,7 +96,7 @@ public class RequestTreeNode {
 		BitSet routersIndex = ServerRouter.getRoutersInterestedIn(item);
 		List<ExitRoute> validSources = new ArrayList<>(); // get the routing table
 		for (int i = routersIndex.nextSetBit(0); i >= 0; i = routersIndex.nextSetBit(i + 1)) {
-			IRouter r = SimpleServiceLocator.routerManager.getServerRouter(i);
+			IRouter r = RouterManager.get().getServerRouter(i);
 
 			if (r.isCacheInvalid()) {
 				continue; //Skip Routers without a valid pipe
@@ -403,7 +403,7 @@ public class RequestTreeNode {
 		BitSet routersIndex = ServerRouter.getRoutersInterestedIn(getRequestType());
 		List<ExitRoute> validSources = new ArrayList<>(); // get the routing table
 		for (int i = routersIndex.nextSetBit(0); i >= 0; i = routersIndex.nextSetBit(i + 1)) {
-			IRouter r = SimpleServiceLocator.routerManager.getServerRouter(i);
+			IRouter r = RouterManager.get().getServerRouter(i);
 
 			if (r.isCacheInvalid()) {
 				continue; //Skip Routers without a valid pipe

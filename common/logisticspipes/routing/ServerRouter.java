@@ -57,7 +57,6 @@ import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
@@ -967,7 +966,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 		clearPipeCache();
 		isDestroyed = true;
-		SimpleServiceLocator.routerManager.removeRouter(simpleID);
+		RouterManager.get().removeRouter(simpleID);
 		for (List<ITileEntityChangeListener> list : listenedPipes) {
 			list.remove(localChangeListener);
 		}
@@ -1142,7 +1141,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	@Override
 	public boolean hasRoute(int id, boolean active, ItemIdentifier type) {
-		if (!SimpleServiceLocator.routerManager.isRouterUnsafe(id)) {
+		if (!RouterManager.get().isRouterUnsafe(id)) {
 			return false;
 		}
 		ensureLatestRoutingTable();

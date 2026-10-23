@@ -9,7 +9,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 
 import logisticspipes.interfaces.IItemAdvancedExistence;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
@@ -34,7 +34,7 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
     /** Named after the fluid it holds, or the container's own name when it holds none. */
     @Override
     public Component getName(ItemStack itemstack) {
-        FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
+        FluidIdentifierStack fluidStack = LogisticsFluidManager.getFluidFromContainer(
             ItemIdentifierStack.getFromStack(itemstack));
         if (fluidStack != null) {
             return fluidStack.makeFluidStack().getHoverName();
@@ -47,7 +47,7 @@ public class LogisticsFluidContainer extends LogisticsItem implements IItemAdvan
         Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (Minecraft.getInstance().hasShiftDown()) {
-            FluidIdentifierStack fluidStack = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
+            FluidIdentifierStack fluidStack = LogisticsFluidManager.getFluidFromContainer(
                 ItemIdentifierStack.getFromStack(stack));
             if (fluidStack != null) {
                 tooltipAdder.accept(

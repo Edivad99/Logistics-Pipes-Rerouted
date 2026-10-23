@@ -44,6 +44,7 @@ import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.IScreenOpenController;
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
@@ -52,13 +53,13 @@ import logisticspipes.network.to_client.orderer.OrdererWatchRemoveMessage;
 import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.CraftingUtil;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
@@ -210,8 +211,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
                 delay--;
                 return;
             }
-            IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
-            SimpleServiceLocator.logisticsManager.assignDestinationFor(itemToSend, getRouter().getSimpleID(), false);
+            IRoutedItem itemToSend = new LPTravelingItemServer(stack);
+            LogisticsManager.assignDestinationFor(itemToSend, getRouter().getSimpleID(), false);
             if (itemToSend.getDestinationUUID() != null) {
                 Direction dir = getRouteLayer().getOrientationForItem(itemToSend, null);
                 super.queueRoutedItem(itemToSend, dir.getOpposite());

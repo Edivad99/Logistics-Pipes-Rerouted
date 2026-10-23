@@ -24,9 +24,18 @@ import logisticspipes.inventory.transactor.TransactorSimple;
  * Finds the way into a block's inventory: a registered {@link SpecialInventoryHandler} if one claims
  * the block, otherwise its item handler capability.
  */
-public class InventoryUtilFactory {
+public final class InventoryUtilFactory {
+
+    private static final InventoryUtilFactory INSTANCE = new InventoryUtilFactory();
 
     private final List<SpecialInventoryHandler.Factory> handlerFactories = new ArrayList<>();
+
+    private InventoryUtilFactory() {
+    }
+
+    public static InventoryUtilFactory get() {
+        return INSTANCE;
+    }
 
     @Nullable
     private static ResourceHandler<ItemResource> getItemHandler(BlockEntity blockEntity,

@@ -29,15 +29,11 @@ import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
-import logisticspipes.pipes.PipeItemsCraftingLogistics;
-import logisticspipes.pipes.PipeItemsProviderLogistics;
-import logisticspipes.pipes.PipeItemsRequestLogistics;
-import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
@@ -48,9 +44,12 @@ import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.item.LogisticsFluidContainer;
 
-public class LogisticsManager implements ILogisticsManager {
+public final class LogisticsManager {
 
-	private Triplet<Integer, SinkReply, List<IFilter>> getBestReply(ItemStack stack, ItemIdentifier item, @Nullable IRouter sourceRouter,
+	private LogisticsManager() {
+	}
+
+	private static Triplet<Integer, SinkReply, List<IFilter>> getBestReply(ItemStack stack, ItemIdentifier item, @Nullable IRouter sourceRouter,
 			List<ExitRoute> validDestinations, boolean excludeSource, List<Integer> jamList,
 			@Nullable Triplet<Integer, SinkReply, List<IFilter>> result, boolean allowDefault) {
 		if (result == null) {
@@ -107,7 +106,7 @@ public class LogisticsManager implements ILogisticsManager {
 			}
 		}
 		if (result.getValue1() != null) {
-			CoreRoutedPipe pipe = SimpleServiceLocator.routerManager.getServerRouter(result.getValue1()).getPipe();
+			CoreRoutedPipe pipe = RouterManager.get().getServerRouter(result.getValue1()).getPipe();
 			pipe.useEnergy(result.getValue2().energyUse);
 			pipe.spawnParticle(Particles.BLUE_SPARKLE, 10);
 		}
@@ -165,13 +164,12 @@ public class LogisticsManager implements ILogisticsManager {
 	 *            destination.
 	 * @return IRoutedItem with a newly assigned destination
 	 */
-	@Override
-	public IRoutedItem assignDestinationFor(IRoutedItem item, int sourceRouterID, boolean excludeSource) {
+	public static IRoutedItem assignDestinationFor(IRoutedItem item, int sourceRouterID, boolean excludeSource) {
 
 		//Assert: only called server side.
 
 		//If we for some reason can't get the router we can't do anything either
-		IRouter sourceRouter = SimpleServiceLocator.routerManager.getServerRouter(sourceRouterID);
+		IRouter sourceRouter = RouterManager.get().getServerRouter(sourceRouterID);
 		if (sourceRouter == null) {
 			return item;
 		}
@@ -186,7 +184,7 @@ public class LogisticsManager implements ILogisticsManager {
 		BitSet routersIndex = ServerRouter.getRoutersInterestedIn(itemIdStack.getItem());
 		List<ExitRoute> validDestinations = new ArrayList<>(); // get the routing table
 		for (int i = routersIndex.nextSetBit(0); i >= 0; i = routersIndex.nextSetBit(i + 1)) {
-			IRouter r = SimpleServiceLocator.routerManager.getServerRouter(i);
+			IRouter r = RouterManager.get().getServerRouter(i);
 			validDestinations.addAll(sourceRouter.getDistanceTo(r).stream()
 					.filter(e -> e.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO))
 					.collect(Collectors.toList()));
@@ -197,9 +195,9 @@ public class LogisticsManager implements ILogisticsManager {
 			CoreRoutedPipe sourcePipe = sourceRouter.getPipe();
 			Level level = sourcePipe == null ? null : sourcePipe.getLevel();
 			FluidIdentifierStack fluid = level == null ? null
-					: SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(itemIdStack);
+					: LogisticsFluidManager.getFluidFromContainer(itemIdStack);
 			if (fluid != null) {
-				Pair<Integer, FluidSinkReply> bestReply = SimpleServiceLocator.logisticsFluidManager.getBestReply(fluid, sourceRouter, item.getJamList());
+				Pair<Integer, FluidSinkReply> bestReply = LogisticsFluidManager.getBestReply(fluid, sourceRouter, item.getJamList());
 				if (bestReply != null) {
 					item.setDestination(bestReply.getValue1());
 				}
@@ -224,40 +222,12 @@ public class LogisticsManager implements ILogisticsManager {
 	}
 
 	/**
-	 * If there is a better router name available, it will return it. Else, it
-	 * will return the UUID as a string.
-	 *
-	 * @param r
-	 *            The IRouter that you want the name for.
-	 * @return String with value of a better name if available, else just the
-	 *         UUID as a string.
-	 */
-	@Override
-	public String getBetterRouterName(IRouter r) {
-        return switch (r.getPipe()) {
-            case PipeItemsCraftingLogistics pipe -> {
-                List<ItemIdentifierStack> items = pipe.getCraftedItems();
-                yield switch (items.size()) {
-                    case 0 -> "Crafter";
-                    case 1 -> "Crafter<" + items.getFirst().getFriendlyName() + ">";
-                    default -> "Crafter< MULTIPLE ITEMS >";
-                };
-            }
-            case PipeItemsProviderLogistics _ -> "Provider";
-            case PipeLogisticsChassis _ -> "Chassis";
-            case PipeItemsRequestLogistics _ -> "Request";
-            case null, default -> r.getId().toString();
-        };
-	}
-
-	/**
 	 * @param validDestinations
 	 *            a list of ExitRoute of valid destinations.
 	 * @return HashMap with ItemIdentifier and Integer item count of available
 	 *         items.
 	 */
-	@Override
-	public HashMap<ItemIdentifier, Integer> getAvailableItems(List<ExitRoute> validDestinations) {
+	public static HashMap<ItemIdentifier, Integer> getAvailableItems(List<ExitRoute> validDestinations) {
 		//TODO: Replace this entire function with a fetch from the pre-built arrays (path incoming later)
 		List<Map<ItemIdentifier, Integer>> items = new ArrayList<>(ServerRouter.getBiggestSimpleID());
 		for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {
@@ -299,8 +269,7 @@ public class LogisticsManager implements ILogisticsManager {
 	 *            a List of ExitRoute of valid destinations.
 	 * @return LinkedList with ItemIdentifier
 	 */
-	@Override
-	public LinkedList<ItemIdentifier> getCraftableItems(List<ExitRoute> validDestinations) {
+	public static LinkedList<ItemIdentifier> getCraftableItems(List<ExitRoute> validDestinations) {
 		LinkedList<ItemIdentifier> craftableItems = new LinkedList<>();
 		BitSet used = new BitSet(ServerRouter.getBiggestSimpleID());
 		outer:
@@ -339,8 +308,7 @@ public class LogisticsManager implements ILogisticsManager {
 		return craftableItems;
 	}
 
-	@Override
-	public int getAmountFor(ItemIdentifier itemType, List<ExitRoute> validDestinations) {
+	public static int getAmountFor(ItemIdentifier itemType, List<ExitRoute> validDestinations) {
 		// TODO: Replace this entire function with a fetch from the pre-built arrays (path incoming later)
 		List<Map<ItemIdentifier, Integer>> items = new ArrayList<>(ServerRouter.getBiggestSimpleID());
 		for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {

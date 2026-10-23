@@ -13,7 +13,9 @@ import logisticspipes.api.provider.ISpecialTankHandler;
 import logisticspipes.api.provider.ISpecialTankUtilProvider;
 import logisticspipes.api.util.ITankUtil;
 
-public class SpecialTankHandler {
+public final class SpecialTankHandler {
+
+    private static @Nullable SpecialTankHandler instance;
 
     private final List<ISpecialTankUtilProvider> tankUtilProviders;
     private final List<ISpecialTankHandler> handlers;
@@ -26,8 +28,21 @@ public class SpecialTankHandler {
     /**
      * Collects everything registered on {@code event}, which is closed from here on.
      */
-    public static SpecialTankHandler from(RegisterTankHandlersEvent event) {
-        return new SpecialTankHandler(event.registeredProviders(), event.registeredHandlers());
+    public static void load(RegisterTankHandlersEvent event) {
+        instance = new SpecialTankHandler(event.registeredProviders(), event.registeredHandlers());
+    }
+
+    /**
+     * The tank handlers collected at startup.
+     *
+     * @throws IllegalStateException before startup collected them
+     */
+    public static SpecialTankHandler get() {
+        SpecialTankHandler current = instance;
+        if (current == null) {
+            throw new IllegalStateException("SpecialTankHandler is not loaded yet");
+        }
+        return current;
     }
 
     /**

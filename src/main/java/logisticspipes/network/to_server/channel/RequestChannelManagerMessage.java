@@ -10,10 +10,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.channel.ChannelManagerPopupMessage;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.channels.ChannelManager;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
 /**
@@ -35,8 +34,7 @@ public record RequestChannelManagerMessage(BlockPos pos) implements CustomPacket
         if (station == null || !(context.player() instanceof ServerPlayer player)) {
             return;
         }
-        final IChannelManager manager =
-            SimpleServiceLocator.channelManagerProvider.getChannelManager(player.level());
+        final ChannelManager manager = ChannelManager.get(player.level());
         PacketDistributor.sendToPlayer(player,
             new ChannelManagerPopupMessage(message.pos, manager.getAllowedChannels(player)));
     }

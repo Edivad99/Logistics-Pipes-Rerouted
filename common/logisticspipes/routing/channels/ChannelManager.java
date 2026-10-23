@@ -9,7 +9,6 @@ import java.util.UUID;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
@@ -21,26 +20,25 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.to_client.channel.ChannelInformationMessage;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
-public class ChannelManager implements IChannelManager {
+public final class ChannelManager {
 
     private static final Identifier DATA_NAME = LPConstants.rl("channel_manager");
     private final ChannelSavedData savedData;
 
-    public ChannelManager(Level level) {
-        if (level instanceof ServerLevel serverLevel) {
-            savedData = serverLevel.getDataStorage().computeIfAbsent(ChannelSavedData.TYPE);
-        } else {
-            savedData = new ChannelSavedData();
-        }
+    private ChannelManager(ChannelSavedData savedData) {
+        this.savedData = savedData;
     }
 
-    @Override
+    public static ChannelManager get(ServerLevel level) {
+        ServerLevel overworld = level.getServer().overworld();
+        return new ChannelManager(overworld.getDataStorage().computeIfAbsent(ChannelSavedData.TYPE));
+    }
+
     public List<ChannelInformation> getChannels() {
         return Collections.unmodifiableList(savedData.channels);
     }
@@ -49,7 +47,7 @@ public class ChannelManager implements IChannelManager {
         return switch (channel.getRights()) {
             case PUBLIC -> true;
             case SECURED -> {
-                final LogisticsSecurityBlockEntity station = SimpleServiceLocator.securityStationManager
+                final LogisticsSecurityBlockEntity station = RouterManager.get()
                     .getStation(channel.getResponsibleSecurityID());
                 // Without its station a secured channel falls back to owner-only access.
                 yield station != null
@@ -64,25 +62,22 @@ public class ChannelManager implements IChannelManager {
         return channel.getOwner().equals(PlayerIdentifier.get(player));
     }
 
-    @Override
     public List<ChannelInformation> getAllowedChannels(Player player) {
         return savedData.channels.stream().filter(channel -> isChannelAllowedFor(channel, player)).toList();
     }
 
-    @Override
-    public ChannelInformation createNewChannel(String name, PlayerIdentifier owner,
+    public void createNewChannel(String name, PlayerIdentifier owner,
         ChannelInformation.AccessRights rights, @Nullable UUID responsibleSecurityID) {
         ChannelInformation channel =
             new ChannelInformation(name, UUID.randomUUID(), owner, rights, responsibleSecurityID);
         savedData.channels.add(channel);
         savedData.setDirty();
         sendUpdatePacketToClients(channel);
-        return channel;
     }
 
-    @Override
     public void updateChannelName(UUID channelIdentifier, String newName) {
-        savedData.channels.stream().filter(channel -> channel.getChannelIdentifier().equals(channelIdentifier))
+        savedData.channels.stream()
+            .filter(channel -> channel.getChannelIdentifier().equals(channelIdentifier))
             .forEach(channel -> {
                 channel.setName(newName);
                 sendUpdatePacketToClients(channel);
@@ -90,10 +85,10 @@ public class ChannelManager implements IChannelManager {
         savedData.setDirty();
     }
 
-    @Override
     public void updateChannelRights(UUID channelIdentifier, ChannelInformation.AccessRights rights,
         UUID responsibleSecurityID) {
-        savedData.channels.stream().filter(channel -> channel.getChannelIdentifier().equals(channelIdentifier))
+        savedData.channels.stream()
+            .filter(channel -> channel.getChannelIdentifier().equals(channelIdentifier))
             .forEach(channel -> {
                 channel.setRights(rights);
                 channel.setResponsibleSecurityID(responsibleSecurityID);
@@ -102,10 +97,10 @@ public class ChannelManager implements IChannelManager {
         savedData.setDirty();
     }
 
-    @Override
     public void removeChannel(UUID channelIdentifier) {
         Optional<ChannelInformation> optChannel = savedData.channels.stream()
-            .filter(channel -> channel.getChannelIdentifier().equals(channelIdentifier)).findFirst();
+            .filter(channel -> channel.getChannelIdentifier().equals(channelIdentifier))
+            .findFirst();
         savedData.channels.removeIf(channel -> channel.getChannelIdentifier().equals(channelIdentifier));
         optChannel.ifPresent(channelInformation -> sendUpdatePacketToClients(
             new ChannelInformation(null, channelIdentifier, channelInformation.getOwner(),
@@ -113,15 +108,11 @@ public class ChannelManager implements IChannelManager {
         savedData.setDirty();
     }
 
-    public void setChanged() {
-        savedData.setDirty();
-    }
-
     private void sendUpdatePacketToClients(ChannelInformation channel) {
         PacketDistributor.sendToAllPlayers(new ChannelInformationMessage(channel, false));
     }
 
-    public static class ChannelSavedData extends SavedData {
+    private static class ChannelSavedData extends SavedData {
 
         private static final Codec<ChannelSavedData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ChannelInformation.CODEC.listOf().optionalFieldOf("channels", List.of())
@@ -139,11 +130,6 @@ public class ChannelManager implements IChannelManager {
 
         private ChannelSavedData(List<ChannelInformation> channels) {
             this.channels = new ArrayList<>(channels);
-        }
-
-        public ChannelSavedData setChannels(List<ChannelInformation> channels) {
-            this.channels = channels;
-            return this;
         }
     }
 }

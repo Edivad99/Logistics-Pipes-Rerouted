@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
 
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.item.ItemIdentifier;
 
 /**
@@ -31,7 +31,7 @@ public final class RecipeComponentGuesser {
     public static List<Optional<Integer>> choose(CoreRoutedPipe pipe, List<List<ItemIdentifier>> candidates) {
         // Only worth asking the network what it can craft if something is actually short.
         final Supplier<List<ItemIdentifier>> craftable = Suppliers.memoize(() ->
-                SimpleServiceLocator.logisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost()));
+                LogisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost()));
         return candidates.stream().map(slot -> choose(pipe, slot, craftable)).toList();
     }
 
@@ -40,8 +40,7 @@ public final class RecipeComponentGuesser {
         int best = -1;
         int bestAmount = 0;
         for (int i = 0; i < candidates.size(); i++) {
-            final int amount = SimpleServiceLocator.logisticsManager
-                    .getAmountFor(candidates.get(i), pipe.getRouter().getIRoutersByCost());
+            final int amount = LogisticsManager.getAmountFor(candidates.get(i), pipe.getRouter().getIRoutersByCost());
             if (amount > bestAmount) {
                 bestAmount = amount;
                 best = i;

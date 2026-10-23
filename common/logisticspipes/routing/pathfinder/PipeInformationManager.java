@@ -1,62 +1,24 @@
 package logisticspipes.routing.pathfinder;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
-
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.LogisticsPipes;
-import logisticspipes.api.connection.ConnectionType;
+public final class PipeInformationManager {
 
-public class PipeInformationManager {
-
-	private Map<Class<?> /*BlockEntity*/, Class<? extends IPipeInformationProvider>> infoProvider = new HashMap<>();
-
-    @Nullable
-	public IPipeInformationProvider getInformationProviderFor(@Nullable BlockEntity tile) {
-        switch (tile) {
-            case null -> {
-                return null;
-            }
-            case IPipeInformationProvider iPipeInformationProvider -> {
-                return iPipeInformationProvider;
-            }
-            case ISubMultiBlockPipeInformationProvider iSubMultiBlockPipeInformationProvider -> {
-                return iSubMultiBlockPipeInformationProvider.getMainTile();
-            }
-            default -> {
-                for (Class<?> type : infoProvider.keySet()) {
-                    if (type.isAssignableFrom(tile.getClass())) {
-                        try {
-                            IPipeInformationProvider provider = infoProvider.get(type).getDeclaredConstructor(type).newInstance(type.cast(tile));
-                            if (provider.isCorrect(ConnectionType.UNDEFINED)) {
-                                return provider;
-                            }
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException | SecurityException |
-                                 NoSuchMethodException e) {
-                            LogisticsPipes.LOG.error("Failed to instantiate IPipeInformationProvider for type {}", type.getName(), e);
-                        }
-                    }
-                }
-            }
-        }
-        return null;
+	private PipeInformationManager() {
 	}
 
-	public void registerProvider(Class<?> source, Class<? extends IPipeInformationProvider> provider) {
-		try {
-			provider.getDeclaredConstructor(source);
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(e);
-		}
-		infoProvider.put(source, provider);
+	public static @Nullable IPipeInformationProvider getInformationProviderFor(@Nullable BlockEntity tile) {
+		return switch (tile) {
+			case IPipeInformationProvider provider -> provider;
+			case ISubMultiBlockPipeInformationProvider subBlock -> subBlock.getMainTile();
+			case null, default -> null;
+		};
 	}
 
-	public boolean canConnect(IPipeInformationProvider startPipe, IPipeInformationProvider provider, Direction direction, boolean flag) {
+	public static boolean canConnect(IPipeInformationProvider startPipe, IPipeInformationProvider provider, Direction direction, boolean flag) {
 		return startPipe.canConnect(provider.getTile(), direction, flag) && provider.canConnect(startPipe.getTile(), direction.getOpposite(), flag);
 	}
 
@@ -66,11 +28,11 @@ public class PipeInformationManager {
 	 * <p>True when neither side objects: a non-pipe on one end is not a refusal, it just has no
 	 * opinion, which is what lets a pipe connect to a plain inventory.
 	 */
-	public boolean canConnect(@Nullable BlockEntity from, @Nullable BlockEntity to, Direction way) {
+	public static boolean canConnect(@Nullable BlockEntity from, @Nullable BlockEntity to, Direction way) {
 		return canConnect(from, to, way, false);
 	}
 
-	public boolean canConnect(@Nullable BlockEntity from, @Nullable BlockEntity to, Direction way,
+	public static boolean canConnect(@Nullable BlockEntity from, @Nullable BlockEntity to, Direction way,
 			boolean ignoreSystemDisconnection) {
 		if (from == null || to == null) {
 			return false;
@@ -86,64 +48,17 @@ public class PipeInformationManager {
 		return toInfo == null || toInfo.canConnect(from, way.getOpposite(), ignoreSystemDisconnection);
 	}
 
-	public boolean isItemPipe(@Nullable BlockEntity tile) {
-		return isPipe(tile, true, ConnectionType.ITEM);
+	/**
+	 * Whether {@code tile} is a pipe itself; the other blocks of a multiblock pipe are not.
+	 */
+	public static boolean isPipe(@Nullable BlockEntity tile) {
+		return tile instanceof IPipeInformationProvider;
 	}
 
-	public boolean isPipe(@Nullable BlockEntity tile) {
-		return isPipe(tile, true, ConnectionType.UNDEFINED);
-	}
-
-	public boolean isPipe(@Nullable BlockEntity tile, boolean check, ConnectionType pipeType) {
-        switch (tile) {
-            case null -> {
-                return false;
-            }
-            case IPipeInformationProvider __ -> {
-                return true;
-            }
-            case ISubMultiBlockPipeInformationProvider __ -> {
-                return pipeType == ConnectionType.MULTIBLOCK;
-            }
-            default -> {
-                for (Class<?> type : infoProvider.keySet()) {
-                    if (type.isAssignableFrom(tile.getClass())) {
-                        try {
-                            IPipeInformationProvider provider = infoProvider.get(type).getDeclaredConstructor(type).newInstance(type.cast(tile));
-                            if (!check || provider.isCorrect(pipeType)) {
-                                return true;
-                            }
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException |
-                                 NoSuchMethodException | SecurityException e) {
-                            LogisticsPipes.LOG.error("Failed to check IPipeInformationProvider for type {}", type.getName(), e);
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-	}
-
-	public boolean isNotAPipe(BlockEntity tile) {
-		if (tile instanceof IPipeInformationProvider) {
-			return false;
-		} else if (tile instanceof ISubMultiBlockPipeInformationProvider) {
-			return false;
-		} else {
-			for (Class<?> type : infoProvider.keySet()) {
-				if (type.isAssignableFrom(tile.getClass())) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	public boolean isFluidPipe(BlockEntity tile) {
-		IPipeInformationProvider info = getInformationProviderFor(tile);
-		if (info == null) {
-			return false;
-		}
-		return info.isFluidPipe();
+	/**
+	 * Whether {@code tile} is no part of a pipe, not even of a multiblock one.
+	 */
+	public static boolean isNotAPipe(BlockEntity tile) {
+		return !(tile instanceof IPipeInformationProvider || tile instanceof ISubMultiBlockPipeInformationProvider);
 	}
 }

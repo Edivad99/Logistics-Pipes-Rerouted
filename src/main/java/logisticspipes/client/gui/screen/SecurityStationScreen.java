@@ -24,7 +24,7 @@ import logisticspipes.network.to_server.security.RequestSecurityStationCCIdsMess
 import logisticspipes.network.to_server.security.SecurityCardActionMessage;
 import logisticspipes.network.to_server.security.SetSecurityStationAuthorizedMessage;
 import logisticspipes.network.to_server.security.ToggleSecurityStationFlagMessage;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.security.ClientAuthorizations;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.GuiCheckBox;
@@ -65,7 +65,7 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
     public SecurityStationScreen(SecurityStationMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, 280, 260, 0, 0);
         this.tile = menu.getBlockEntity();
-        authorized = SimpleServiceLocator.securityStationManager.isAuthorized(tile.getSecId());
+        authorized = ClientAuthorizations.isAuthorized(tile.getSecId());
     }
 
     @Override

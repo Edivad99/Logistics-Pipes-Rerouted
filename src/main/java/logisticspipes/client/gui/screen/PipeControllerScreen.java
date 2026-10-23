@@ -23,8 +23,8 @@ import logisticspipes.network.to_server.block.OpenLogicControllerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeOrderWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.order.IOrderInfoProvider;
+import logisticspipes.security.ClientAuthorizations;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
@@ -178,7 +178,7 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
                 guiGraphics.text(font, ChatColor.BLUE + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY),
                     false);
                 guiGraphics.text(font,
-                    "Authorization: " + (SimpleServiceLocator.securityStationManager.isAuthorized(id) ?
+                    "Authorization: " + (ClientAuthorizations.isAuthorized(id) ?
                         ChatColor.GREEN + "Authorized" :
                         ChatColor.RED + "Unauthorized"), 10, 94, Color.getValue(Color.DARKER_GREY), false);
             }

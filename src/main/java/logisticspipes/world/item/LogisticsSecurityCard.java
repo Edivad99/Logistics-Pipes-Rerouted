@@ -7,7 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.security.ClientAuthorizations;
 
 /**
  * A card carrying the id of a security station, handed out by that station.
@@ -25,7 +25,7 @@ public class LogisticsSecurityCard extends LogisticsItemCard {
     @Override
     protected void appendDetails(ItemStack stack, UUID id, Consumer<Component> tooltipAdder) {
         tooltipAdder.accept(Component.literal("Authorization: " +
-                (SimpleServiceLocator.securityStationManager.isAuthorized(id) ? "Authorized" : "Unauthorized"))
+                (ClientAuthorizations.isAuthorized(id) ? "Authorized" : "Unauthorized"))
             .withStyle(ChatFormatting.GRAY));
     }
 

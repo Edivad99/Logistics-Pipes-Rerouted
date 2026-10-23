@@ -7,10 +7,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.channels.ChannelManager;
 
 /**
  * The player removed a channel in the channel manager.
@@ -25,8 +26,9 @@ public record DeleteChannelMessage(UUID channel) implements CustomPacketPayload 
             DeleteChannelMessage::new);
 
     public static void handle(DeleteChannelMessage message, IPayloadContext context) {
-        SimpleServiceLocator.channelManagerProvider.getChannelManager(context.player().level())
-            .removeChannel(message.channel);
+        if (context.player() instanceof ServerPlayer player) {
+            ChannelManager.get(player.level()).removeChannel(message.channel);
+        }
     }
 
     @Override

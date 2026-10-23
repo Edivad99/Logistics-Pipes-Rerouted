@@ -15,11 +15,11 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.AsyncRouting;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -84,7 +84,7 @@ public final class PassiveSinkFinder {
     public static @Nullable Destination getDestination(ItemStack stack, ItemIdentifier itemid, boolean canBeDefault,
         ServerRouter sourceRouter, List<Integer> routersToExclude) {
         Stream<ExitRoute> destinationStream = ServerRouter.getRoutersInterestedIn(itemid).stream()
-            .mapToObj(SimpleServiceLocator.routerManager::getServerRouter)
+            .mapToObj(RouterManager.get()::getServerRouter)
             .flatMap(router -> {
                 if (router == null) {
                     return Stream.empty();
@@ -134,7 +134,7 @@ public final class PassiveSinkFinder {
             return null;
         }
         ServerRouter destinationRouter =
-            Objects.requireNonNull(SimpleServiceLocator.routerManager.getServerRouter(destinationRouterId));
+            Objects.requireNonNull(RouterManager.get().getServerRouter(destinationRouterId));
         CoreRoutedPipe pipe = Objects.requireNonNull(destinationRouter.getPipe());
         pipe.useEnergy(sinkReply.energyUse);
         pipe.spawnParticle(Particles.BLUE_SPARKLE, 10);

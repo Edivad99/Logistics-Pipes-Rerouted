@@ -47,6 +47,7 @@ import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.inventory.IItemIdentifierInventory;
+import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.inventory.ProviderMode;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem;
@@ -56,7 +57,6 @@ import logisticspipes.network.to_client.module.SneakyDirectionMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
 import logisticspipes.request.resources.DictResource;
@@ -64,6 +64,7 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.LogisticsPromise;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
 import logisticspipes.routing.order.LogisticsOrder;
@@ -323,7 +324,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
             int wanted = Math.min(available, stack.getStackSize());
             wanted = Math.min(wanted, maxCount);
             wanted = Math.min(wanted, item.getMaxStackSize());
-            IRouter dRtr = SimpleServiceLocator.routerManager.getServerRouter(destination);
+            IRouter dRtr = RouterManager.get().getServerRouter(destination);
             if (dRtr == null) {
                 this.service.getItemOrderManager().sendFailed();
                 return 0;
@@ -475,7 +476,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     }
 
     private @Nullable IInventoryUtil getInventoryUtilWithMode(NeighborBlockEntity<BlockEntity> neighbor) {
-        return SimpleServiceLocator.inventoryUtilFactory
+        return InventoryUtilFactory.get()
             .getHidingInventoryUtil(neighbor.getBlockEntity(), neighbor.getOurDirection(), providerMode.getValue());
     }
 

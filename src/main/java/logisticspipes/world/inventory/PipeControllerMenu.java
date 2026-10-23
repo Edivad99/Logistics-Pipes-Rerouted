@@ -18,7 +18,8 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.pipes.upgrades.SneakyUpgradeConfig;
 import logisticspipes.pipes.upgrades.UpgradeManager;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.RouterManager;
+import logisticspipes.security.ClientAuthorizations;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
@@ -66,7 +67,7 @@ public class PipeControllerMenu extends DummyMenu {
         upgradeSlots = List.of(slots);
 
         securitySlot = addStaticRestrictedSlot(0, upgrades.secInv, 10, 42,
-            PipeControllerMenu::isAuthorizedCard, 1);
+            stack -> isAuthorizedCard(stack, pipe), 1);
         // Kept but hidden; it may be used again once the logic controller tab comes back.
         diskSlot = addRestrictedSlot(0, pipe.getContainer().logicController.diskInv, 14, 36, LPItems.DISK.get());
 
@@ -104,11 +105,13 @@ public class PipeControllerMenu extends DummyMenu {
         return upgrade instanceof SneakyUpgradeConfig && upgrade.isAllowedForPipe(pipe);
     }
 
-    private static boolean isAuthorizedCard(ItemStack stack) {
+    private static boolean isAuthorizedCard(ItemStack stack, CoreRoutedPipe pipe) {
         if (stack.isEmpty() || !stack.is(LPItems.SECURITY_CARD)) {
             return false;
         }
         final UUID uuid = Objects.requireNonNull(stack.get(LPDataComponents.UUID));
-        return SimpleServiceLocator.securityStationManager.isAuthorized(uuid);
+        return pipe.getLevel().isClientSide()
+            ? ClientAuthorizations.isAuthorized(uuid)
+            : RouterManager.get().isAuthorized(uuid);
     }
 }

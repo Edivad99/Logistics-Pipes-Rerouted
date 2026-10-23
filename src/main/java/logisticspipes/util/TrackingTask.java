@@ -11,8 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.item.ItemIdentifier;
 
 public class TrackingTask {
@@ -66,8 +66,7 @@ public class TrackingTask {
 
     /** Takes a sample now, overwriting the oldest one once the history is full. */
     public void record(CoreRoutedPipe pipe) {
-        amountRecorded[arrayPos++] = SimpleServiceLocator.logisticsManager
-            .getAmountFor(item, pipe.getRouter().getIRoutersByCost());
+        amountRecorded[arrayPos++] = LogisticsManager.getAmountFor(item, pipe.getRouter().getIRoutersByCost());
         if (arrayPos >= amountRecorded.length) {
             arrayPos = 0;
         }

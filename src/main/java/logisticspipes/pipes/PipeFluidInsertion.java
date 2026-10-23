@@ -10,12 +10,13 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
@@ -68,7 +69,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
                 continue;
             }
 
-            Pair<Integer, FluidSinkReply> result = SimpleServiceLocator.logisticsFluidManager.getBestReply(
+            Pair<Integer, FluidSinkReply> result = LogisticsFluidManager.getBestReply(
                 FluidIdentifierStack.getFromStack(stack), getRouter(), tempJamList);
             if (result == null || result.getValue2().sinkAmount <= 0) {
                 nextSendMax[dir.ordinal()] = 100;
@@ -83,9 +84,9 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
             }
 
             FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.getValue2().getSinkAmountInt(), true);
-            ItemIdentifierStack liquidContainer = SimpleServiceLocator.logisticsFluidManager.getFluidContainer(
+            ItemIdentifierStack liquidContainer = LogisticsFluidManager.getFluidContainer(
                 FluidIdentifierStack.getFromStack(toSend));
-            IRoutedItem routed = SimpleServiceLocator.routedItemHelper.createNewTravelItem(liquidContainer);
+            IRoutedItem routed = new LPTravelingItemServer(liquidContainer);
             routed.setDestination(result.getValue1());
             routed.setTransportMode(TransportMode.Passive);
             this.queueRoutedItem(routed, dir);

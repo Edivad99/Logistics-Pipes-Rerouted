@@ -44,10 +44,10 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.network.to_client.block.PowerProviderLevelMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Triplet;
@@ -156,7 +156,7 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
         if (requested > 0) {
             double ratio = Math.min(1, (double) Math.min(storage.getAmountAsLong(), MAX_PROVIDE_PER_TICK) / requested);
             for (Map.Entry<Integer, Integer> order : orders.entrySet()) {
-                IRouter destination = SimpleServiceLocator.routerManager.getRouter(order.getKey());
+                IRouter destination = RouterManager.get().getRouter(order.getKey());
                 int amount = (int) (order.getValue() * ratio);
                 if (destination != null && destination.getPipe() != null && amount > 0) {
                     deliver(destination, amount);

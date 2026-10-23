@@ -25,8 +25,8 @@ import logisticspipes.LPConfigs;
 import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.pipes.basic.debug.DebugLogController;
 import logisticspipes.pipes.basic.debug.StatusEntry;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -272,8 +272,8 @@ public abstract class CoreUnroutedPipe {
             if (ignore == dir) {
                 continue;
             }
-            IPipeInformationProvider information = SimpleServiceLocator.pipeInformationManager
-                .getInformationProviderFor(container.getNextConnectedTile(dir));
+            IPipeInformationProvider information = PipeInformationManager.getInformationProviderFor(
+                container.getNextConnectedTile(dir));
             if (information != null) {
                 BlockPos pos = information.getPos();
                 if (visited.contains(pos)) {

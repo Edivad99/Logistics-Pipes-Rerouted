@@ -9,7 +9,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.api.connection.Adjacent;
 import logisticspipes.api.connection.ConnectionType;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.world.WorldCoordinatesWrapper;
 
 public final class AdjacentFactory {
@@ -20,7 +20,7 @@ public final class AdjacentFactory {
     public static Adjacent createAdjacentCache(CoreRoutedPipe parent) {
         List<LPNeighborBlockEntity<?>> connected =
             new WorldCoordinatesWrapper(Objects.requireNonNull(parent.getContainer())).connectedBlockEntities().stream()
-                .filter(neighbor -> SimpleServiceLocator.pipeInformationManager.isNotAPipe(neighbor.getBlockEntity())
+                .filter(neighbor -> PipeInformationManager.isNotAPipe(neighbor.getBlockEntity())
                     && !parent.isSideBlocked(neighbor.getDirection(), false))
                 .<LPNeighborBlockEntity<?>>map(neighbor -> neighbor)
                 .toList();

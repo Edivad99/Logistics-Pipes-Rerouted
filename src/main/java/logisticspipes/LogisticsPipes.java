@@ -38,9 +38,11 @@ import logisticspipes.commands.LogisticsPipesCommand;
 import logisticspipes.connection.special.RegisterSpecialConnectionsEvent;
 import logisticspipes.connection.special.SpecialBlockEntityConnection;
 import logisticspipes.connection.special.SpecialPipeConnection;
+import logisticspipes.crafting.CraftingRecipeProviders;
 import logisticspipes.crafting.FurnaceProgressProvider;
 import logisticspipes.crafting.LogisticsCraftingTableRecipeProvider;
 import logisticspipes.crafting.MachineProgressProvider;
+import logisticspipes.crafting.RegisterCraftingRecipeProvidersEvent;
 import logisticspipes.data.LPLanguageProvider;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.LPSpriteSourceProvider;
@@ -50,22 +52,16 @@ import logisticspipes.entity.FakePlayers;
 import logisticspipes.integrations.computercraft.ComputerCraftIntegration;
 import logisticspipes.integrations.tesseract.TesseractConnection;
 import logisticspipes.integrations.top.LPTopPlugin;
-import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.inventory.SpecialInventoryHandlerManager;
 import logisticspipes.inventory.tank.SpecialTankHandler;
 import logisticspipes.inventory.tank.SpecialTankHandlerManager;
-import logisticspipes.logistics.LogisticsFluidManager;
-import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.PacketHandler;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.pipes.PipeFluidSatellite;
 import logisticspipes.pipes.PipeItemsSatelliteLogistics;
 import logisticspipes.property.PropertyUpdaterEventListener;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
-import logisticspipes.routing.channels.ChannelManagerProvider;
-import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.routing.pathfinder.changedetection.BlockChangeListener;
 import logisticspipes.ticks.HudUpdateTick;
 import logisticspipes.ticks.LPTickHandler;
@@ -73,7 +69,6 @@ import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.ticks.RoutingTableUpdateThread;
 import logisticspipes.util.SystemUtil;
 import logisticspipes.utils.FluidIdentifier;
-import logisticspipes.utils.RoutedItemHelper;
 import logisticspipes.utils.ServerTickExecutor;
 import logisticspipes.world.attachment.LPAttachmentTypes;
 import logisticspipes.world.inventory.LPMenuTypes;
@@ -152,9 +147,6 @@ public class LogisticsPipes {
     }
 
     private void handleCommonSetup(FMLCommonSetupEvent event) {
-        SimpleServiceLocator.setPipeInformationManager(new PipeInformationManager());
-        SimpleServiceLocator.setLogisticsFluidManager(new LogisticsFluidManager());
-
         if (ModList.get().isLoaded(LPConstants.TOP_MOD_ID)) {
             InterModComms.sendTo(LPConstants.TOP_MOD_ID, "getTheOneProbe", LPTopPlugin::new);
         }
@@ -164,36 +156,32 @@ public class LogisticsPipes {
 
         RegisterProgrammerRecipes.loadRecipes();
 
-        RouterManager manager = new RouterManager();
-        SimpleServiceLocator.setRouterManager(manager);
-        SimpleServiceLocator.setChannelConnectionManager(manager);
-        SimpleServiceLocator.setSecurityStationManager(manager);
-        SimpleServiceLocator.setLogisticsManager(new LogisticsManager());
-        SimpleServiceLocator.setInventoryUtilFactory(new InventoryUtilFactory());
 
         event.enqueueWork(() -> {
             RegisterProgressProvidersEvent progressProviders = new RegisterProgressProvidersEvent();
             progressProviders.register(new FurnaceProgressProvider());
             ModLoader.postEvent(progressProviders);
-            SimpleServiceLocator.setMachineProgressProvider(
-                new MachineProgressProvider(progressProviders.registered()));
+            MachineProgressProvider.load(progressProviders);
 
             RegisterTankHandlersEvent tankHandlers = new RegisterTankHandlersEvent();
             SpecialTankHandlerManager.register(tankHandlers);
             ModLoader.postEvent(tankHandlers);
-            SimpleServiceLocator.setSpecialTankHandler(SpecialTankHandler.from(tankHandlers));
+            SpecialTankHandler.load(tankHandlers);
 
             RegisterSpecialConnectionsEvent connections = new RegisterSpecialConnectionsEvent();
             if (ModList.get().isLoaded(LPConstants.TESSERACT_MOD_ID)) {
                 connections.register(new TesseractConnection());
             }
             ModLoader.postEvent(connections);
-            SimpleServiceLocator.setSpecialConnectionHandler(SpecialPipeConnection.from(connections));
-            SimpleServiceLocator.setSpecialConnectionHandler(SpecialBlockEntityConnection.from(connections));
+            SpecialPipeConnection.load(connections);
+            SpecialBlockEntityConnection.load(connections);
+
+            RegisterCraftingRecipeProvidersEvent recipeProviders = new RegisterCraftingRecipeProvidersEvent();
+            recipeProviders.register(new LogisticsCraftingTableRecipeProvider());
+            ModLoader.postEvent(recipeProviders);
+            CraftingRecipeProviders.load(recipeProviders);
         });
 
-        SimpleServiceLocator.setRoutedItemHelper(new RoutedItemHelper());
-        SimpleServiceLocator.setChannelManagerProvider(new ChannelManagerProvider());
 
         NeoForge.EVENT_BUS.register(new LPTickHandler());
         NeoForge.EVENT_BUS.register(new QueuedTasks());
@@ -234,7 +222,6 @@ public class LogisticsPipes {
 
     private void handleLoadComplete(FMLLoadCompleteEvent event) {
         SpecialInventoryHandlerManager.load();
-        SimpleServiceLocator.addCraftingRecipeProvider(new LogisticsCraftingTableRecipeProvider());
         FluidIdentifier.initFromNeoForge(false);
     }
 
@@ -256,7 +243,7 @@ public class LogisticsPipes {
 
     @SubscribeEvent
     public void cleanup(ServerStoppingEvent event) {
-        SimpleServiceLocator.routerManager.serverStopClean();
+        RouterManager.reset();
         QueuedTasks.clearAllTasks();
         HudUpdateTick.clearUpdateFlags();
         PipeItemsSatelliteLogistics.cleanup();

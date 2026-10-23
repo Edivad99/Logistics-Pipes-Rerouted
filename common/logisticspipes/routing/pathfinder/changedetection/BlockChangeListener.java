@@ -9,8 +9,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.QueuedTasks;
 
 /**
@@ -71,11 +71,10 @@ public class BlockChangeListener {
             if (!(adjacentTE instanceof LogisticsGenericPipeBlockEntity lpTile)) continue;
             if (!lpTile.isChangeDetectionActive()) continue;
 
-            if (SimpleServiceLocator.pipeInformationManager.isItemPipe(adjacentTE)) {
+            if (PipeInformationManager.isPipe(adjacentTE)) {
                 // dir goes from changed → adjacent; from adjacent's perspective
                 // the changed block is in direction dir.getOpposite().
-                SimpleServiceLocator.pipeInformationManager
-                        .getInformationProviderFor(adjacentTE)
+                PipeInformationManager.getInformationProviderFor(adjacentTE)
                         .refreshTileCacheOnSide(dir.getOpposite());
             }
         }

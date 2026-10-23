@@ -18,10 +18,10 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
 import logisticspipes.inventory.tank.ISpecialTankAccessHandler;
+import logisticspipes.inventory.tank.SpecialTankHandler;
 import logisticspipes.inventory.tank.SpecialTankUtil;
 import logisticspipes.inventory.tank.TankUtil;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -51,7 +51,7 @@ public final class PipeFluidUtil {
      */
     @Nullable
     public static ITankUtil getTankUtilForBE(@Nullable BlockEntity blockEntity, @Nullable Direction dirOnEntity) {
-        ITankUtil special = SimpleServiceLocator.specialTankHandler.getSpecialTankUtilFor(blockEntity, dirOnEntity);
+        ITankUtil special = SpecialTankHandler.get().getSpecialTankUtilFor(blockEntity, dirOnEntity);
         if (special != null) {
             return special;
         }
@@ -65,8 +65,8 @@ public final class PipeFluidUtil {
             return null;
         }
 
-        if (SimpleServiceLocator.specialTankHandler.hasHandlerFor(blockEntity)
-            && SimpleServiceLocator.specialTankHandler.getTankHandlerFor(
+        if (SpecialTankHandler.get().hasHandlerFor(blockEntity)
+            && SpecialTankHandler.get().getTankHandlerFor(
             blockEntity) instanceof ISpecialTankAccessHandler handler) {
             return new SpecialTankUtil(fluidHandler, blockEntity, handler);
         }
@@ -94,7 +94,7 @@ public final class PipeFluidUtil {
     public static List<BlockEntity> getAllTankTiles(FluidRoutedPipe pipe) {
         List<BlockEntity> result = new ArrayList<>();
         for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : getAdjacentTanks(pipe, false)) {
-            result.addAll(SimpleServiceLocator.specialTankHandler.getBaseBlockEntitiesFor(pair.getValue1().getBlockEntity()));
+            result.addAll(SpecialTankHandler.get().getBaseBlockEntitiesFor(pair.getValue1().getBlockEntity()));
         }
         return result;
     }

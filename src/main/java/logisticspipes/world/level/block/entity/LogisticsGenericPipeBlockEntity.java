@@ -53,7 +53,6 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.ItemInsertionHandler;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.routing.pathfinder.changedetection.TEControl;
@@ -542,8 +541,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
                 int lastIterLeft;
                 do {
                     lastIterLeft = leftStack.getCount();
-                    LPTravelingItem.LPTravelingItemServer travelingItem = SimpleServiceLocator.routedItemHelper.createNewTravelItem(
-                        leftStack);
+                    var travelingItem = new LPTravelingItem.LPTravelingItemServer(leftStack);
                     leftStack.setCount(pipe.transport.injectItem(travelingItem, from.getOpposite()));
                 } while (leftStack.getCount() != lastIterLeft && leftStack.getCount() != 0);
                 return payload.getCount() - leftStack.getCount();

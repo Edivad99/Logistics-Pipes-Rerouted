@@ -74,6 +74,7 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
+import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.logisticspipes.ITrackStatistics;
@@ -94,10 +95,11 @@ import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.PipeSignType;
 import logisticspipes.pipes.upgrades.UpgradeManager;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
@@ -279,7 +281,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
         transport.injectItem(routedItem, from.getOpposite());
 
-        IRouter r = SimpleServiceLocator.routerManager.getServerRouter(routedItem.getDestination());
+        IRouter r = RouterManager.get().getServerRouter(routedItem.getDestination());
         if (r != null) {
             CoreRoutedPipe pipe = r.getCachedPipe();
             if (pipe != null) {
@@ -781,8 +783,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                     routerIntId = UUID.fromString(routerId);
                 }
                 router = getLevel().isClientSide()
-                    ? SimpleServiceLocator.clientRouterManager.getOrCreateRouter(routerIntId, getLevel(), getPos())
-                    : SimpleServiceLocator.routerManager.getOrCreateRouter(routerIntId, getLevel(), getPos());
+                    ? ClientRouterManager.get().getOrCreateRouter(routerIntId, getLevel(), getPos())
+                    : RouterManager.get().getOrCreateRouter(routerIntId, getLevel(), getPos());
             }
         }
         return router;
@@ -797,7 +799,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
         SecuritySettings settings = null;
         if (!player.level().isClientSide()) {
-            LogisticsSecurityBlockEntity station = SimpleServiceLocator.securityStationManager.getStation(
+            LogisticsSecurityBlockEntity station = RouterManager.get().getStation(
                 getOriginalUpgradeManager().getSecurityID());
             if (station != null) {
                 settings = station.getSecuritySettingsForPlayer(player, true);
@@ -1158,11 +1160,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
     @Nullable
     public ISecurityProvider getSecurityProvider() {
-        return SimpleServiceLocator.securityStationManager.getStation(getOriginalUpgradeManager().getSecurityID());
+        return RouterManager.get().getStation(getOriginalUpgradeManager().getSecurityID());
     }
 
     public boolean canBeDestroyedByPlayer(Player entityPlayer) {
-        LogisticsSecurityBlockEntity station = SimpleServiceLocator.securityStationManager.getStation(
+        LogisticsSecurityBlockEntity station = RouterManager.get().getStation(
             getOriginalUpgradeManager().getSecurityID());
         return station == null || station.getSecuritySettingsForPlayer(entityPlayer, true).removePipes;
     }
@@ -1237,7 +1239,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (this instanceof IRequireReliableFluidTransport requireReliableFluidTransport) {
             ItemIdentifierStack stack = information.getItem();
             if (stack.getItem().isFluidContainer()) {
-                FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(stack);
+                FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(stack);
                 if (liquid != null) {
                     requireReliableFluidTransport.liquidArrived(liquid.getFluid(), liquid.getAmount());
                 }
@@ -1280,7 +1282,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Override
     public IRoutedItem sendStack(ItemStack stack, Pair<Integer, SinkReply> reply, ItemSendMode mode,
         Direction direction) {
-        IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
+        IRoutedItem itemToSend = new LPTravelingItemServer(stack);
         itemToSend.setDestination(reply.getValue1());
         if (reply.getValue2().isPassive) {
             if (reply.getValue2().isDefault) {
@@ -1299,7 +1301,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Override
     public IRoutedItem sendStack(ItemStack stack, int destination, ItemSendMode mode,
         @Nullable IAdditionalTargetInformation info, Direction direction) {
-        IRoutedItem itemToSend = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stack);
+        IRoutedItem itemToSend = new LPTravelingItemServer(stack);
         itemToSend.setDestination(destination);
         itemToSend.setTransportMode(TransportMode.Active);
         itemToSend.setAdditionalTargetInformation(info);

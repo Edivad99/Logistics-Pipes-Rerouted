@@ -23,7 +23,7 @@ import logisticspipes.client.model.tube.TubeModels;
 import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.interfaces.ITubeRenderOrientation;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -63,7 +63,7 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
             protected void handleTileReachedClient(LPTravelingItemClient arrivingItem, @Nullable BlockEntity tile,
                 @Nullable Direction dir) {
                 if (dir.getOpposite() == ((HSTubeSpeedup) getMultiPipe()).orientation.dir1) {
-                    if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
+                    if (PipeInformationManager.isPipe(tile)) {
                         arrivingItem.setSpeed(LPConstants.PIPE_NORMAL_SPEED * 20);
                         passToNextPipe(arrivingItem, tile);
                     }

@@ -7,8 +7,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;
 
@@ -43,14 +43,14 @@ public class TEControl {
                 }
                 BlockEntity nextTile = level.getBlockEntity(newPos);
                 if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe && nextPipe.isChangeDetectionActive()) {
-                    if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
-                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
+                    if (PipeInformationManager.isPipe(nextTile)) {
+                        PipeInformationManager.getInformationProviderFor(nextTile)
                             .refreshTileCacheOnSide(dir.getOpposite());
                     }
-                    if (SimpleServiceLocator.pipeInformationManager.isItemPipe(tile)) {
-                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(tile)
+                    if (PipeInformationManager.isPipe(tile)) {
+                        PipeInformationManager.getInformationProviderFor(tile)
                             .refreshTileCacheOnSide(dir);
-                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(tile)
+                        PipeInformationManager.getInformationProviderFor(tile)
                             .refreshTileCacheOnSide(dir.getOpposite());
                     }
                     for (ITileEntityChangeListener listener : new ArrayList<>(nextPipe.changeListeners)) {
@@ -85,8 +85,8 @@ public class TEControl {
                 }
                 BlockEntity nextTile = level.getBlockEntity(newPos);
                 if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe && nextPipe.isChangeDetectionActive()) {
-                    if (SimpleServiceLocator.pipeInformationManager.isItemPipe(nextTile)) {
-                        SimpleServiceLocator.pipeInformationManager.getInformationProviderFor(nextTile)
+                    if (PipeInformationManager.isPipe(nextTile)) {
+                        PipeInformationManager.getInformationProviderFor(nextTile)
                             .refreshTileCacheOnSide(dir.getOpposite());
                     }
                 }

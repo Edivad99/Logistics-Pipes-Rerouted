@@ -16,14 +16,16 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
+import logisticspipes.inventory.tank.SpecialTankHandler;
+import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeFluidUtil;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.order.LogisticsFluidOrderManager;
 import logisticspipes.routing.order.LogisticsOrderManager;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -77,12 +79,12 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
      */
 
     public final boolean isConnectableTank(BlockEntity blockEntity, Direction dir, boolean flag) {
-        if (SimpleServiceLocator.specialTankHandler.hasHandlerFor(blockEntity)) {
+        if (SpecialTankHandler.get().hasHandlerFor(blockEntity)) {
             return true;
         }
         // dir points from this pipe to the blockEntity, so the blockEntity is asked about the side facing us -- the
         // same side getTankUtil() uses when it builds the util we would end up filling.
-        boolean fluidTile = SimpleServiceLocator.specialTankHandler.hasSpecialTankUtilFor(blockEntity, dir.getOpposite());
+        boolean fluidTile = SpecialTankHandler.get().hasSpecialTankUtilFor(blockEntity, dir.getOpposite());
         Level level = blockEntity.getLevel();
         if (level != null) {
             var fluidHandler = level.getCapability(Capabilities.Fluid.BLOCK, blockEntity.getBlockPos(), dir);
@@ -188,7 +190,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
         for (ItemRoutingInformation next : inTransitToMe) {
             ItemIdentifierStack item = next.getItem();
             if (item.getItem().isFluidContainer()) {
-                FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(item);
+                FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(item);
                 if (liquid.getFluid().equals(ident)) {
                     amount += liquid.getAmount();
                 }
@@ -214,7 +216,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
                 return false;
             }
             int filled;
-            FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(
+            FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(
                 arrivingItem.getItemIdentifierStack());
             if (isConnectableTank(tile, arrivingItem.output, false)) {
                 //Try to put liquid into all adjacent tanks.
@@ -247,19 +249,19 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
                 requireReliableFluidTransport.liquidNotInserted(liquid.getFluid(), liquid.getAmount());
             }
 
-            IRoutedItem routedItem = SimpleServiceLocator.routedItemHelper.createNewTravelItem(
-                SimpleServiceLocator.logisticsFluidManager.getFluidContainer(liquid));
+            IRoutedItem routedItem = new LPTravelingItemServer(
+                LogisticsFluidManager.getFluidContainer(liquid));
             // Carry forward the arriving item's jam list so the rerouted remainder does
             // not immediately pick the same (now-full) path again, and add this pipe's
             // router to prevent looping back here on the very next hop.
             for (int simpleId : arrivingItem.getJamList()) {
-                IRouter r = SimpleServiceLocator.routerManager.getRouter(simpleId);
+                IRouter r = RouterManager.get().getRouter(simpleId);
                 if (r != null) {
                     routedItem.addToJamList(r);
                 }
             }
             routedItem.addToJamList(getRouter());
-            Pair<Integer, FluidSinkReply> replies = SimpleServiceLocator.logisticsFluidManager.getBestReply(liquid,
+            Pair<Integer, FluidSinkReply> replies = LogisticsFluidManager.getBestReply(liquid,
                 getRouter(), routedItem.getJamList());
             if (replies == null) {
                 // clear destination without marking item as lost

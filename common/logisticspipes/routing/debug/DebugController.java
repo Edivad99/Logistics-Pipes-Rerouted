@@ -40,10 +40,10 @@ import logisticspipes.network.to_client.debug.RoutingDebugDoneMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugFiltersMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugInitMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugSourceMessage;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.ticks.QueuedTasks;
 
@@ -322,7 +322,7 @@ public class DebugController implements IRoutingDebugAdapter {
 		for (int i = 0; i < closedSet.size(); i++) {
 			EnumSet<PipeRoutingConnectionType> set = closedSet.get(i);
 			if (set != null) {
-				IRouter router = SimpleServiceLocator.routerManager.getRouter(i);
+				IRouter router = RouterManager.get().getRouter(i);
 				if (router != null) {
 					sendToPlayer(new RoutingDebugClosedSetMessage(router.getPos(), set));
 				}
@@ -331,7 +331,7 @@ public class DebugController implements IRoutingDebugAdapter {
 		for (int i = 0; i < filterList.size(); i++) {
 			EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters = filterList.get(i);
 			if (filters != null) {
-				IRouter router = SimpleServiceLocator.routerManager.getRouter(i);
+				IRouter router = RouterManager.get().getRouter(i);
 				if (router != null) {
 					sendToPlayer(new RoutingDebugFiltersMessage(router.getPos(),
 						filterPositions(filters)));

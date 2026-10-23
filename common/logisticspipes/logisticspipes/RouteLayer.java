@@ -10,9 +10,9 @@ import net.minecraft.core.Direction;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 
@@ -37,13 +37,13 @@ public class RouteLayer {
 		item.checkIDFromUUID();
 		//If a item has no destination, find one
 		if (item.getDestination() < 0) {
-			item = SimpleServiceLocator.logisticsManager.assignDestinationFor(item, router.getSimpleID(), false);
+			item = LogisticsManager.assignDestinationFor(item, router.getSimpleID(), false);
 			pipe.debug.log("No Destination, assigned new destination: (" + item.getInfo());
 		}
 
 		//If the destination is unknown / unroutable or it already arrived at its destination and somehow looped back
 		if (item.getDestination() >= 0 && (!router.hasRoute(item.getDestination(), item.getTransportMode() == TransportMode.Active, item.getItemIdentifierStack().getItem()) || item.getArrived())) {
-			item = SimpleServiceLocator.logisticsManager.assignDestinationFor(item, router.getSimpleID(), false);
+			item = LogisticsManager.assignDestinationFor(item, router.getSimpleID(), false);
 			pipe.debug.log("Unreachable Destination, assigned new destination: (" + item.getInfo());
 		}
 
@@ -64,7 +64,7 @@ public class RouteLayer {
 			}
 
 			if (item.getTransportMode() != TransportMode.Active && !transport.stillWantItem(item)) {
-				return getOrientationForItem(SimpleServiceLocator.logisticsManager.assignDestinationFor(item, router.getSimpleID(), true), null);
+				return getOrientationForItem(LogisticsManager.assignDestinationFor(item, router.getSimpleID(), true), null);
 			}
 
 			item.setDoNotBuffer(true);

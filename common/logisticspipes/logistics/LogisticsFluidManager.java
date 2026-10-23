@@ -19,10 +19,10 @@ import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.interfaces.routing.IProvideFluids;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
@@ -33,10 +33,12 @@ import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.world.item.component.LPDataComponents;
 
-public class LogisticsFluidManager implements ILogisticsFluidManager {
+public final class LogisticsFluidManager {
 
-	@Override
-	public @Nullable Pair<Integer, FluidSinkReply> getBestReply(FluidIdentifierStack stack, IRouter sourceRouter, List<Integer> jamList) {
+	private LogisticsFluidManager() {
+	}
+
+	public static @Nullable Pair<Integer, FluidSinkReply> getBestReply(FluidIdentifierStack stack, IRouter sourceRouter, List<Integer> jamList) {
 		Optional<Pair<Integer, FluidSinkReply>> bestReply = sourceRouter.getIRoutersByCost().stream()
 				.filter(it -> it.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) &&
 						it.destination.getId() != sourceRouter.getId() &&
@@ -51,7 +53,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 				.reduce((left, right) ->
 						left.getValue2().fixedPriority.compareTo(right.getValue2().fixedPriority) < 0 ? right : left);
 		bestReply.ifPresent(pair -> {
-			ServerRouter serverRouter = SimpleServiceLocator.routerManager.getServerRouter(pair.getValue1());
+			ServerRouter serverRouter = RouterManager.get().getServerRouter(pair.getValue1());
 			if (serverRouter == null) return;
 			CoreRoutedPipe pipe = serverRouter.getPipe();
 			if (pipe != null) pipe.spawnParticle(Particles.BLUE_SPARKLE, 10);
@@ -59,8 +61,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 		return bestReply.orElse(null);
 	}
 
-	@Override
-	public ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack) {
+	public static ItemIdentifierStack getFluidContainer(FluidIdentifierStack stack) {
 		ItemStack item = new ItemStack(LPItems.FLUID_CONTAINER.get(), 1);
         FluidStack fluidStack = stack.makeFluidStack();
         if (!fluidStack.isEmpty()) {
@@ -72,9 +73,8 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 		return ItemIdentifierStack.getFromStack(item);
 	}
 
-	@Override
     @Nullable
-	public FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack) {
+	public static FluidIdentifierStack getFluidFromContainer(ItemIdentifierStack stack) {
 		ItemStack itemStack = stack.makeNormalStack();
 		if (itemStack.getItem() instanceof LogisticsFluidContainer) {
             if (itemStack.has(LPDataComponents.FLUID)) {
@@ -85,8 +85,7 @@ public class LogisticsFluidManager implements ILogisticsFluidManager {
 		return null;
 	}
 
-	@Override
-	public TreeSet<FluidIdentifierStack> getAvailableFluid(List<ExitRoute> validDestinations) {
+	public static TreeSet<FluidIdentifierStack> getAvailableFluid(List<ExitRoute> validDestinations) {
 		Map<FluidIdentifier, Integer> allAvailableItems = new HashMap<>();
 		for (ExitRoute r : validDestinations) {
 			if (r == null) {

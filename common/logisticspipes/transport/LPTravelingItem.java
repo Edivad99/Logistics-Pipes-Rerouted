@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.ValueInput;
@@ -23,10 +24,11 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
+import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.order.IDistanceTracker;
@@ -171,6 +173,10 @@ public abstract class LPTravelingItem {
 		@Getter
 		private ItemRoutingInformation info;
 
+		public LPTravelingItemServer(ItemStack stack) {
+			this(ItemIdentifierStack.getFromStack(stack));
+		}
+
 		public LPTravelingItemServer(ItemIdentifierStack stack) {
 			super();
 			info = new ItemRoutingInformation();
@@ -289,7 +295,7 @@ public abstract class LPTravelingItem {
 					return;
 				}
 			}
-			IRouter destinationRouter = SimpleServiceLocator.routerManager.getRouter(info.destinationint);
+			IRouter destinationRouter = RouterManager.get().getRouter(info.destinationint);
 			if (destinationRouter != null) {
 				if (destinationRouter.getPipe() != null) {
 					destinationRouter.getPipe().notifyOfReroute(info);
@@ -299,7 +305,7 @@ public abstract class LPTravelingItem {
 					}
 					if (destinationRouter.getPipe() instanceof IRequireReliableFluidTransport) {
 						if (info.getItem().getItem().isFluidContainer()) {
-							FluidIdentifierStack liquid = SimpleServiceLocator.logisticsFluidManager.getFluidFromContainer(info.getItem());
+							FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(info.getItem());
 							((IRequireReliableFluidTransport) destinationRouter.getPipe()).liquidLost(liquid.getFluid(), liquid.getAmount());
 						}
 					}
@@ -317,7 +323,7 @@ public abstract class LPTravelingItem {
 			info.destinationint = destination;
 			final Level level = container != null ? container.getLevel() : null;
 			if (level == null || !level.isClientSide()) {
-				IRouter router = SimpleServiceLocator.routerManager.getServerRouter(destination);
+				IRouter router = RouterManager.get().getServerRouter(destination);
 				if (router != null) {
 					info.destinationUUID = router.getId();
 				} else {
@@ -410,14 +416,14 @@ public abstract class LPTravelingItem {
 
 		@Override
 		public void checkIDFromUUID() {
-			IRouter router = SimpleServiceLocator.routerManager.getRouter(info.destinationint);
+			IRouter router = RouterManager.get().getRouter(info.destinationint);
 			if (router == null || info.destinationUUID != router.getId()) {
-				info.destinationint = SimpleServiceLocator.routerManager.getIDforUUID(info.destinationUUID);
+				info.destinationint = RouterManager.get().getIDforUUID(info.destinationUUID);
 			}
 		}
 
 		public void refreshDestinationInformation() {
-			IRouter destinationRouter = SimpleServiceLocator.routerManager.getRouter(info.destinationint);
+			IRouter destinationRouter = RouterManager.get().getRouter(info.destinationint);
 			if (destinationRouter != null && destinationRouter.getPipe() instanceof CoreRoutedPipe) {
 				destinationRouter.getPipe().refreshItem(getInfo());
 			}

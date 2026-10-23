@@ -9,7 +9,9 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.logisticspipes.IRoutedItem;
 
-public class SpecialBlockEntityConnection {
+public final class SpecialBlockEntityConnection {
+
+	private static @Nullable SpecialBlockEntityConnection instance;
 
 	private final List<ISpecialBlockEntityConnection> handler;
 
@@ -18,8 +20,21 @@ public class SpecialBlockEntityConnection {
 	}
 
 	/** Collects everything registered on {@code event}, which is closed from here on. */
-	public static SpecialBlockEntityConnection from(RegisterSpecialConnectionsEvent event) {
-		return new SpecialBlockEntityConnection(event.registeredBlockEntityConnections());
+	public static void load(RegisterSpecialConnectionsEvent event) {
+		instance = new SpecialBlockEntityConnection(event.registeredBlockEntityConnections());
+	}
+
+	/**
+	 * The block entity connection handlers collected at startup.
+	 *
+	 * @throws IllegalStateException before startup collected them
+	 */
+	public static SpecialBlockEntityConnection get() {
+		SpecialBlockEntityConnection current = instance;
+		if (current == null) {
+			throw new IllegalStateException("SpecialBlockEntityConnection is not loaded yet");
+		}
+		return current;
 	}
 
 	public Collection<BlockEntity> getConnectedPipes(BlockEntity blockEntity) {

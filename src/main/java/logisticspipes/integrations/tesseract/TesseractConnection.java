@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.connection.special.ISpecialBlockEntityConnection;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
@@ -120,7 +120,7 @@ public class TesseractConnection implements ISpecialBlockEntityConnection {
         for (Direction direction : Direction.values()) {
             BlockEntity neighbor = tesseract.getLevel().getBlockEntity(tesseract.getBlockPos().relative(direction));
             if (neighbor instanceof LogisticsGenericPipeBlockEntity pipe
-                && SimpleServiceLocator.pipeInformationManager.canConnect(tesseract, pipe, direction)) {
+                && PipeInformationManager.canConnect(tesseract, pipe, direction)) {
                 if (found != null || !(pipe.pipe instanceof CoreRoutedPipe)) {
                     return null;
                 }

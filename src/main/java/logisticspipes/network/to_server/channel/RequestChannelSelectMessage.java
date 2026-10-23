@@ -10,11 +10,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
-import logisticspipes.interfaces.routing.IChannelManager;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.channel.ChannelSelectPopupMessage;
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.channels.ChannelManager;
 
 /**
  * Asks for the channels this player may put a connector on; answered with
@@ -36,8 +35,7 @@ public record RequestChannelSelectMessage(BlockPos pos) implements CustomPacketP
         if (pipe == null || !(context.player() instanceof ServerPlayer player)) {
             return;
         }
-        final IChannelManager manager =
-            SimpleServiceLocator.channelManagerProvider.getChannelManager(player.level());
+        final ChannelManager manager = ChannelManager.get(player.level());
         PacketDistributor.sendToPlayer(player,
             new ChannelSelectPopupMessage(message.pos, manager.getAllowedChannels(player)));
     }

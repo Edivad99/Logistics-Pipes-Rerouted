@@ -31,6 +31,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import lombok.Getter;
+
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.Iterables;
@@ -46,7 +48,7 @@ import logisticspipes.network.to_client.security.SecurityStationCCIdsMessage;
 import logisticspipes.network.to_client.security.SecurityStationFlagsMessage;
 import logisticspipes.network.to_client.security.SecurityStationIdMessage;
 import logisticspipes.network.to_client.security.SecurityStationSettingsMessage;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.security.SecuritySettings;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
@@ -74,6 +76,9 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     public List<Integer> excludedCC = new ArrayList<>();
     public boolean allowCC = false;
     public boolean allowAutoDestroy = false;
+    /** Whether the station's cards are honoured; saved, so a deauthorized station stays so. */
+    @Getter
+    private boolean authorized = true;
     private final PlayerCollectionList listener = new PlayerCollectionList();
     @Nullable
     private UUID secId = null;
@@ -97,7 +102,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     public void setRemoved() {
         super.setRemoved();
         if (!level.isClientSide()) {
-            SimpleServiceLocator.securityStationManager.remove(this);
+            RouterManager.get().remove(this);
         }
     }
 
@@ -105,16 +110,20 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     public void onLoad() {
         super.onLoad();
         if (!level.isClientSide()) {
-            SimpleServiceLocator.securityStationManager.add(this);
+            RouterManager.get().add(this);
         }
     }
 
     public void deauthorizeStation() {
-        SimpleServiceLocator.securityStationManager.deauthorizeUUID(getSecId());
+        authorized = false;
+        setChanged();
+        RouterManager.get().deauthorizeUUID(getSecId());
     }
 
     public void authorizeStation() {
-        SimpleServiceLocator.securityStationManager.authorizeUUID(getSecId());
+        authorized = true;
+        setChanged();
+        RouterManager.get().authorizeUUID(getSecId());
     }
 
     @Override
@@ -125,7 +134,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
             PacketDistributor.sendToPlayer(serverPlayer,
                 new SecurityStationIdMessage(getBlockPos(), Optional.ofNullable(getSecId())));
         }
-        SimpleServiceLocator.securityStationManager.sendClientAuthorizationList();
+        RouterManager.get().sendClientAuthorizationList();
         listener.add(player);
     }
 
@@ -168,6 +177,8 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
         input.getString("UUID").ifPresent(raw -> secId = UUID.fromString(raw));
         allowCC = input.getBooleanOr("allowCC", false);
         allowAutoDestroy = input.getBooleanOr("allowAutoDestroy", false);
+        // Stations saved before this was stored were authorized whenever they loaded.
+        authorized = input.getBooleanOr("authorized", true);
         inv.deserialize(input);
         settingsById.clear();
         settingsByName.clear();
@@ -196,6 +207,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
         }
         output.putBoolean("allowCC", allowCC);
         output.putBoolean("allowAutoDestroy", allowAutoDestroy);
+        output.putBoolean("authorized", authorized);
         inv.serialize(output);
         ValueOutput.ValueOutputList list = output.childrenList("settings");
         for (SecuritySettings settings : Iterables.concat(settingsById.values(), settingsByName.values())) {

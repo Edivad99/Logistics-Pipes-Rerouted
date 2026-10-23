@@ -43,6 +43,8 @@ import logisticspipes.api.property.UUIDListProperty;
 import logisticspipes.api.property.UUIDProperty;
 import logisticspipes.connection.AdjacentUtil;
 import logisticspipes.connection.NeighborBlockEntityUtil;
+import logisticspipes.crafting.CraftingRecipeProviders;
+import logisticspipes.crafting.MachineProgressProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
 import logisticspipes.interfaces.ILevelProvider;
@@ -77,7 +79,6 @@ import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.DictCraftingTemplate;
 import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.IPromise;
@@ -95,8 +96,10 @@ import logisticspipes.routing.LogisticsDictPromise;
 import logisticspipes.routing.LogisticsExtraDictPromise;
 import logisticspipes.routing.LogisticsExtraPromise;
 import logisticspipes.routing.LogisticsPromise;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
+import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.DelayedGeneric;
@@ -554,7 +557,7 @@ public class ModuleCrafter extends LogisticsModule
         // Check item-satellite connectivity.
         if (!getUpgradeManager().isAdvancedSatelliteCrafter()) {
             if (!satelliteUUID.isZero()) {
-                int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID.getValue());
+                int satelliteRouterId = RouterManager.get().getIDforUUID(satelliteUUID.getValue());
                 if (satelliteRouterId == -1) {
                     return false;
                 }
@@ -568,8 +571,7 @@ public class ModuleCrafter extends LogisticsModule
                 if (advancedSatelliteUUIDList.isZero(i)) {
                     continue;
                 }
-                int satelliteRouterId = SimpleServiceLocator.routerManager
-                    .getIDforUUID(advancedSatelliteUUIDList.get(i));
+                int satelliteRouterId = RouterManager.get().getIDforUUID(advancedSatelliteUUIDList.get(i));
                 if (satelliteRouterId == -1) {
                     return false;
                 }
@@ -632,8 +634,8 @@ public class ModuleCrafter extends LogisticsModule
 
     private @Nullable IRouter getSatelliteRouter(int x) {
         final UUID satelliteUUID = x == -1 ? this.satelliteUUID.getValue() : advancedSatelliteUUIDList.get(x);
-        final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(satelliteUUID);
-        return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+        final int satelliteRouterId = RouterManager.get().getIDforUUID(satelliteUUID);
+        return RouterManager.get().getRouter(satelliteRouterId);
     }
 
     @Override
@@ -671,8 +673,8 @@ public class ModuleCrafter extends LogisticsModule
         if (UUIDProperty.isZero(uuid)) {
             return "";
         }
-        int simpleId = SimpleServiceLocator.routerManager.getIDforUUID(uuid);
-        IRouter router = SimpleServiceLocator.routerManager.getRouter(simpleId);
+        int simpleId = RouterManager.get().getIDforUUID(uuid);
+        IRouter router = RouterManager.get().getRouter(simpleId);
         if (router != null) {
             CoreRoutedPipe pipe = router.getPipe();
             if (pipe instanceof PipeItemsSatelliteLogistics) {
@@ -737,7 +739,7 @@ public class ModuleCrafter extends LogisticsModule
                 return;
             }
             service.getAvailableAdjacent().neighbors().keySet().stream().flatMap(
-                    neighbor -> SimpleServiceLocator.craftingRecipeProviders.stream()
+                    neighbor -> CraftingRecipeProviders.get().stream()
                         .filter(provider -> provider.importRecipe(neighbor.getBlockEntity(), dummyInventory))
                         .map(provider1 -> new Pair<>(neighbor, provider1))).findFirst()
                 .ifPresent(neighborProviderPair -> neighborProviderPair.getValue2().importFuzzyFlags(
@@ -785,8 +787,8 @@ public class ModuleCrafter extends LogisticsModule
 
     private @Nullable IRouter getFluidSatelliteRouter(int x) {
         final UUID liquidSatelliteUUID = x == -1 ? this.liquidSatelliteUUID.getValue() : liquidSatelliteUUIDList.get(x);
-        final int satelliteRouterId = SimpleServiceLocator.routerManager.getIDforUUID(liquidSatelliteUUID);
-        return SimpleServiceLocator.routerManager.getRouter(satelliteRouterId);
+        final int satelliteRouterId = RouterManager.get().getIDforUUID(liquidSatelliteUUID);
+        return RouterManager.get().getRouter(satelliteRouterId);
     }
 
     /**
@@ -810,7 +812,7 @@ public class ModuleCrafter extends LogisticsModule
         }
 
         final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
-            .filter(neighbor -> neighbor.canHandleItems() || SimpleServiceLocator.craftingRecipeProviders.stream()
+            .filter(neighbor -> neighbor.canHandleItems() || CraftingRecipeProviders.get().stream()
                 .anyMatch(provider -> provider.canOpenScreen(neighbor.getBlockEntity())))
             .anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getBlockEntity().getBlockPos()));
         if (!guiOpened) {
@@ -834,7 +836,7 @@ public class ModuleCrafter extends LogisticsModule
                 if (blockEntity != null) {
                     service.getItemOrderManager()
                         .setMachineProgress(
-                            SimpleServiceLocator.machineProgressProvider.getProgressForBlockEntity(blockEntity));
+                            MachineProgressProvider.get().getProgressForBlockEntity(blockEntity));
                 } else {
                     service.getItemOrderManager().setMachineProgress((byte) 0);
                 }
@@ -857,7 +859,7 @@ public class ModuleCrafter extends LogisticsModule
                         upgradeManager.getCrafterCleanup() * 3)).filter(stack -> !stack.isEmpty()).findFirst()
                     .ifPresent(extracted -> {
                         service.queueRoutedItem(
-                            SimpleServiceLocator.routedItemHelper.createNewTravelItem(extracted),
+                            new LPTravelingItemServer(extracted),
                             Direction.UP);
                         service.getCacheHolder().trigger(CacheTypes.Inventory);
                     });
@@ -944,7 +946,7 @@ public class ModuleCrafter extends LogisticsModule
                             ItemIdentifier.get(stackToSend), null, true, false);
                     boolean deferSend = (reply == null || reply.bufferMode != BufferMode.NONE
                         || reply.maxNumberOfItems < 1);
-                    IRoutedItem item = SimpleServiceLocator.routedItemHelper.createNewTravelItem(stackToSend);
+                    IRoutedItem item = new LPTravelingItemServer(stackToSend);
                     item.setDestination(nextOrder.getDestination().getRouter().getSimpleID());
                     item.setTransportMode(TransportMode.Active);
                     item.setAdditionalTargetInformation(nextOrder.getInformation());

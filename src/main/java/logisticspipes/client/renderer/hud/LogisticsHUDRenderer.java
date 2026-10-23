@@ -33,7 +33,7 @@ import logisticspipes.interfaces.IDebugHUDProvider;
 import logisticspipes.interfaces.IHeadUpDisplayBlockRendererProvider;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
@@ -93,7 +93,7 @@ public class LogisticsHUDRenderer {
 
     private void refreshList(double x, double y, double z) {
         ArrayList<Pair<Double, IHeadUpDisplayRendererProvider>> newList = new ArrayList<>();
-        for (IRouter router : SimpleServiceLocator.clientRouterManager.getRouters()) {
+        for (IRouter router : ClientRouterManager.get().getRouters()) {
             if (router == null) {
                 continue;
             }

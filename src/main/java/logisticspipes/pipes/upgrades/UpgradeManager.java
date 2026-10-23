@@ -22,7 +22,7 @@ import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -387,7 +387,7 @@ public class UpgradeManager
     public void securityTick() {
         final String securityId = uuidS;
         if (securityId != null) {
-            if (!SimpleServiceLocator.securityStationManager.isAuthorized(securityId)) {
+            if (!RouterManager.get().isAuthorized(securityId)) {
                 securityDelay++;
             } else {
                 securityDelay = 0;

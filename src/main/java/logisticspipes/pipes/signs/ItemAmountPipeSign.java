@@ -16,10 +16,10 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.ItemAmountSignMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
@@ -104,7 +104,7 @@ public final class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEven
             setAmount(0);
             return;
         }
-        Map<ItemIdentifier, Integer> availableItems = SimpleServiceLocator.logisticsManager.getAvailableItems(
+        Map<ItemIdentifier, Integer> availableItems = LogisticsManager.getAvailableItems(
             pipe.getRouter().getIRoutersByCost());
         spread(availableItems, new BitSet(ServerRouter.getBiggestSimpleID()));
         setAmount(countIn(availableItems));

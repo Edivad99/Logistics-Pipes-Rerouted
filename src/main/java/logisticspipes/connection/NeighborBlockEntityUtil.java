@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.util.ITankUtil;
 import logisticspipes.inventory.IInventoryUtil;
+import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.pipes.PipeFluidUtil;
-import logisticspipes.proxy.SimpleServiceLocator;
 
 /** The main-side helpers for {@link NeighborBlockEntity}, which cannot live on the API type itself. */
 public final class NeighborBlockEntityUtil {
@@ -18,7 +18,7 @@ public final class NeighborBlockEntityUtil {
     }
 
     public static @Nullable IInventoryUtil getInventoryUtil(NeighborBlockEntity<?> neighbor) {
-        return SimpleServiceLocator.inventoryUtilFactory
+        return InventoryUtilFactory.get()
             .getInventoryUtil(neighbor.getBlockEntity(), neighbor.getOurDirection());
     }
 

@@ -62,8 +62,9 @@ import logisticspipes.modules.AsyncQuicksortModule;
 import logisticspipes.network.to_server.module.QuickSortChestWatchMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
+import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.RouterManager;
 import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
@@ -240,7 +241,7 @@ public class LPEventListener {
             }
         }
         if (event.getLevel().isClientSide()) {
-            SimpleServiceLocator.clientRouterManager.clear();
+            ClientRouterManager.get().clear();
             LogisticsHUDRenderer.instance().clear();
         }
     }
@@ -248,7 +249,7 @@ public class LPEventListener {
     @SubscribeEvent
     public void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel level) {
-            SimpleServiceLocator.routerManager.dimensionUnloaded(level.dimension().identifier());
+            RouterManager.get().dimensionUnloaded(level.dimension().identifier());
         }
     }
 
@@ -272,7 +273,7 @@ public class LPEventListener {
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity().level() instanceof ServerLevel) {
-            SimpleServiceLocator.securityStationManager.sendClientAuthorizationList(event.getEntity());
+            RouterManager.get().sendClientAuthorizationList(event.getEntity());
         }
     }
 

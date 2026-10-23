@@ -13,7 +13,9 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 
-public class SpecialPipeConnection {
+public final class SpecialPipeConnection {
+
+	private static @Nullable SpecialPipeConnection instance;
 
 	private final List<ISpecialPipedConnection> handler;
 
@@ -22,8 +24,21 @@ public class SpecialPipeConnection {
 	}
 
 	/** Collects everything registered on {@code event}, which is closed from here on. */
-	public static SpecialPipeConnection from(RegisterSpecialConnectionsEvent event) {
-		return new SpecialPipeConnection(event.registeredPipedConnections());
+	public static void load(RegisterSpecialConnectionsEvent event) {
+		instance = new SpecialPipeConnection(event.registeredPipedConnections());
+	}
+
+	/**
+	 * The pipe connection handlers collected at startup.
+	 *
+	 * @throws IllegalStateException before startup collected them
+	 */
+	public static SpecialPipeConnection get() {
+		SpecialPipeConnection current = instance;
+		if (current == null) {
+			throw new IllegalStateException("SpecialPipeConnection is not loaded yet");
+		}
+		return current;
 	}
 
 	public List<ConnectionInformation> getConnectedPipes(IPipeInformationProvider startPipe, EnumSet<PipeRoutingConnectionType> connection,

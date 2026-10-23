@@ -23,11 +23,12 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.Translations;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.routing.IRequestFluid;
+import logisticspipes.logistics.LogisticsFluidManager;
+import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.to_client.orderer.OrdererContentMessage;
 import logisticspipes.network.to_client.orderer.RequestAnswerMessage;
 import logisticspipes.network.to_client.orderer.RequestComponentsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.request.RequestTree.ActiveRequestType;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
@@ -102,12 +103,12 @@ public class RequestHandler {
 		LinkedList<ItemIdentifier> craftableItems;
 
 		if (option == DisplayOptions.SupplyOnly || option == DisplayOptions.Both) {
-			availableItems = SimpleServiceLocator.logisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
+			availableItems = LogisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
 		} else {
 			availableItems = new HashMap<>();
 		}
 		if (option == DisplayOptions.CraftOnly || option == DisplayOptions.Both) {
-			craftableItems = SimpleServiceLocator.logisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
+			craftableItems = LogisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
 		} else {
 			craftableItems = new LinkedList<>();
 		}
@@ -220,7 +221,7 @@ public class RequestHandler {
 	}
 
 	public static void refreshFluid(Player player, CoreRoutedPipe pipe) {
-		TreeSet<FluidIdentifierStack> allItems = SimpleServiceLocator.logisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
+		TreeSet<FluidIdentifierStack> allItems = LogisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
 		sendToPlayer(player, new OrdererContentMessage(allItems.stream()
 				.map(item -> new ItemIdentifierStack(item.getFluid().getItemIdentifier(), item.getAmount()))
 				.toList()));

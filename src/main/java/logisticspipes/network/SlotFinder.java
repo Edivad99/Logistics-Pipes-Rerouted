@@ -21,9 +21,9 @@ import logisticspipes.Translations;
 import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.ISpecialInsertion;
 import logisticspipes.inventory.IInventoryUtil;
+import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.network.to_client.crafting.SlotFinderActivateMessage;
-import logisticspipes.proxy.SimpleServiceLocator;
 import logisticspipes.utils.BlockMenus;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
@@ -84,7 +84,7 @@ public final class SlotFinder {
         if (inventory == null) {
             return;
         }
-        final IInventoryUtil util = SimpleServiceLocator.inventoryUtilFactory.getInventoryUtil(inventory, null);
+        final IInventoryUtil util = InventoryUtilFactory.get().getInventoryUtil(inventory, null);
         if (util == null) {
             return;
         }
