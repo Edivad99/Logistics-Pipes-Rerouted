@@ -817,7 +817,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                             buffer -> buffer.writeBlockPos(getPos()));
                     }
                 } else {
-                    player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+                    player.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
                 }
             }
             return true;
@@ -852,7 +852,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                         OrdererMenu.open(serverPlayer, this);
                     }
                 } else {
-                    player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+                    player.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
                 }
             }
             return true;
@@ -868,7 +868,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                         onWrenchClicked(player);
                     }
                 } else {
-                    player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+                    player.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
                 }
             }
             return true;

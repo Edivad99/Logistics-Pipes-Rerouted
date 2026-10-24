@@ -90,12 +90,12 @@ public final class SlotFinder {
         }
         final Slot clicked = menuSlot(player, menuSlotIndex);
         if (clicked == null) {
-            player.sendSystemMessage(Component.translatable(Translations.Chat.SLOT_NOT_FOUND));
+            player.sendOverlayMessage(Component.translatable(Translations.Chat.SLOT_NOT_FOUND));
             return;
         }
         final int index = indexIn(util, clicked);
         if (index == -1) {
-            player.sendSystemMessage(Component.translatable(Translations.Chat.SLOT_NOT_FOUND));
+            player.sendOverlayMessage(Component.translatable(Translations.Chat.SLOT_NOT_FOUND));
             return;
         }
         final ModuleActiveSupplier module = target.resolve(player, ModuleActiveSupplier.class);

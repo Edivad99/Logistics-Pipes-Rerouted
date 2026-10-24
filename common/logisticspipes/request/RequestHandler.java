@@ -54,7 +54,7 @@ public class RequestHandler {
 
 	public static void request(final Player player, final ItemIdentifierStack stack, final CoreRoutedPipe pipe) {
 		if (!pipe.useEnergy(5)) {
-			player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
+			player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
 			return;
 		}
 		RequestTree.request(new ItemIdentifierStack(stack), pipe, new RequestLog() {
@@ -130,7 +130,7 @@ public class RequestHandler {
 
 	public static void requestList(final Player player, final List<ItemIdentifierStack> list, final CoreRoutedPipe pipe) {
 		if (!pipe.useEnergy(5)) {
-			player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
+			player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
 			return;
 		}
 		RequestTree.request(list, pipe, new RequestLog() {
@@ -155,7 +155,7 @@ public class RequestHandler {
 
 	public static void requestMacrolist(CompoundTag itemlist, final CoreRoutedPipe requester, final Player player) {
 		if (!requester.useEnergy(5)) {
-			player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
+			player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
 			return;
 		}
 		ListTag list = itemlist.getListOrEmpty("inventar");
@@ -229,7 +229,7 @@ public class RequestHandler {
 
 	public static void requestFluid(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe, IRequestFluid requester) {
 		if (!pipe.useEnergy(10)) {
-			player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
+			player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
 			return;
 		}
 

@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
@@ -41,7 +42,7 @@ public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IReque
             if (permissions == null || permissions.allows(SecurityPermission.OPEN_REQUEST)) {
                 openGui(entityplayer);
             } else {
-                entityplayer.sendSystemMessage(Component.literal("Permission denied"));
+                entityplayer.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
             }
         }
         return true;

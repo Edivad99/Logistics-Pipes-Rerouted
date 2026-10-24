@@ -210,7 +210,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
                 break;
             case GIVE_ONE:
                 if (!useEnergy(10)) {
-                    player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
+                    player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
                     return;
                 }
                 if (inv.getIDStackInSlot(0) == null) {
@@ -228,7 +228,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
                 break;
             case GIVE_STACK:
                 if (!useEnergy(640)) {
-                    player.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
+                    player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
                     return;
                 }
                 ItemStack stack = new ItemStack(LPItems.SECURITY_CARD.get(), 64);
@@ -292,7 +292,7 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
             return SecurityPermissions.ALL;
         }
         if (usePower && !useEnergy(10)) {
-            entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
+            entityplayer.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
             return SecurityPermissions.NONE;
         }
         final GameProfile profile = entityplayer.getGameProfile();

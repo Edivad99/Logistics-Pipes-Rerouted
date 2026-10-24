@@ -47,7 +47,7 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics impl
             if (permissions == null || permissions.allows(SecurityPermission.OPEN_GUI)) {
                 openGui(entityplayer);
             } else {
-                entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+                entityplayer.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
             }
         }
         return true;

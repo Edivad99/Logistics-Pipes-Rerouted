@@ -50,7 +50,7 @@ public record RequestTrackableItemsMessage(BlockPos pos) implements CustomPacket
         }
         final CoreRoutedPipe pipe = be.getConnectedPipe();
         if (pipe == null) {
-            player.sendSystemMessage(Component.translatable(Translations.Chat.NO_PIPE_NEXT_TO_TABLE)
+            player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_PIPE_NEXT_TO_TABLE)
                 .withStyle(ChatFormatting.RED));
             return;
         }

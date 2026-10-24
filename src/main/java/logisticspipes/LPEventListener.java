@@ -141,7 +141,7 @@ public class LPEventListener {
                     if (!coreRoutedPipe.canBeDestroyedByPlayer(event.getEntity())) {
                         event.setCanceled(true);
                         event.getEntity()
-                            .sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+                            .sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
                         tileGenericPipe.scheduleNeighborChange();
                         BlockPos pos = tileGenericPipe.getBlockPos();
                         BlockState state = level.getBlockState(pos);

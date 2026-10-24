@@ -51,7 +51,7 @@ public record SetHudSettingMessage(int slot, HudSetting setting, boolean state)
         }
         glasses.set(LPDataComponents.HUD, glasses.getOrDefault(LPDataComponents.HUD, HUDComponent.DEFAULT)
             .with(message.setting, message.state));
-        player.sendSystemMessage(Component.translatable(Translations.Chat.hudSetting(message.setting, message.state)));
+        player.sendOverlayMessage(Component.translatable(Translations.Chat.hudSetting(message.setting, message.state)));
         player.inventoryMenu.broadcastChanges();
     }
 

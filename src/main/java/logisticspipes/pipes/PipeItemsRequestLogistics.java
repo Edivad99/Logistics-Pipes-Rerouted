@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.Translations;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.modules.LogisticsModule;
@@ -61,7 +62,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
             if (permissions == null || permissions.allows(SecurityPermission.OPEN_REQUEST)) {
                 openGui(entityplayer);
             } else {
-                entityplayer.sendSystemMessage(Component.literal("Permission denied"));
+                entityplayer.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
             }
         }
         return true;

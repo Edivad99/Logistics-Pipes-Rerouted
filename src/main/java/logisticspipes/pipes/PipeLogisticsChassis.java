@@ -460,7 +460,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
                 if (permissions == null || permissions.allows(SecurityPermission.OPEN_GUI)) {
                     ((PipeLogisticsChassis) getContainer().pipe).nextOrientation();
                 } else {
-                    player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+                    player.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
                 }
             }
             return true;
@@ -471,7 +471,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
                 if (permissions == null || permissions.allows(SecurityPermission.OPEN_GUI)) {
                     return tryInsertingModule(player);
                 } else {
-                    player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
+                    player.sendOverlayMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
                 }
             }
             return true;
