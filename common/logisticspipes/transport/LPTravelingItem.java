@@ -1,7 +1,6 @@
 package logisticspipes.transport;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -36,14 +35,14 @@ import logisticspipes.utils.DirectionUtil;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.SlidingWindowBitSet;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.LogisticsFluidContainer;
 
 public abstract class LPTravelingItem {
 
 	public static final Map<Integer, WeakReference<LPTravelingItemServer>> serverList = new HashMap<>();
 	public static final Map<Integer, WeakReference<LPTravelingItemClient>> clientList = new HashMap<>();
-	public static final List<Pair<Integer, Object>> forceKeep = new ArrayList<>();
+	/** Client items held for a few more ticks, so their weak reference survives until a pipe takes them. */
+	public static final Map<LPTravelingItemClient, Integer> forceKeep = new HashMap<>();
 	public static final SlidingWindowBitSet clientSideKnownIDs = new SlidingWindowBitSet(20); // 20
 
 	private static int nextFreeId = 0;

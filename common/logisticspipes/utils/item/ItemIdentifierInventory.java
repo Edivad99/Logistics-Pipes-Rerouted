@@ -12,12 +12,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -39,7 +39,6 @@ import logisticspipes.inventory.SlotAccess;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
-import logisticspipes.utils.tuples.Pair;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair
@@ -499,25 +498,6 @@ public class ItemIdentifierInventory
 		return true;
 	}
 
-    private Iterator<Pair<ItemIdentifierStack, Integer>> pairIterator() {
-		final Iterator<ItemIdentifierStack> iter = Arrays.asList(contents).iterator();
-		return new Iterator<>() {
-
-            int pos = -1;
-
-            @Override
-            public boolean hasNext() {
-                return iter.hasNext();
-            }
-
-            @Override
-            public Pair<ItemIdentifierStack, Integer> next() {
-                pos++;
-                return new Pair<>(iter.next(), pos);
-            }
-        };
-	}
-
 	public void clearGrid() {
 		for (int i = 0; i < getContainerSize(); i++) {
 			contents[i] = null;
@@ -544,8 +524,10 @@ public class ItemIdentifierInventory
 	}
 
 	@Override
-	public Iterable<Pair<ItemIdentifierStack, Integer>> contents() {
-		return this::pairIterator;
+	public Iterable<SlotContent> contents() {
+		return () -> IntStream.range(0, contents.length)
+				.mapToObj(slot -> new SlotContent(slot, contents[slot]))
+				.iterator();
 	}
 
 	@Override

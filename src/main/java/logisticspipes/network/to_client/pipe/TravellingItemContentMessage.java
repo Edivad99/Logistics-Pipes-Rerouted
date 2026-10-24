@@ -13,7 +13,6 @@ import logisticspipes.LPConstants;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 /**
  * What an item travelling through a pipe actually is.
@@ -45,7 +44,7 @@ public record TravellingItemContentMessage(int travelId, ItemIdentifierStack ite
         final LPTravelingItemClient item = new LPTravelingItemClient(message.travelId, message.item);
         LPTravelingItem.clientList.put(message.travelId, new WeakReference<>(item));
         synchronized (LPTravelingItem.forceKeep) {
-            LPTravelingItem.forceKeep.add(new Pair<>(KEEP_TICKS, item));
+            LPTravelingItem.forceKeep.put(item, KEEP_TICKS);
         }
     }
 

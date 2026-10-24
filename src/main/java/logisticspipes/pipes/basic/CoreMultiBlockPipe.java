@@ -25,24 +25,24 @@ import logisticspipes.interfaces.ITubeOrientation;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeMultiBlockTransportLogistics;
 import logisticspipes.utils.PositionRotation;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 
-    private static final List<Pair<SubBlockTypeForShare, SubBlockTypeForShare>> allowedCombinations = new ArrayList<>();
+    /** Two shared sub-block types that may sit in the same cell, in either order. */
+    private record ShareCombination(SubBlockTypeForShare first, SubBlockTypeForShare second) {}
 
-    static {
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.S_CURVE_A, SubBlockTypeForShare.S_CURVE_B));
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.S_CURVE_A, SubBlockTypeForShare.S_CURVE_A));
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.CURVE_OUT_A, SubBlockTypeForShare.CURVE_INNER_A));
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.CURVE_OUT_B, SubBlockTypeForShare.CURVE_INNER_B));
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.CURVE_OUT_A, SubBlockTypeForShare.S_CURVE_A));
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.CURVE_OUT_B, SubBlockTypeForShare.S_CURVE_A));
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.GAIN_A, SubBlockTypeForShare.GAIN_B));
-        allowedCombinations.add(new Pair<>(SubBlockTypeForShare.GAIN_A, SubBlockTypeForShare.GAIN_A));
-    }
+    private static final List<ShareCombination> allowedCombinations = List.of(
+        new ShareCombination(SubBlockTypeForShare.S_CURVE_A, SubBlockTypeForShare.S_CURVE_B),
+        new ShareCombination(SubBlockTypeForShare.S_CURVE_A, SubBlockTypeForShare.S_CURVE_A),
+        new ShareCombination(SubBlockTypeForShare.CURVE_OUT_A, SubBlockTypeForShare.CURVE_INNER_A),
+        new ShareCombination(SubBlockTypeForShare.CURVE_OUT_B, SubBlockTypeForShare.CURVE_INNER_B),
+        new ShareCombination(SubBlockTypeForShare.CURVE_OUT_A, SubBlockTypeForShare.S_CURVE_A),
+        new ShareCombination(SubBlockTypeForShare.CURVE_OUT_B, SubBlockTypeForShare.S_CURVE_A),
+        new ShareCombination(SubBlockTypeForShare.GAIN_A, SubBlockTypeForShare.GAIN_B),
+        new ShareCombination(SubBlockTypeForShare.GAIN_A, SubBlockTypeForShare.GAIN_A)
+    );
 
     /**
      * Block-local shapes of the cells this pipe covers. Like the collision boxes they are built
@@ -90,16 +90,10 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
         if (contained == SubBlockTypeForShare.NON_SHARE) {
             return false;
         }
-        for (Pair<SubBlockTypeForShare, SubBlockTypeForShare> allowed : allowedCombinations) {
-            if (allowed.getValue1() == contained) {
-                if (allowed.getValue2() == toAdd) {
-                    return true;
-                }
-            }
-            if (allowed.getValue2() == contained) {
-                if (allowed.getValue1() == toAdd) {
-                    return true;
-                }
+        for (ShareCombination allowed : allowedCombinations) {
+            if (allowed.first() == contained && allowed.second() == toAdd
+                || allowed.second() == contained && allowed.first() == toAdd) {
+                return true;
             }
         }
         return false;

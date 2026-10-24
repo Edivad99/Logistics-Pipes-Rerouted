@@ -11,7 +11,6 @@ import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 public interface IItemIdentifierInventory extends Container, IClientInformationProvider {
 
@@ -44,9 +43,12 @@ public interface IItemIdentifierInventory extends Container, IClientInformationP
 
     int itemCount(ItemIdentifier item);
 
-    Iterable<Pair<ItemIdentifierStack, Integer>> contents();
+    /** Every slot in order, empty ones included. */
+    Iterable<SlotContent> contents();
 
     void recheckStackLimit();
 
     void clearInventorySlotContents(int i);
+
+    record SlotContent(int slot, @Nullable ItemIdentifierStack stack) {}
 }

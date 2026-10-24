@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.routing.IFilter;
+import logisticspipes.inventory.IItemIdentifierInventory.SlotContent;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.to_client.pipe.FirewallFlagsMessage;
 import logisticspipes.network.to_server.pipe.SetFirewallFlagsMessage;
@@ -32,7 +33,6 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.FirewallMenu;
 
 public class PipeItemsFirewall extends CoreRoutedPipe implements IPipeMenuProvider {
@@ -155,8 +155,8 @@ public class PipeItemsFirewall extends CoreRoutedPipe implements IPipeMenuProvid
 
                 @Override
                 public boolean isFilteredItem(IResource resultItem) {
-                    for (Pair<ItemIdentifierStack, Integer> pair : inv.contents()) {
-                        ItemIdentifierStack stack = pair.getValue1();
+                    for (SlotContent slot : inv.contents()) {
+                        ItemIdentifierStack stack = slot.stack();
                         if (stack != null && resultItem.matches(stack.getItem(), IResource.MatchSettings.NORMAL)) {
                             return true;
                         }

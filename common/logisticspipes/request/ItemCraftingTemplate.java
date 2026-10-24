@@ -21,14 +21,13 @@ import logisticspipes.routing.LogisticsExtraPromise;
 import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 public class ItemCraftingTemplate implements IReqCraftingTemplate {
 
 	protected ItemIdentifierStack result;
 	protected ICraftItems crafter;
 
-	protected ArrayList<Pair<IResource, IAdditionalTargetInformation>> required = new ArrayList<>(9);
+	protected ArrayList<Requirement> required = new ArrayList<>(9);
 
 	protected ArrayList<ItemIdentifierStack> byproduct = new ArrayList<>(9);
 
@@ -41,7 +40,7 @@ public class ItemCraftingTemplate implements IReqCraftingTemplate {
 	}
 
 	public void addRequirement(IResource requirement, @Nullable IAdditionalTargetInformation info) {
-		required.add(new Pair<>(requirement, info));
+		required.add(new Requirement(requirement, info));
 	}
 
 	public void addByproduct(ItemIdentifierStack stack) {
@@ -121,14 +120,12 @@ public class ItemCraftingTemplate implements IReqCraftingTemplate {
 	}
 
 	@Override
-	public List<Pair<IResource, IAdditionalTargetInformation>> getComponents(int nCraftingSetsNeeded) {
-		List<Pair<IResource, IAdditionalTargetInformation>> stacks = new ArrayList<>(required.size());
+	public List<Requirement> getComponents(int nCraftingSetsNeeded) {
+		List<Requirement> stacks = new ArrayList<>(required.size());
 
 		// for each thing needed to satisfy this promise
-		for (Pair<IResource, IAdditionalTargetInformation> stack : required) {
-			Pair<IResource, IAdditionalTargetInformation> pair = new Pair<>(stack.getValue1()
-					.clone(nCraftingSetsNeeded), stack.getValue2());
-			stacks.add(pair);
+		for (Requirement requirement : required) {
+			stacks.add(new Requirement(requirement.resource().clone(nCraftingSetsNeeded), requirement.info()));
 		}
 		return stacks;
 	}

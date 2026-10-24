@@ -23,7 +23,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.item.ItemStackRenderer.DisplayAmount;
-import logisticspipes.utils.tuples.Pair;
 
 public class ItemDisplay {
 
@@ -42,7 +41,10 @@ public class ItemDisplay {
 
 	private @Nullable ItemIdentifierStack selectedItem = null;
 	public final LinkedList<ItemIdentifierStack> allItems = new LinkedList<>();
-	private final Map<Pair<Integer, Integer>, ItemIdentifierStack> map = new HashMap<>();
+	/** Where a panel was last drawn, relative to the display area. */
+	private record PanelPos(int x, int y) {}
+
+	private final Map<PanelPos, ItemIdentifierStack> map = new HashMap<>();
 
 	@Getter
 	private int page = 0;
@@ -268,9 +270,9 @@ public class ItemDisplay {
 			int realX = x - 2;
 			int realY = y - 2;
 
-			Pair<Integer, Integer> pair = new Pair<>(realX, realY);
-			if (map.get(pair) != itemIdentifierStack) {
-				map.put(pair, itemIdentifierStack);
+			PanelPos pos = new PanelPos(realX, realY);
+			if (map.get(pos) != itemIdentifierStack) {
+				map.put(pos, itemIdentifierStack);
 			}
 
 			// All fill calls use left/top offset to convert from area-relative to screen coords
@@ -484,8 +486,8 @@ public class ItemDisplay {
 			return false;
 		}
 		selectedItem = null;
-		for (Entry<Pair<Integer, Integer>, ItemIdentifierStack> entry : map.entrySet()) {
-			if (x >= entry.getKey().getValue1() && x < entry.getKey().getValue1() + ItemDisplay.PANELSIZEX && y >= entry.getKey().getValue2() && y < entry.getKey().getValue2() + ItemDisplay.PANELSIZEY) {
+		for (Entry<PanelPos, ItemIdentifierStack> entry : map.entrySet()) {
+			if (x >= entry.getKey().x() && x < entry.getKey().x() + ItemDisplay.PANELSIZEX && y >= entry.getKey().y() && y < entry.getKey().y() + ItemDisplay.PANELSIZEY) {
 				selectedItem = entry.getValue();
 				return true;
 			}

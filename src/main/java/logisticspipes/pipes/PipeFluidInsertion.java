@@ -1,6 +1,5 @@
 package logisticspipes.pipes;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.Direction;
@@ -19,13 +18,10 @@ import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifierStack;
-import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 public class PipeFluidInsertion extends FluidRoutedPipe {
 
-    private final List<Pair<Integer, Integer>> localJamList = new ArrayList<>();
     private int[] nextSendMax = new int[Direction.values().length];
     private int[] nextSendMin = new int[Direction.values().length];
 
@@ -36,21 +32,6 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
     @Override
     public void enabledUpdateEntity() {
         super.enabledUpdateEntity();
-        List<Integer> tempJamList = new ArrayList<>();
-        if (!localJamList.isEmpty()) {
-            List<Pair<Integer, Integer>> toRemove = new ArrayList<>();
-            for (Pair<Integer, Integer> part : localJamList) {
-                part.setValue2(part.getValue2() - 1);
-                if (part.getValue2() <= 0) {
-                    toRemove.add(part);
-                } else {
-                    tempJamList.add(part.getValue1());
-                }
-            }
-            if (!toRemove.isEmpty()) {
-                localJamList.removeAll(toRemove);
-            }
-        }
         PipeFluidTransportLogistics transport = (PipeFluidTransportLogistics) this.transport;
         for (Direction dir : Direction.values()) {
             FluidStack stack = transport.sideTanks[dir.ordinal()].getFluid();
@@ -69,25 +50,25 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
                 continue;
             }
 
-            Pair<Integer, FluidSinkReply> result = LogisticsFluidManager.getBestReply(
-                FluidIdentifierStack.getFromStack(stack), getRouter(), tempJamList);
-            if (result == null || result.getValue2().sinkAmount <= 0) {
+            LogisticsFluidManager.BestReply result = LogisticsFluidManager.getBestReply(
+                FluidIdentifierStack.getFromStack(stack), getRouter(), List.of());
+            if (result == null || result.reply().sinkAmount <= 0) {
                 nextSendMax[dir.ordinal()] = 100;
                 nextSendMin[dir.ordinal()] = 10;
                 continue;
             }
 
-            if (!useEnergy((int) (0.01 * result.getValue2().getSinkAmountInt()))) {
+            if (!useEnergy((int) (0.01 * result.reply().getSinkAmountInt()))) {
                 nextSendMax[dir.ordinal()] = 100;
                 nextSendMin[dir.ordinal()] = 10;
                 continue;
             }
 
-            FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.getValue2().getSinkAmountInt(), true);
+            FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.reply().getSinkAmountInt(), true);
             ItemIdentifierStack liquidContainer = LogisticsFluidManager.getFluidContainer(
                 FluidIdentifierStack.getFromStack(toSend));
             IRoutedItem routed = new LPTravelingItemServer(liquidContainer);
-            routed.setDestination(result.getValue1());
+            routed.setDestination(result.routerId());
             routed.setTransportMode(TransportMode.Passive);
             this.queueRoutedItem(routed, dir);
             nextSendMax[dir.ordinal()] = 100;

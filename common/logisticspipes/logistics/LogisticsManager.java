@@ -36,11 +36,9 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.FluidIdentifierStack;
-import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.LogisticsFluidContainer;
 
 public final class LogisticsManager {
@@ -179,9 +177,9 @@ public final class LogisticsManager {
 			FluidIdentifierStack fluid = level == null ? null
 					: LogisticsFluidManager.getFluidFromContainer(itemIdStack);
 			if (fluid != null) {
-				Pair<Integer, FluidSinkReply> bestReply = LogisticsFluidManager.getBestReply(fluid, sourceRouter, item.getJamList());
+				LogisticsFluidManager.BestReply bestReply = LogisticsFluidManager.getBestReply(fluid, sourceRouter, item.getJamList());
 				if (bestReply != null) {
-					item.setDestination(bestReply.getValue1());
+					item.setDestination(bestReply.routerId());
 				}
 			}
 		} else {

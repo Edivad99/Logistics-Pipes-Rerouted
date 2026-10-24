@@ -52,10 +52,10 @@ import logisticspipes.network.to_server.orderer.SimulateRequestMessage;
 import logisticspipes.network.to_server.orderer.SubmitRequestListMessage;
 import logisticspipes.network.to_server.orderer.SubmitRequestMessage;
 import logisticspipes.pipes.PipeBlockRequestTable;
+import logisticspipes.pipes.PipeBlockRequestTable.WatchedRequest;
 import logisticspipes.request.RequestHandler.DisplayOptions;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
-import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.ChainAddArrayList;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.TextUtil;
@@ -71,7 +71,6 @@ import logisticspipes.utils.gui.extension.GuiExtension;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.string.ChatColor;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.world.item.LPItems;
 
@@ -257,12 +256,12 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                 Color.getValue(Color.DARKER_GREY));
         }
         LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 20, topPos + 150);
-        for (final Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : table.watchedRequests.entrySet()) {
+        for (final Entry<Integer, WatchedRequest> entry : table.watchedRequests.entrySet()) {
             if (!handledExtension.get(entry.getKey())) {
                 handledExtension.set(entry.getKey());
                 extensionControllerLeft.addExtension(new GuiExtension() {
 
-                    private final Map<Pair<Integer, Integer>, IOrderInfoProvider> ordererPosition = new HashMap<>();
+                    private final Map<OrderSlot, IOrderInfoProvider> ordererPosition = new HashMap<>();
                     private int height;
                     private int width = 4;
                     private @Nullable AbstractButton localControlledButton;
@@ -280,7 +279,7 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                         }
                         ordererPosition.clear();
                         ItemStack stack;
-                        IResource resource = entry.getValue().getValue1();
+                        IResource resource = entry.getValue().resource();
                         String s;
                         if (resource != null) {
                             stack = resource.getDisplayItem().makeNormalStack();
@@ -304,7 +303,7 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                                 addRenderableWidget(localControlledButton);
                                 orderIdForButton = entry.getKey();
                             }
-                            List<IOrderInfoProvider> list = entry.getValue().getValue2().getList();
+                            List<IOrderInfoProvider> list = entry.getValue().orders().getList();
                             calculateSize(left, top, list);
                             String ident = String.format("ID: %d", entry.getKey());
                             guiGraphics.text(minecraft.font, ident, left + 25, top + 7, 0xFFFFFFFF, true);
@@ -320,7 +319,7 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                                 // Draw number
                                 guiGraphics.text(minecraft.font, s, x + 17 - minecraft.font.width(s), y + 9, 0xFFFFFFFF,
                                     true);
-                                ordererPosition.put(new Pair<>(x, y), order);
+                                ordererPosition.put(new OrderSlot(x, y), order);
                                 x += 18;
                                 if (x > left + getFinalWidth() - 18) {
                                     x = left + 6;
@@ -328,7 +327,7 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                                 }
                             }
                         } else if (isExtending()) {
-                            List<IOrderInfoProvider> list = entry.getValue().getValue2().getList();
+                            List<IOrderInfoProvider> list = entry.getValue().orders().getList();
                             calculateSize(left, top, list);
                         }
                         if (!isFullyExtended() && localControlledButton != null) {
@@ -383,8 +382,8 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                     public void handleMouseOverAt(int xPos, int yPos) {
                         if (isFullyExtended()) {
                             ordererPosition.keySet().stream()
-                                .filter(key -> xPos >= key.getValue1() && xPos < key.getValue1() + 18 && yPos >= key
-                                    .getValue2() && yPos < key.getValue2() + 18).forEach(key -> {
+                                .filter(key -> xPos >= key.x() && xPos < key.x() + 18
+                                    && yPos >= key.y() && yPos < key.y() + 18).forEach(key -> {
                                     IOrderInfoProvider order = ordererPosition.get(key);
                                     List<String> list = new ArrayList<>();
                                     list.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
@@ -393,10 +392,9 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                                     guiGraphics.setComponentTooltipForNextFrame(font,
                                         list.stream().map(Component::literal).collect(Collectors.toList()), xPos, yPos);
                                 });
-                        } else if (entry.getValue() != null && entry.getValue().getValue1() != null
-                            && entry.getValue().getValue1().getDisplayItem() != null) {
+                        } else if (entry.getValue().resource() != null) {
                             guiGraphics.setTooltipForNextFrame(font,
-                                entry.getValue().getValue1().getDisplayItem().makeNormalStack(), xPos, yPos);
+                                entry.getValue().resource().getDisplayItem().makeNormalStack(), xPos, yPos);
                         }
                     }
                 });
@@ -507,12 +505,9 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
             ArrayList<ItemIdentifierStack> list = new ArrayList<>(9);
             list.addAll(table.matrix.getItemsAndCount().entrySet().stream()
                 .map(e -> e.getKey().makeStack(e.getValue())).toList());
-            for (Pair<ItemStack, Integer> entry : table.inv.contents()) {
-                if (entry.getValue1().isEmpty()) {
-                    continue;
-                }
-                int size = entry.getValue1().getCount();
-                ItemIdentifier ident = ItemIdentifier.get(entry.getValue1());
+            for (ItemStack available : table.inv.stackStream().toList()) {
+                int size = available.getCount();
+                ItemIdentifier ident = ItemIdentifier.get(available);
                 for (ItemIdentifierStack stack : list) {
                     if (!stack.getItem().equals(ident)) {
                         continue;
@@ -712,4 +707,6 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
         return itemDisplay;
     }
 
+    /** Where an order of a watched request was drawn, in screen coordinates. */
+    private record OrderSlot(int x, int y) {}
 }

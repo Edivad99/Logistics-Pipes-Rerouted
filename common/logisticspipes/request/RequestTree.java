@@ -22,7 +22,6 @@ import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
-import logisticspipes.utils.FinalPair;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.IHavePriority;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -40,14 +39,17 @@ public class RequestTree extends RequestTreeNode {
 	}
 
 	public static final EnumSet<ActiveRequestType> defaultRequestFlags = EnumSet.of(ActiveRequestType.Provide, ActiveRequestType.Craft);
-	private @Nullable HashMap<FinalPair<IProvide, ItemIdentifier>, Integer> promisetotals;
+	/** What the promise totals are kept by: one provider, one kind of item. */
+	private record PromiseKey(IProvide provider, ItemIdentifier item) {}
+
+	private @Nullable HashMap<PromiseKey, Integer> promisetotals;
 
 	public RequestTree(IResource requestType, @Nullable RequestTree parent, EnumSet<ActiveRequestType> requestFlags,
 			@Nullable IAdditionalTargetInformation info) {
 		super(requestType, parent, requestFlags, info);
 	}
 
-	private int getExistingPromisesFor(FinalPair<IProvide, ItemIdentifier> key) {
+	private int getExistingPromisesFor(PromiseKey key) {
 		if (promisetotals == null) {
 			promisetotals = new HashMap<>();
 		}
@@ -59,7 +61,7 @@ public class RequestTree extends RequestTreeNode {
 	}
 
 	public int getAllPromissesFor(IProvide provider, ItemIdentifier item) {
-		FinalPair<IProvide, ItemIdentifier> key = new FinalPair<>(provider, item);
+		PromiseKey key = new PromiseKey(provider, item);
 		return getExistingPromisesFor(key);
 	}
 
@@ -91,7 +93,7 @@ public class RequestTree extends RequestTreeNode {
 	}
 
 	protected void promiseAdded(IPromise promise) {
-		FinalPair<IProvide, ItemIdentifier> key = new FinalPair<>(promise.getProvider(), promise.getItemType());
+		PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
 		if (promisetotals == null) {
 			promisetotals = new HashMap<>();
 		}
@@ -99,7 +101,7 @@ public class RequestTree extends RequestTreeNode {
 	}
 
 	protected void promiseRemoved(IPromise promise) {
-		FinalPair<IProvide, ItemIdentifier> key = new FinalPair<>(promise.getProvider(), promise.getItemType());
+		PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
 		int r = getExistingPromisesFor(key) - promise.getAmount();
 		if (r == 0) {
 			promisetotals.remove(key);

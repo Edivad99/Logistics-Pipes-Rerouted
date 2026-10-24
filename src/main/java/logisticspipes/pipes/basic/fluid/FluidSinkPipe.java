@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -14,12 +13,11 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.api.connection.NeighborBlockEntity;
 import logisticspipes.api.property.Property;
 import logisticspipes.api.property.PropertyHolder;
-import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IFluidSink;
 import logisticspipes.pipes.PipeFluidUtil;
+import logisticspipes.pipes.PipeFluidUtil.AdjacentTank;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifier;
@@ -28,7 +26,6 @@ import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSink, PropertyHolder, ValueIOSerializable {
 
@@ -69,11 +66,11 @@ public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSin
             }
             final int onTheWay = countOnRoute(stack.getFluid());
             long freeSpace = -onTheWay;
-            for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : PipeFluidUtil.getAdjacentTanks(this, true)) {
-                Direction dir = pair.component1().getDirection();
+            for (AdjacentTank adjacent : PipeFluidUtil.getAdjacentTanks(this, true)) {
+                Direction dir = adjacent.neighbor().getDirection();
                 ResourceHandler<FluidResource> tank =
                         ((PipeFluidTransportLogistics) transport).getFluidResourceHandler(dir);
-                freeSpace += pair.component2().getFreeSpaceInsideTank(stack.getFluid().asResource());
+                freeSpace += adjacent.tank().getFreeSpaceInsideTank(stack.getFluid().asResource());
                 freeSpace += stack.getFluid().getFreeSpaceInsideTank(tank);
                 if (freeSpace >= stack.getAmount()) {
                     return new FluidSinkReply(getPriority(), stack.getAmount());

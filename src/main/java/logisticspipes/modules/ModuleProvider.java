@@ -2,12 +2,12 @@ package logisticspipes.modules;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.minecraft.core.Direction;
@@ -73,7 +73,6 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.ProviderMenu;
 
 public class ModuleProvider extends LogisticsModule implements SneakyDirection, ILegacyActiveModule,
@@ -286,13 +285,10 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
                     );
                     return !blockedInFilters; // skip filters-parameter-filtered items
                 })
-                .map(item ->
-                    new Pair<>(item.getKey(), item.getValue() - this.service.getItemOrderManager()
-                        .totalItemsCountInOrders(item.getKey()))
-                )
-                .filter(itemIdentAndRemaining -> itemIdentAndRemaining.getValue2()
-                    > 0) // reduce what has been reserved
-                .collect(Pair.toMap(Integer::sum)) // sum up the provided amount by the inventories
+                .map(item -> Map.entry(item.getKey(), item.getValue() - this.service.getItemOrderManager()
+                    .totalItemsCountInOrders(item.getKey())))
+                .filter(remaining -> remaining.getValue() > 0) // reduce what has been reserved
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum)) // sum up the provided amount by the inventories
         );
     }
 
@@ -305,18 +301,12 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
 
         ItemIdentifier item = stack.getItem();
 
-        Iterator<Pair<IInventoryUtil, Direction>> iterator = this.service.getAvailableAdjacent().inventories().stream()
-            .flatMap(neighbor -> {
-                final IInventoryUtil invUtil = getInventoryUtilWithMode(neighbor);
-                if (invUtil == null) {
-                    return Stream.empty();
-                }
-                return Stream.of(new Pair<>(invUtil, neighbor.getDirection()));
-            }).iterator();
-
-        while (iterator.hasNext()) {
-            final Pair<IInventoryUtil, Direction> current = iterator.next();
-            int available = current.getValue1().itemCount(item);
+        for (NeighborBlockEntity<BlockEntity> neighbor : this.service.getAvailableAdjacent().inventories()) {
+            final IInventoryUtil invUtil = getInventoryUtilWithMode(neighbor);
+            if (invUtil == null) {
+                continue;
+            }
+            int available = invUtil.itemCount(item);
             if (available == 0) {
                 continue;
             }
@@ -345,7 +335,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
             if (!this.service.canUseEnergy(wanted * neededEnergy())) {
                 return -1;
             }
-            ItemStack removed = current.getValue1().getMultipleItems(item, wanted);
+            ItemStack removed = invUtil.getMultipleItems(item, wanted);
             if (removed.isEmpty()) {
                 continue;
             }
@@ -353,7 +343,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
             this.service.useEnergy(sent * neededEnergy());
 
             final IRoutedItem routedItem = this.service
-                .sendStack(removed, destination, itemSendMode(), info, current.getValue2());
+                .sendStack(removed, destination, itemSendMode(), info, neighbor.getDirection());
             this.service.getItemOrderManager().sendSuccessfull(sent, deferSend, routedItem);
             return sent;
         }

@@ -37,7 +37,6 @@ import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.component.HUDComponent;
 import logisticspipes.world.item.component.LPDataComponents;
 
@@ -92,7 +91,7 @@ public class LogisticsHUDRenderer {
     }
 
     private void refreshList(double x, double y, double z) {
-        ArrayList<Pair<Double, IHeadUpDisplayRendererProvider>> newList = new ArrayList<>();
+        ArrayList<InRange> newList = new ArrayList<>();
         for (IRouter router : ClientRouterManager.get().getRouters()) {
             if (router == null) {
                 continue;
@@ -106,7 +105,7 @@ public class LogisticsHUDRenderer {
                 double dis = Math.hypot(pipePos.getX() - x + 0.5,
                         Math.hypot(pipePos.getY() - y + 0.5, pipePos.getZ() - z + 0.5));
                 if (dis < LPConfigs.CLIENT.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75) {
-                    newList.add(new Pair<>(dis, (IHeadUpDisplayRendererProvider) pipe));
+                    newList.add(new InRange(dis, (IHeadUpDisplayRendererProvider) pipe));
                     if (!list.contains(pipe)) {
                         ((IHeadUpDisplayRendererProvider) pipe).startWatching();
                     }
@@ -123,7 +122,7 @@ public class LogisticsHUDRenderer {
                     Math.hypot(providerPos.getY() - y + 0.5, providerPos.getZ() - z + 0.5));
                 if (dis < LPConfigs.CLIENT.LOGISTICS_HUD_RENDER_DISTANCE.getAsInt() && dis > 0.75
                     && !provider.isHUDInvalid() && provider.isHUDExistent()) {
-                    newList.add(new Pair<>(dis, provider));
+                    newList.add(new InRange(dis, provider));
                     if (!list.contains(provider)) {
                         provider.startWatching();
                     }
@@ -139,11 +138,11 @@ public class LogisticsHUDRenderer {
             clearList(true);
             return;
         }
-        newList.sort(Comparator.comparing(Pair::getValue1));
+        newList.sort(Comparator.comparingDouble(InRange::distance));
         for (IHeadUpDisplayRendererProvider part : list) {
             boolean contains = false;
-            for (Pair<Double, IHeadUpDisplayRendererProvider> inpart : newList) {
-                if (inpart.getValue2().equals(part)) {
+            for (InRange inpart : newList) {
+                if (inpart.provider().equals(part)) {
                     contains = true;
                     break;
                 }
@@ -153,8 +152,8 @@ public class LogisticsHUDRenderer {
             }
         }
         clearList(false);
-        for (Pair<Double, IHeadUpDisplayRendererProvider> part : newList) {
-            list.addLast(part.getValue2());
+        for (InRange part : newList) {
+            list.addLast(part.provider());
         }
     }
 
@@ -550,4 +549,7 @@ public class LogisticsHUDRenderer {
         }
         return LogisticsHUDRenderer.renderer;
     }
+
+    /** A HUD close enough to show, and how far it is from the player. */
+    private record InRange(double distance, IHeadUpDisplayRendererProvider provider) {}
 }

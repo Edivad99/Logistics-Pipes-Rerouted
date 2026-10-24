@@ -1,6 +1,5 @@
 package logisticspipes.ticks;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Callable;
 
@@ -9,7 +8,6 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.transport.LPTravelingItem;
-import logisticspipes.utils.tuples.Pair;
 
 public class QueuedTasks {
 
@@ -45,14 +43,8 @@ public class QueuedTasks {
 			}
 		}
 		synchronized (LPTravelingItem.forceKeep) {
-			Iterator<Pair<Integer, Object>> iter = LPTravelingItem.forceKeep.iterator();
-			while (iter.hasNext()) {
-				Pair<Integer, Object> pair = iter.next();
-				pair.setValue1(pair.getValue1() - 1);
-				if (pair.getValue1() < 0) {
-					iter.remove();
-				}
-			}
+			LPTravelingItem.forceKeep.replaceAll((item, ticksLeft) -> ticksLeft - 1);
+			LPTravelingItem.forceKeep.values().removeIf(ticksLeft -> ticksLeft < 0);
 		}
 	}
 }

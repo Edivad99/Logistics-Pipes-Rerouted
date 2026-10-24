@@ -51,6 +51,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
+import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
@@ -70,7 +71,6 @@ import logisticspipes.utils.OneList;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.tuples.Pair;
 
 public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
@@ -108,23 +108,23 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	public Map<CoreRoutedPipe, ExitRoute> adjacent = new HashMap<>();
 	public Map<ServerRouter, ExitRoute> adjacentRouter = new HashMap<>();
 	public Map<ServerRouter, ExitRoute> adjacentRouterOld = new HashMap<>();
-	public @Nullable List<Pair<ILogisticsPowerProvider, List<IFilter>>> powerAdjacent = new ArrayList<>();
-	public @Nullable List<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPowerAdjacent = new ArrayList<>();
+	public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> powerAdjacent = new ArrayList<>();
+	public @Nullable List<FilteredRoute<ISubSystemPowerProvider>> subSystemPowerAdjacent = new ArrayList<>();
 	public boolean[] sideDisconnected = new boolean[6];
 	/**
 	 * Map of router -> orientation for all known destinations
 	 **/
 	public List<@Nullable List<ExitRoute>> routeTable = Collections.unmodifiableList(new ArrayList<>());
 	public List<ExitRoute> routeCosts = Collections.unmodifiableList(new ArrayList<>());
-	public List<Pair<ILogisticsPowerProvider, List<IFilter>>> lpPowerTable = Collections.unmodifiableList(new ArrayList<>());
-	public List<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPowerTable = Collections.unmodifiableList(new ArrayList<>());
+	public List<FilteredRoute<ILogisticsPowerProvider>> lpPowerTable = Collections.unmodifiableList(new ArrayList<>());
+	public List<FilteredRoute<ISubSystemPowerProvider>> subSystemPowerTable = Collections.unmodifiableList(new ArrayList<>());
 	protected int lsaVersion = 0;
 	int ticksUntillNextInventoryCheck = 0;
 	private EnumSet<Direction> routedExits = EnumSet.noneOf(Direction.class);
 	private EnumMap<Direction, Integer> subPowerExits = new EnumMap<>(Direction.class);
 	private final Identifier dimension;
 	private @Nullable WeakReference<CoreRoutedPipe> myPipeCache = null;
-	private final LinkedList<Pair<Integer, IRouterQueuedTask>> queue = new LinkedList<>();
+	private final LinkedList<QueuedTask> queue = new LinkedList<>();
 	int connectionNeedsChecking = 0;
 	private final List<BlockPos> causedBy = new LinkedList<>();
 	private boolean isDestroyed = false;
@@ -404,8 +404,8 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			return false;
 		}
 		HashMap<CoreRoutedPipe, ExitRoute> adjacent;
-		List<Pair<ILogisticsPowerProvider, List<IFilter>>> power;
-		List<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
+		List<FilteredRoute<ILogisticsPowerProvider>> power;
+		List<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
 		PathFinder finder = new PathFinder(thisPipe.getContainer(), LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
 		power = finder.powerNodes;
 		subSystemPower = finder.subPowerProvider;
@@ -463,7 +463,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			if (power == null) {
 				adjacentChanged = true;
 			} else {
-				for (Pair<ILogisticsPowerProvider, List<IFilter>> provider : powerAdjacent) {
+				for (FilteredRoute<ILogisticsPowerProvider> provider : powerAdjacent) {
 					if (!power.contains(provider)) {
 						adjacentChanged = true;
 						break;
@@ -475,7 +475,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			if (powerAdjacent == null) {
 				adjacentChanged = true;
 			} else {
-				for (Pair<ILogisticsPowerProvider, List<IFilter>> provider : power) {
+				for (FilteredRoute<ILogisticsPowerProvider> provider : power) {
 					if (!powerAdjacent.contains(provider)) {
 						adjacentChanged = true;
 						break;
@@ -487,7 +487,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			if (subSystemPower == null) {
 				adjacentChanged = true;
 			} else {
-				for (Pair<ISubSystemPowerProvider, List<IFilter>> provider : subSystemPowerAdjacent) {
+				for (FilteredRoute<ISubSystemPowerProvider> provider : subSystemPowerAdjacent) {
 					if (!subSystemPower.contains(provider)) {
 						adjacentChanged = true;
 						break;
@@ -499,7 +499,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 			if (subSystemPowerAdjacent == null) {
 				adjacentChanged = true;
 			} else {
-				for (Pair<ISubSystemPowerProvider, List<IFilter>> provider : subSystemPower) {
+				for (FilteredRoute<ISubSystemPowerProvider> provider : subSystemPower) {
 					if (!subSystemPowerAdjacent.contains(provider)) {
 						adjacentChanged = true;
 						break;
@@ -604,11 +604,11 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 					.getValue().distanceToDestination, adjacent.getValue().connectionDetails, adjacent
 					.getValue().filters, adjacent.getValue().blockDistance));
 		}
-		ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power = null;
+		ArrayList<FilteredRoute<ILogisticsPowerProvider>> power = null;
 		if (powerAdjacent != null) {
 			power = new ArrayList<>(powerAdjacent);
 		}
-		ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower = null;
+		ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower = null;
 		if (subSystemPowerAdjacent != null) {
 			subSystemPower = new ArrayList<>(subSystemPowerAdjacent);
 		}
@@ -619,7 +619,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 	}
 
-	private void lockAndUpdateLSA(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power, @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower) {
+	private void lockAndUpdateLSA(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power, @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower) {
 		ServerRouter.SharedLSADatabasewriteLock.lock();
 		try {
 			myLsa.neighboursWithMetric = neighboursWithMetric;
@@ -661,13 +661,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		//Add the current Router
 		routeCosts.add(new ExitRoute(this, this, null, null, 0, EnumSet.allOf(PipeRoutingConnectionType.class), 0));
 
-		ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> powerTable;
+		ArrayList<FilteredRoute<ILogisticsPowerProvider>> powerTable;
 		if (powerAdjacent != null) {
 			powerTable = new ArrayList<>(powerAdjacent);
 		} else {
 			powerTable = new ArrayList<>(5);
 		}
-		ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
+		ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
 		if (subSystemPowerAdjacent != null) {
 			subSystemPower = new ArrayList<>(subSystemPowerAdjacent);
 		} else {
@@ -787,12 +787,11 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 				}
 				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_FROM)) {
 					if (lsa.power != null && !lsa.power.isEmpty()) {
-						for (Pair<ILogisticsPowerProvider, List<IFilter>> p : lsa.power) {
-							Pair<ILogisticsPowerProvider, List<IFilter>> entry = p.copy();
+						for (FilteredRoute<ILogisticsPowerProvider> p : lsa.power) {
 							List<IFilter> list = new ArrayList<>();
-							list.addAll(p.getValue2());
+							list.addAll(p.filters());
 							list.addAll(lowestCostNode.filters);
-							entry.setValue2(Collections.unmodifiableList(list));
+							FilteredRoute<ILogisticsPowerProvider> entry = new FilteredRoute<>(p.target(), Collections.unmodifiableList(list));
 							if (!powerTable.contains(entry)) {
 								powerTable.add(entry);
 							}
@@ -801,12 +800,11 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 				}
 				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
 					if (lsa.subSystemPower != null && !lsa.subSystemPower.isEmpty()) {
-						for (Pair<ISubSystemPowerProvider, List<IFilter>> p : lsa.subSystemPower) {
-							Pair<ISubSystemPowerProvider, List<IFilter>> entry = p.copy();
+						for (FilteredRoute<ISubSystemPowerProvider> p : lsa.subSystemPower) {
 							List<IFilter> list = new ArrayList<>();
-							list.addAll(p.getValue2());
+							list.addAll(p.filters());
 							list.addAll(lowestCostNode.filters);
-							entry.setValue2(Collections.unmodifiableList(list));
+							FilteredRoute<ISubSystemPowerProvider> entry = new FilteredRoute<>(p.target(), Collections.unmodifiableList(list));
 							if (!subSystemPower.contains(entry)) {
 								subSystemPower.add(entry);
 							}
@@ -1081,9 +1079,9 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	private void handleQueuedTasks(CoreRoutedPipe pipe) {
 		while (!queue.isEmpty()) {
-			Pair<Integer, IRouterQueuedTask> element = queue.poll();
-			if (element.getValue1() > LPTickHandler.getGlobalTick()) {
-				element.getValue2().call(pipe, this);
+			QueuedTask element = queue.poll();
+			if (element.dueTick() > LPTickHandler.getGlobalTick()) {
+				element.task().call(pipe, this);
 			}
 		}
 	}
@@ -1181,12 +1179,12 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	@Override
-	public List<Pair<ILogisticsPowerProvider, List<IFilter>>> getPowerProvider() {
+	public List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider() {
 		return lpPowerTable;
 	}
 
 	@Override
-	public List<Pair<ISubSystemPowerProvider, List<IFilter>>> getSubSystemPowerProvider() {
+	public List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider() {
 		return subSystemPowerTable;
 	}
 
@@ -1322,18 +1320,20 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	@Override
 	public void queueTask(int i, IRouterQueuedTask callable) {
-		queue.add(new Pair<>(i + LPTickHandler.getGlobalTick(), callable));
+		queue.add(new QueuedTask(i + LPTickHandler.getGlobalTick(), callable));
 	}
 
 	/** One link of a router's link state: what reaching that neighbor costs, and what it allows. */
 	protected record NeighborLink(double distance, EnumSet<PipeRoutingConnectionType> connectionDetails,
 			List<IFilter> filters, int blockDistance) {}
 
+	private record QueuedTask(int dueTick, IRouterQueuedTask task) {}
+
 	protected static class LSA {
 
 		public HashMap<IRouter, NeighborLink> neighboursWithMetric = new HashMap<>();
-		public @Nullable List<Pair<ILogisticsPowerProvider, List<IFilter>>> power;
-		public @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
+		public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> power;
+		public @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
 	}
 
 	private abstract static class RouterRunnable implements Comparable<RouterRunnable>, Runnable {
@@ -1460,10 +1460,10 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 		private final int index = ServerRouter.maxLSAUpdateIndex++;
 		HashMap<IRouter, NeighborLink> neighboursWithMetric;
-		@Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power;
-		@Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
+		@Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power;
+		@Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
 
-		LSARouterRunnable(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power, @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower) {
+		LSARouterRunnable(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power, @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower) {
 			this.neighboursWithMetric = neighboursWithMetric;
 			this.power = power;
 			this.subSystemPower = subSystemPower;

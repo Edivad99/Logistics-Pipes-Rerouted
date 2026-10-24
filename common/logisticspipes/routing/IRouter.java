@@ -18,11 +18,10 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
-import logisticspipes.interfaces.routing.IFilter;
+import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.tuples.Pair;
 
 public interface IRouter {
 
@@ -78,9 +77,9 @@ public interface IRouter {
 
 	void clearInterests();
 
-	List<Pair<ILogisticsPowerProvider, List<IFilter>>> getPowerProvider();
+	List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider();
 
-	List<Pair<ISubSystemPowerProvider, List<IFilter>>> getSubSystemPowerProvider();
+	List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider();
 
 	boolean isCacheInvalid();
 

@@ -148,11 +148,11 @@ public class RequestMonitorPopup extends SubGuiScreen {
     }
 
     private void createBoundary() {
-        int size = table.watchedRequests.get(orderId).getValue2().getTreeRootSize();
+        int size = table.watchedRequests.get(orderId).orders().getTreeRootSize();
         minX = -size * (40 / 2) + (int) (75 * (zoom.zoom));
         maxX = -minX + zoom.maxX;
         maxY = -100;
-        findLowest(table.watchedRequests.get(orderId).getValue2(), -200);
+        findLowest(table.watchedRequests.get(orderId).orders(), -200);
     }
 
     private void drawTransparentBack(GuiGraphicsExtractor guiGraphics) {
@@ -208,7 +208,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
         // if (!table.watchedRequests.containsKey(orderId)) {
         // 	return;
         // }
-        // LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).getValue2();
+        // LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).orders();
         // int imgWidth = Math.max(256, list.getTreeRootSize() * 40 + 160);
         // int imgHeight = Math.max(256, treeDepth(list) * 48 + 140);
         // int anchorX = imgWidth / 2 - 8;
@@ -339,7 +339,7 @@ public class RequestMonitorPopup extends SubGuiScreen {
         int innerLeftSide = leftSide + 16;
         int innerTopSide = topSide + 17;
 
-        LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).getValue2();
+        LinkedLogisticsOrderList list = table.watchedRequests.get(orderId).orders();
         if (!list.isEmpty()) {
             SimpleGraphics.drawVerticalLine(guiGraphics, innerLeftSide - mapX + 110, innerTopSide - mapY - 197,
                 innerTopSide - mapY - 180, Color.GREEN, zoom.line);

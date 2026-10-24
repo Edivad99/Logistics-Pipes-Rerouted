@@ -10,7 +10,6 @@ import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.SinkReply;
-import logisticspipes.utils.tuples.Pair;
 
 public interface ISendRoutedItem {
 
@@ -18,11 +17,7 @@ public interface ISendRoutedItem {
 
 	IRouter getRouter();
 
-	IRoutedItem sendStack(ItemStack stack, Pair<Integer, SinkReply> reply, ItemSendMode mode, Direction direction);
-
 	IRoutedItem sendStack(ItemStack stack, int destination, ItemSendMode mode, @Nullable IAdditionalTargetInformation info, Direction direction);
 
-	default IRoutedItem sendStack(ItemStack stack, int destRouterId, SinkReply sinkReply, ItemSendMode itemSendMode, Direction direction) {
-		return sendStack(stack, new Pair<>(destRouterId, sinkReply), itemSendMode, direction);
-	}
+	IRoutedItem sendStack(ItemStack stack, int destination, SinkReply reply, ItemSendMode mode, Direction direction);
 }

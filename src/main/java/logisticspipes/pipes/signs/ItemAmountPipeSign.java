@@ -20,6 +20,7 @@ import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.ItemAmountSignMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipes.basic.CoreRoutedPipe.SidedSign;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
@@ -28,7 +29,6 @@ import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.ItemAmountSignMenu;
 
 /**
@@ -131,8 +131,8 @@ public final class ItemAmountPipeSign implements IPipeSign, ISimpleInventoryEven
                 && exit.connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
                 CoreRoutedPipe cachedPipe = exit.destination.getCachedPipe();
                 if (cachedPipe != null) {
-                    for (Pair<Direction, IPipeSign> signPair : cachedPipe.getPipeSigns()) {
-                        if (signPair.getValue2() instanceof ItemAmountPipeSign sign) {
+                    for (SidedSign sidedSign : cachedPipe.getPipeSigns()) {
+                        if (sidedSign.sign() instanceof ItemAmountPipeSign sign) {
                             sign.updateStats(availableItems, visited);
                         }
                     }

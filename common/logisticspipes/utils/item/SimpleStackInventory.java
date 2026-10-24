@@ -8,7 +8,6 @@
 package logisticspipes.utils.item;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -30,7 +29,6 @@ import net.neoforged.neoforge.common.util.ValueIOSerializable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
-import logisticspipes.utils.tuples.Pair;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Iterable over its own pair type: the two Iterable parameterisations conflict. The pair
@@ -290,35 +288,6 @@ public class SimpleStackInventory implements Container, ValueIOSerializable {
 
 	public boolean hasCustomName() {
 		return true;
-	}
-
-	/** Pair-wise view of the contents; was the class's own iterator() before 1.21.5. */
-	public Iterable<Pair<ItemStack, Integer>> contents() {
-		return this::pairIterator;
-	}
-
-	private Iterator<Pair<ItemStack, Integer>> pairIterator() {
-		final Iterator<ItemStack> iter = stackList.iterator();
-		return new Iterator<Pair<ItemStack, Integer>>() {
-
-			int pos = -1;
-
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public Pair<ItemStack, Integer> next() {
-				pos++;
-				return new Pair<>(iter.next(), pos);
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
 	}
 
 	/**

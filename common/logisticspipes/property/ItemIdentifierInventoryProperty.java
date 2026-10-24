@@ -58,7 +58,6 @@ import logisticspipes.utils.ISimpleInventoryEventHandler;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 // Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
 // Collection<ItemIdentifierStack>: the two Iterable parameterisations conflict. The collection-like
@@ -299,7 +298,7 @@ public class ItemIdentifierInventoryProperty
     }
 
     @Override
-    public Iterable<Pair<ItemIdentifierStack, Integer>> contents() {
+    public Iterable<SlotContent> contents() {
         return inv.contents();
     }
 

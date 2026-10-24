@@ -28,7 +28,6 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.FluidSinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.world.item.component.LPDataComponents;
@@ -38,8 +37,11 @@ public final class LogisticsFluidManager {
 	private LogisticsFluidManager() {
 	}
 
-	public static @Nullable Pair<Integer, FluidSinkReply> getBestReply(FluidIdentifierStack stack, IRouter sourceRouter, List<Integer> jamList) {
-		Optional<Pair<Integer, FluidSinkReply>> bestReply = sourceRouter.getIRoutersByCost().stream()
+	/** The fluid sink a stack should go to, by the id of its router. */
+	public record BestReply(int routerId, FluidSinkReply reply) {}
+
+	public static @Nullable BestReply getBestReply(FluidIdentifierStack stack, IRouter sourceRouter, List<Integer> jamList) {
+		Optional<BestReply> bestReply = sourceRouter.getIRoutersByCost().stream()
 				.filter(it -> it.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) &&
 						it.destination.getId() != sourceRouter.getId() &&
 						!jamList.contains(it.destination.getSimpleID()) &&
@@ -47,13 +49,13 @@ public final class LogisticsFluidManager {
 						it.destination.getPipe().isEnabled() &&
 						!it.destination.getPipe().isOnSameContainer(sourceRouter.getPipe()))
 				.sorted()
-				.map(it -> new Pair<>(it.destination.getSimpleID(),
+				.map(it -> new BestReply(it.destination.getSimpleID(),
 						((IFluidSink) it.destination.getPipe()).sinkAmount(stack)))
-				.filter(pair -> pair.getValue2() != null && pair.getValue2().sinkAmount != 0L)
+				.filter(best -> best.reply() != null && best.reply().sinkAmount != 0L)
 				.reduce((left, right) ->
-						left.getValue2().fixedPriority.compareTo(right.getValue2().fixedPriority) < 0 ? right : left);
-		bestReply.ifPresent(pair -> {
-			ServerRouter serverRouter = RouterManager.get().getServerRouter(pair.getValue1());
+						left.reply().fixedPriority.compareTo(right.reply().fixedPriority) < 0 ? right : left);
+		bestReply.ifPresent(best -> {
+			ServerRouter serverRouter = RouterManager.get().getServerRouter(best.routerId());
 			if (serverRouter == null) return;
 			CoreRoutedPipe pipe = serverRouter.getPipe();
 			if (pipe != null) pipe.spawnParticle(Particles.BLUE_SPARKLE, 10);

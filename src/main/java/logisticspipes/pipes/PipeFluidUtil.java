@@ -26,7 +26,6 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 /**
  * Finding and reading the fluid inventories next to a fluid pipe.
@@ -73,19 +72,22 @@ public final class PipeFluidUtil {
         return new TankUtil(fluidHandler);
     }
 
+    /** A neighbour this pipe may exchange fluid with, and the view of its tanks from the pipe. */
+    public record AdjacentTank(NeighborBlockEntity<BlockEntity> neighbor, ITankUtil tank) {}
+
     /**
-     * The neighbours this pipe may exchange fluid with, paired with their tank view.
+     * The neighbours this pipe may exchange fluid with, with their tank view.
      */
-    public static List<Pair<NeighborBlockEntity<BlockEntity>, ITankUtil>> getAdjacentTanks(FluidRoutedPipe pipe,
+    public static List<AdjacentTank> getAdjacentTanks(FluidRoutedPipe pipe,
         boolean listNearbyPipes) {
-        List<Pair<NeighborBlockEntity<BlockEntity>, ITankUtil>> result = new ArrayList<>();
+        List<AdjacentTank> result = new ArrayList<>();
         for (NeighborBlockEntity<BlockEntity> adjacent : pipe.getAvailableAdjacent().fluidTanks()) {
             if (!pipe.isConnectableTank(adjacent.getBlockEntity(), adjacent.getDirection(), listNearbyPipes)) {
                 continue;
             }
             ITankUtil util = getTankUtilForBE(adjacent.getBlockEntity(), adjacent.getOurDirection());
             if (util != null) {
-                result.add(new Pair<>(adjacent, util));
+                result.add(new AdjacentTank(adjacent, util));
             }
         }
         return result;
@@ -93,8 +95,8 @@ public final class PipeFluidUtil {
 
     public static List<BlockEntity> getAllTankTiles(FluidRoutedPipe pipe) {
         List<BlockEntity> result = new ArrayList<>();
-        for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : getAdjacentTanks(pipe, false)) {
-            result.addAll(SpecialTankHandler.get().getBaseBlockEntitiesFor(pair.getValue1().getBlockEntity()));
+        for (AdjacentTank adjacent : getAdjacentTanks(pipe, false)) {
+            result.addAll(SpecialTankHandler.get().getBaseBlockEntitiesFor(adjacent.neighbor().getBlockEntity()));
         }
         return result;
     }
@@ -106,8 +108,8 @@ public final class PipeFluidUtil {
     public static List<ItemIdentifierStack> fluidsToItemList(PipeFluidSatellite pipe) {
         Set<FluidIdentifier> seen = new HashSet<>();
         List<ItemIdentifierStack> outputList = new ArrayList<>();
-        for (Pair<NeighborBlockEntity<BlockEntity>, ITankUtil> pair : getAdjacentTanks(pipe, false)) {
-            for (FluidStack stack : pair.getValue2().tanks().toList()) {
+        for (AdjacentTank adjacent : getAdjacentTanks(pipe, false)) {
+            for (FluidStack stack : adjacent.tank().tanks().toList()) {
                 FluidIdentifierStack identStack = FluidIdentifierStack.getFromStack(stack);
                 if (identStack == null) {
                     continue;

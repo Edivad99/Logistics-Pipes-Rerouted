@@ -20,8 +20,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
+import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
 
@@ -109,9 +109,9 @@ public class PowerSupplierHandler implements ValueIOSerializable {
         }
         List<ISubSystemPowerProvider> providers = new ArrayList<>();
         long stored = 0;
-        for (Pair<ISubSystemPowerProvider, List<IFilter>> pair : pipe.getRouter().getSubSystemPowerProvider()) {
-            ISubSystemPowerProvider provider = pair.getValue1();
-            if (pair.getValue2().stream().noneMatch(IFilter::blockPower) && !provider.usePaused()) {
+        for (FilteredRoute<ISubSystemPowerProvider> route : pipe.getRouter().getSubSystemPowerProvider()) {
+            ISubSystemPowerProvider provider = route.target();
+            if (route.filters().stream().noneMatch(IFilter::blockPower) && !provider.usePaused()) {
                 providers.add(provider);
                 stored += provider.getPowerLevel();
             }

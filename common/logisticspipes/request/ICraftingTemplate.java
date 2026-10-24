@@ -2,16 +2,17 @@ package logisticspipes.request;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.ICraft;
 import logisticspipes.interfaces.routing.ICraftItems;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 
 public interface ICraftingTemplate extends Comparable<ICraftingTemplate> {
 
-	List<Pair<IResource, IAdditionalTargetInformation>> getComponents(int nCraftingSets);
+	List<Requirement> getComponents(int nCraftingSets);
 
 	List<IExtraPromise> getByproducts(int workSets);
 
@@ -32,4 +33,7 @@ public interface ICraftingTemplate extends Comparable<ICraftingTemplate> {
 	int compareStack(ItemIdentifierStack stack);
 
 	int compareCrafter(ICraftItems crafter);
+
+	/** One thing a crafting set needs, and where in the crafter it has to go. */
+	record Requirement(IResource resource, @Nullable IAdditionalTargetInformation info) {}
 }

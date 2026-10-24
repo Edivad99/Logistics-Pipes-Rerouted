@@ -95,8 +95,8 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe
             return;
         }
 
-        PipeFluidUtil.getAdjacentTanks(this, false).forEach(fluidHandlerDirectionPair -> {
-            if (!fluidHandlerDirectionPair.getValue2().containsTanks()) {
+        PipeFluidUtil.getAdjacentTanks(this, false).forEach(adjacent -> {
+            if (!adjacent.tank().containsTanks()) {
                 return;
             }
 
@@ -113,13 +113,13 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe
             HashMap<FluidIdentifier, Integer> haveFluids = new HashMap<>();
 
             //Check what is inside the connected tank
-            fluidHandlerDirectionPair.getValue2().tanks()
+            adjacent.tank().tanks()
                 .map(tank -> FluidIdentifierStack.getFromStack(tank))
                 .filter(Objects::nonNull)
                 .forEach(fluid -> haveFluids.merge(fluid.getFluid(), fluid.getAmount(), Integer::sum));
 
             //What does our sided internal tank have
-            int directionOrdinal = fluidHandlerDirectionPair.getValue1().getDirection().ordinal();
+            int directionOrdinal = adjacent.neighbor().getDirection().ordinal();
             if (directionOrdinal < ((PipeFluidTransportLogistics) transport).sideTanks.length) {
                 LPFluidTank sideTank = ((PipeFluidTransportLogistics) transport).sideTanks[directionOrdinal];
                 if (sideTank != null && sideTank.getFluid() != null && wantFluids.containsKey(

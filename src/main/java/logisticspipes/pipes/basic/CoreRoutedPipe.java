@@ -69,6 +69,7 @@ import logisticspipes.interfaces.IPipeUpgradeManager;
 import logisticspipes.interfaces.ISecurityProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.interfaces.IWatchingHandler;
+import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -117,7 +118,6 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.ItemPipeController;
@@ -134,7 +134,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     protected final PriorityBlockingQueue<ItemRoutingInformation> inTransitToMe =
         new PriorityBlockingQueue<>(10, new ItemRoutingInformation.DelayComparator());
     protected final LinkedList<QueuedItem> sendQueue = new LinkedList<>();
-    protected final Map<ItemIdentifier, Queue<Pair<Integer, ItemRoutingInformation>>> queuedDataForUnroutedItems =
+    protected final Map<ItemIdentifier, Queue<UnroutedItemInfo>> queuedDataForUnroutedItems =
         Collections.synchronizedMap(new TreeMap<>());
     protected final Object routerIdLock = new Object();
     final protected UpgradeManager upgradeManager = new UpgradeManager(this);
@@ -1026,7 +1026,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     }
 
     @Nullable
-    public List<Pair<ILogisticsPowerProvider, List<IFilter>>> getRoutedPowerProviders() {
+    public List<FilteredRoute<ILogisticsPowerProvider>> getRoutedPowerProviders() {
         if (getLevel().isClientSide()) {
             return null;
         }
@@ -1066,18 +1066,18 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (providersToIgnore != null && providersToIgnore.contains(this)) {
             return false;
         }
-        List<Pair<ILogisticsPowerProvider, List<IFilter>>> list = getRoutedPowerProviders();
+        List<FilteredRoute<ILogisticsPowerProvider>> list = getRoutedPowerProviders();
         if (list == null) {
             return false;
         }
         outer:
-        for (Pair<ILogisticsPowerProvider, List<IFilter>> provider : list) {
-            for (IFilter filter : provider.getValue2()) {
+        for (FilteredRoute<ILogisticsPowerProvider> provider : list) {
+            for (IFilter filter : provider.filters()) {
                 if (filter.blockPower()) {
                     continue outer;
                 }
             }
-            if (provider.getValue1().canUseEnergy(amount, providersToIgnore)) {
+            if (provider.target().canUseEnergy(amount, providersToIgnore)) {
                 return true;
             }
         }
@@ -1106,19 +1106,19 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
             return false;
         }
         providersToIgnore.add(this);
-        List<Pair<ILogisticsPowerProvider, List<IFilter>>> list = getRoutedPowerProviders();
+        List<FilteredRoute<ILogisticsPowerProvider>> list = getRoutedPowerProviders();
         if (list == null) {
             return false;
         }
         outer:
-        for (Pair<ILogisticsPowerProvider, List<IFilter>> provider : list) {
-            for (IFilter filter : provider.getValue2()) {
+        for (FilteredRoute<ILogisticsPowerProvider> provider : list) {
+            for (IFilter filter : provider.filters()) {
                 if (filter.blockPower()) {
                     continue outer;
                 }
             }
-            if (provider.getValue1().canUseEnergy(amount, providersToIgnore)) {
-                if (provider.getValue1().useEnergy(amount, providersToIgnore)) {
+            if (provider.target().canUseEnergy(amount, providersToIgnore)) {
+                if (provider.target().useEnergy(amount, providersToIgnore)) {
                     if (sparkles) {
                         int particlecount = amount;
                         if (particlecount > 10) {
@@ -1191,22 +1191,22 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
     public void queueUnroutedItemInformation(ItemIdentifierStack item, ItemRoutingInformation information) {
         synchronized (queuedDataForUnroutedItems) {
-            Queue<Pair<Integer, ItemRoutingInformation>> queue = queuedDataForUnroutedItems
+            Queue<UnroutedItemInfo> queue = queuedDataForUnroutedItems
                 .computeIfAbsent(item.getItem(), _ -> new LinkedList<>());
-            queue.add(new Pair<>(item.getStackSize(), information));
+            queue.add(new UnroutedItemInfo(item.getStackSize(), information));
         }
     }
 
     @Nullable
     public ItemRoutingInformation getQueuedForItemStack(ItemIdentifierStack item) {
         synchronized (queuedDataForUnroutedItems) {
-            Queue<Pair<Integer, ItemRoutingInformation>> queue = queuedDataForUnroutedItems.get(item.getItem());
+            Queue<UnroutedItemInfo> queue = queuedDataForUnroutedItems.get(item.getItem());
             if (queue == null || queue.isEmpty()) {
                 return null;
             }
 
-            Pair<Integer, ItemRoutingInformation> pair = queue.peek();
-            int wantItem = pair.getValue1();
+            UnroutedItemInfo pair = queue.peek();
+            int wantItem = pair.stackSize();
 
             if (wantItem <= item.getStackSize()) {
                 if (queue.remove() != pair) {
@@ -1217,7 +1217,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                     queuedDataForUnroutedItems.remove(item.getItem());
                 }
                 item.setStackSize(wantItem);
-                return pair.getValue2();
+                return pair.information();
             }
         }
         return null;
@@ -1280,18 +1280,18 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     }
 
     @Override
-    public IRoutedItem sendStack(ItemStack stack, Pair<Integer, SinkReply> reply, ItemSendMode mode,
+    public IRoutedItem sendStack(ItemStack stack, int destination, SinkReply reply, ItemSendMode mode,
         Direction direction) {
         IRoutedItem itemToSend = new LPTravelingItemServer(stack);
-        itemToSend.setDestination(reply.getValue1());
-        if (reply.getValue2().isPassive) {
-            if (reply.getValue2().isDefault) {
+        itemToSend.setDestination(destination);
+        if (reply.isPassive) {
+            if (reply.isDefault) {
                 itemToSend.setTransportMode(TransportMode.Default);
             } else {
                 itemToSend.setTransportMode(TransportMode.Passive);
             }
         }
-        itemToSend.setAdditionalTargetInformation(reply.getValue2().addInfo);
+        itemToSend.setAdditionalTargetInformation(reply.addInfo);
         queueRoutedItem(itemToSend, direction, mode);
         return itemToSend;
     }
@@ -1378,13 +1378,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
     }
 
-    public List<Pair<Direction, IPipeSign>> getPipeSigns() {
-        List<Pair<Direction, IPipeSign>> list = new ArrayList<>();
+    public List<SidedSign> getPipeSigns() {
+        List<SidedSign> list = new ArrayList<>();
         for (int i = 0; i < 6; i++) {
             if (signItem[i] != null) {
                 // from3DDataValue rather than DirectionUtil.getOrientation, which answers null out of
-                // range: the loop never leaves it, and the pair has no room for a missing side.
-                list.add(new Pair<>(Direction.from3DDataValue(i), signItem[i]));
+                // range: the loop never leaves it, and a sign always has a side.
+                list.add(new SidedSign(Direction.from3DDataValue(i), signItem[i]));
             }
         }
         return list;
@@ -1515,6 +1515,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
     /** An item waiting to leave the pipe: the side it came in from, and how fast it may go. */
     protected record QueuedItem(IRoutedItem item, Direction from, ItemSendMode mode) {}
+
+    /** Where to route the next unrouted stack of an item, once at least {@code stackSize} of it arrives. */
+    protected record UnroutedItemInfo(int stackSize, ItemRoutingInformation information) {}
+
+    /** A sign on one side of the pipe. */
+    public record SidedSign(Direction side, IPipeSign sign) {}
 
     /**
      * What is waiting to leave, one stack per kind of item, in the order each kind first comes up.

@@ -68,7 +68,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.SimpleStackInventory;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.world.item.ItemPipeController;
 import logisticspipes.world.item.LPItems;
@@ -83,7 +82,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     public ItemIdentifierInventory matrix = new ItemIdentifierInventory(9, "Crafting Matrix", 1);
     public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
     public SimpleStackInventory toSortInv = new SimpleStackInventory(1, "Sorting Slot", 64);
-    public Map<Integer, Pair<IResource, LinkedLogisticsOrderList>> watchedRequests = new HashMap<>();
+    /** An order the table is following for its crafting monitor; no resource for a whole list. */
+    public record WatchedRequest(@Nullable IResource resource, LinkedLogisticsOrderList orders) {}
+
+    public Map<Integer, WatchedRequest> watchedRequests = new HashMap<>();
     public @Nullable ItemIdentifier targetType = null;
     private final ResultContainer vanillaResult = new ResultContainer();
     private @Nullable RecipeHolder<CraftingRecipe> cache;
@@ -163,9 +165,9 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
         if (tick % 2 == 0 && !localGuiWatcher.isEmpty()) {
             checkForExpired();
             if (getUpgradeManager().hasCraftingMonitoringUpgrade()) {
-                for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
+                for (Entry<Integer, WatchedRequest> entry : watchedRequests.entrySet()) {
                     localGuiWatcher.send(new OrderWatchMessage(getPos(), entry.getKey(),
-                        Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
+                        Optional.ofNullable(entry.getValue().resource()), entry.getValue().orders()));
                 }
             }
         } else if (tick % 20 == 0) {
@@ -174,11 +176,11 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     }
 
     private void checkForExpired() {
-        Iterator<Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>>> iter = watchedRequests.entrySet()
+        Iterator<Entry<Integer, WatchedRequest>> iter = watchedRequests.entrySet()
             .iterator();
         while (iter.hasNext()) {
-            Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry = iter.next();
-            if (isDone(entry.getValue().getValue2())) {
+            Entry<Integer, WatchedRequest> entry = iter.next();
+            if (isDone(entry.getValue().orders())) {
                 localGuiWatcher.send(new OrdererWatchRemoveMessage(getPos(), entry.getKey()));
                 iter.remove();
             }
@@ -575,7 +577,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
             return;
         }
         orders.setWatched();
-        watchedRequests.put(++localLastUsedWatcherId, new Pair<>(stack, orders));
+        watchedRequests.put(++localLastUsedWatcherId, new WatchedRequest(stack, orders));
         localGuiWatcher.send(new OrderWatchMessage(getPos(), localLastUsedWatcherId,
             Optional.ofNullable(stack), orders));
     }
@@ -590,10 +592,10 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
                 new CraftingTargetMessage(getPos(), Optional.ofNullable(targetType)));
         }
         localGuiWatcher.add(player);
-        for (Entry<Integer, Pair<IResource, LinkedLogisticsOrderList>> entry : watchedRequests.entrySet()) {
+        for (Entry<Integer, WatchedRequest> entry : watchedRequests.entrySet()) {
             if (player instanceof ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, new OrderWatchMessage(getPos(), entry.getKey(),
-                    Optional.ofNullable(entry.getValue().getValue1()), entry.getValue().getValue2()));
+                    Optional.ofNullable(entry.getValue().resource()), entry.getValue().orders()));
             }
         }
     }
@@ -606,7 +608,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     @Override
     public void handleClientSideListInfo(int id, IResource stack, LinkedLogisticsOrderList orders) {
         if (getLevel().isClientSide()) {
-            watchedRequests.put(id, new Pair<>(stack, orders));
+            watchedRequests.put(id, new WatchedRequest(stack, orders));
         }
     }
 

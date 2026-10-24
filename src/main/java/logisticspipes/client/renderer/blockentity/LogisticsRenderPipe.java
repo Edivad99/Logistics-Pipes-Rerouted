@@ -1,7 +1,5 @@
 package logisticspipes.client.renderer.blockentity;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -42,13 +40,13 @@ import logisticspipes.client.renderer.item.LogisticsPipeItemRenderer;
 import logisticspipes.pipes.PipeBlockRequestTable;
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.pipes.basic.CoreRoutedPipe.SidedSign;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.transport.PipeTransportLogistics.BufferedItem;
 import logisticspipes.utils.item.ItemStackRenderer;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGenericPipeBlockEntity, PipeRenderState> {
@@ -393,51 +391,25 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
         poseStack.popPose();
     }
 
-    private boolean needDistance(List<Pair<Direction, IPipeSign>> list) {
-        List<Pair<Direction, IPipeSign>> copy = new ArrayList<>(list);
-        Iterator<Pair<Direction, IPipeSign>> iter = copy.iterator();
-        boolean north = false, south = false, east = false, west = false;
-        while (iter.hasNext()) {
-            Pair<Direction, IPipeSign> pair = iter.next();
-            if (pair.getValue1() == Direction.UP || pair.getValue1() == Direction.DOWN || pair.getValue1() == null) {
-                iter.remove();
-            }
-            if (pair.getValue1() == Direction.NORTH) {
-                north = true;
-            }
-            if (pair.getValue1() == Direction.SOUTH) {
-                south = true;
-            }
-            if (pair.getValue1() == Direction.EAST) {
-                east = true;
-            }
-            if (pair.getValue1() == Direction.WEST) {
-                west = true;
-            }
-        }
-        boolean result = copy.size() > 1;
-        if (copy.size() == 2) {
-            if (north && south) {
-                result = false;
-            }
-            if (east && west) {
-                result = false;
-            }
-        }
-        return result;
+    private boolean needDistance(List<SidedSign> signs) {
+        List<Direction> horizontal = signs.stream().map(SidedSign::side)
+            .filter(side -> side.getAxis().isHorizontal()).toList();
+        // Two signs on opposite sides are far enough apart already.
+        return horizontal.size() > 2
+            || horizontal.size() == 2 && horizontal.get(0) != horizontal.get(1).getOpposite();
     }
 
     private void submitPipeSigns(CoreRoutedPipe pipe, double x, double y, double z,
         PoseStack poseStack, SubmitNodeCollector collector, int packedLight) {
-        List<Pair<Direction, IPipeSign>> pipeSigns = pipe.getPipeSigns();
+        List<SidedSign> pipeSigns = pipe.getPipeSigns();
         if (pipe.getContainer() != null && !pipeSigns.isEmpty()) {
-            for (Pair<Direction, IPipeSign> pair : pipeSigns) {
-                if (pipe.getContainer().visualState.pipeConnectionMatrix.isConnected(pair.getValue1())) {
+            for (SidedSign sidedSign : pipeSigns) {
+                if (pipe.getContainer().visualState.pipeConnectionMatrix.isConnected(sidedSign.side())) {
                     continue;
                 }
                 poseStack.pushPose();
                 poseStack.translate((float) x + 0.5F, (float) y + 0.5F, (float) z + 0.5F);
-                switch (pair.getValue1()) {
+                switch (sidedSign.side()) {
                     case UP:
                         poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90)));
                         break;
@@ -470,7 +442,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
                         break;
                     default:
                 }
-                submitSign(pair.getValue2(), poseStack, collector, packedLight);
+                submitSign(sidedSign.sign(), poseStack, collector, packedLight);
                 poseStack.popPose();
             }
         }

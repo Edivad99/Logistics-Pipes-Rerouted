@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
@@ -101,7 +100,6 @@ import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;
 
@@ -195,39 +193,35 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
         }
     }
 
-    @Nullable
-    private Pair<NeighborBlockEntity<BlockEntity>, ConnectionType> nextPointedOrientation(
+    private Map.@Nullable Entry<NeighborBlockEntity<BlockEntity>, ConnectionType> nextPointedOrientation(
         @Nullable Direction previousDirection) {
-        final Map<NeighborBlockEntity<BlockEntity>, ConnectionType> neighbors = getAdjacent().neighbors();
-        final Stream<NeighborBlockEntity<BlockEntity>> sortedNeighborsStream = neighbors.keySet().stream()
-            .sorted(Comparator.comparingInt(n -> n.getDirection().ordinal()));
-        if (previousDirection == null) {
-            return sortedNeighborsStream.findFirst().map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor)))
-                .orElse(null);
-        } else {
-            final List<NeighborBlockEntity<BlockEntity>> sortedNeighbors = sortedNeighborsStream.toList();
-            if (sortedNeighbors.isEmpty()) {
-                return null;
-            }
-            final Optional<NeighborBlockEntity<BlockEntity>> nextNeighbor = sortedNeighbors.stream()
-                .filter(neighbor -> neighbor.getDirection().ordinal() > previousDirection.ordinal())
-                .findFirst();
-            return nextNeighbor.map(neighbor -> new Pair<>(neighbor, neighbors.get(neighbor)))
-                .orElse(new Pair<>(sortedNeighbors.getFirst(), neighbors.get(sortedNeighbors.getFirst())));
+        final List<Map.Entry<NeighborBlockEntity<BlockEntity>, ConnectionType>> sortedNeighbors =
+            getAdjacent().neighbors().entrySet().stream()
+                .sorted(Comparator.comparingInt(entry -> entry.getKey().getDirection().ordinal()))
+                .toList();
+        if (sortedNeighbors.isEmpty()) {
+            return null;
         }
+        if (previousDirection == null) {
+            return sortedNeighbors.getFirst();
+        }
+        return sortedNeighbors.stream()
+            .filter(entry -> entry.getKey().getDirection().ordinal() > previousDirection.ordinal())
+            .findFirst()
+            .orElse(sortedNeighbors.getFirst());
     }
 
     @Override
     public void nextOrientation() {
         final Direction pointedDirection = pointedAdjacentProperty.getDirectionOrNull();
-        Pair<NeighborBlockEntity<BlockEntity>, ConnectionType> newNeighbor = nextPointedOrientation(pointedDirection);
+        Map.Entry<NeighborBlockEntity<BlockEntity>, ConnectionType> newNeighbor = nextPointedOrientation(pointedDirection);
         final Direction newDirection;
         if (newNeighbor == null) {
             pointedAdjacentProperty.setValue(NoAdjacent.INSTANCE);
             newDirection = null;
         } else {
-            newDirection = newNeighbor.getValue1().getDirection();
-            pointedAdjacentProperty.setValue(new SingleAdjacent(this, newDirection, newNeighbor.getValue2()));
+            newDirection = newNeighbor.getKey().getDirection();
+            pointedAdjacentProperty.setValue(new SingleAdjacent(this, newDirection, newNeighbor.getValue()));
         }
         TargetLookup.sendToChunkWatchers(getLevel(), getPos(),
             new ChassisOrientationMessage(getPos(), Optional.ofNullable(newDirection)));

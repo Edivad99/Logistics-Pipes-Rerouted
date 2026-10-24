@@ -44,6 +44,7 @@ import logisticspipes.api.property.UUIDProperty;
 import logisticspipes.connection.AdjacentUtil;
 import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.crafting.CraftingRecipeProviders;
+import logisticspipes.crafting.ICraftingRecipeProvider;
 import logisticspipes.crafting.MachineProgressProvider;
 import logisticspipes.interfaces.IHUDModuleHandler;
 import logisticspipes.interfaces.IHUDModuleRenderer;
@@ -111,7 +112,6 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.CraftingModuleMenu;
 import logisticspipes.world.item.ItemUpgrade;
 import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity;
@@ -148,7 +148,13 @@ public class ModuleCrafter extends LogisticsModule
         .build();
 
     // for reliable transport
-    protected final DelayQueue<DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>>> lostItems = new DelayQueue<>();
+    /** A stack that never arrived, to be requested again. */
+    protected record LostItem(ItemIdentifierStack stack, @Nullable IAdditionalTargetInformation info) {}
+
+    /** The inventory cache entry for how much of an item fits next to the crafter. */
+    private record SpaceForKey(ItemIdentifier item) {}
+
+    protected final DelayQueue<DelayedGeneric<LostItem>> lostItems = new DelayQueue<>();
     protected final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
     protected final PlayerCollectionList guiWatcher = new PlayerCollectionList();
 
@@ -214,7 +220,7 @@ public class ModuleCrafter extends LogisticsModule
     }
 
     protected int spaceFor(ItemStack stack, ItemIdentifier item, boolean includeInTransit) {
-        Pair<String, ItemIdentifier> key = new Pair<>("spaceFor", item);
+        SpaceForKey key = new SpaceForKey(item);
         final IPipeServiceProvider service = this.service;
         if (service == null) {
             return 0;
@@ -252,24 +258,24 @@ public class ModuleCrafter extends LogisticsModule
             return;
         }
         // if(true) return;
-        DelayedGeneric<Pair<ItemIdentifierStack, IAdditionalTargetInformation>> lostItem = lostItems.poll();
+        DelayedGeneric<LostItem> lostItem = lostItems.poll();
         int reRequested = 0;
         while (lostItem != null && reRequested < 100) {
-            Pair<ItemIdentifierStack, IAdditionalTargetInformation> pair = lostItem.get();
+            LostItem lost = lostItem.get();
             if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING)) {
-                SinkReply reply = LogisticsManager.canSink(pair.getValue1().makeNormalStack(), getRouter(), null, true,
-                    pair.getValue1().getItem(), null, true, true, false);
+                SinkReply reply = LogisticsManager.canSink(lost.stack().makeNormalStack(), getRouter(), null, true,
+                    lost.stack().getItem(), null, true, true, false);
                 if (reply == null || reply.maxNumberOfItems < 1) {
-                    lostItems.add(new DelayedGeneric<>(pair, 9000 + (int) (Math.random() * 2000)));
+                    lostItems.add(new DelayedGeneric<>(lost, 9000 + (int) (Math.random() * 2000)));
                     lostItem = lostItems.poll();
                     continue;
                 }
             }
-            int received = RequestTree.requestPartial(pair.getValue1(), (CoreRoutedPipe) service, pair.getValue2());
+            int received = RequestTree.requestPartial(lost.stack(), (CoreRoutedPipe) service, lost.info());
             reRequested++;
-            if (received < pair.getValue1().getStackSize()) {
-                pair.getValue1().setStackSize(pair.getValue1().getStackSize() - received);
-                lostItems.add(new DelayedGeneric<>(pair, 4500 + (int) (Math.random() * 1000)));
+            if (received < lost.stack().getStackSize()) {
+                lost.stack().setStackSize(lost.stack().getStackSize() - received);
+                lostItems.add(new DelayedGeneric<>(lost, 4500 + (int) (Math.random() * 1000)));
             }
             lostItem = lostItems.poll();
         }
@@ -281,7 +287,7 @@ public class ModuleCrafter extends LogisticsModule
 
     @Override
     public void itemLost(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
-        lostItems.add(new DelayedGeneric<>(new Pair<>(item, info), 5000));
+        lostItems.add(new DelayedGeneric<>(new LostItem(item, info), 5000));
     }
 
     @Override
@@ -738,12 +744,16 @@ public class ModuleCrafter extends LogisticsModule
             if (service == null) {
                 return;
             }
-            service.getAvailableAdjacent().neighbors().keySet().stream().flatMap(
-                    neighbor -> CraftingRecipeProviders.get().stream()
-                        .filter(provider -> provider.importRecipe(neighbor.getBlockEntity(), dummyInventory))
-                        .map(provider1 -> new Pair<>(neighbor, provider1))).findFirst()
-                .ifPresent(neighborProviderPair -> neighborProviderPair.getValue2().importFuzzyFlags(
-                    neighborProviderPair.getValue1().getBlockEntity(), dummyInventory.getSlotAccess(), fuzzyFlags));
+            outer:
+            for (NeighborBlockEntity<BlockEntity> neighbor : service.getAvailableAdjacent().neighbors().keySet()) {
+                for (ICraftingRecipeProvider provider : CraftingRecipeProviders.get()) {
+                    if (provider.importRecipe(neighbor.getBlockEntity(), dummyInventory)) {
+                        provider.importFuzzyFlags(neighbor.getBlockEntity(), dummyInventory.getSlotAccess(),
+                            fuzzyFlags);
+                        break outer;
+                    }
+                }
+            }
 
             // Send inventory as message
             final List<ItemStack> slots = new ArrayList<>(dummyInventory.getContainerSize());

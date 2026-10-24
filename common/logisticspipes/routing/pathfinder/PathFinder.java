@@ -33,8 +33,8 @@ import logisticspipes.connection.special.SpecialBlockEntityConnection;
 import logisticspipes.connection.special.SpecialPipeConnection.ConnectionInformation;
 import logisticspipes.connection.special.SpecialPipeConnection;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
+import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IChannelRoutingConnection;
-import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IPaintPath;
@@ -44,7 +44,6 @@ import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.pathfinder.IRouteProvider.RouteInfo;
 import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.utils.OneList;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
@@ -121,8 +120,8 @@ public class PathFinder {
 	private final @Nullable IPaintPath pathPainter;
 	private double pipesVisited;
 
-	public @Nullable List<Pair<ILogisticsPowerProvider, List<IFilter>>> powerNodes;
-	public @Nullable List<Pair<ISubSystemPowerProvider, List<IFilter>>> subPowerProvider;
+	public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> powerNodes;
+	public @Nullable List<FilteredRoute<ISubSystemPowerProvider>> subPowerProvider;
 	public HashMap<CoreRoutedPipe, ExitRoute> result = new HashMap<>();
 
 	public @Nullable ITileEntityChangeListener changeListener;
@@ -228,9 +227,9 @@ public class PathFinder {
 					}
 					//If we are a FireWall pipe add our filter to the pipes
 					if (startPipe.isFirewallPipe()) {
-						powerNodes.add(new Pair<>((ILogisticsPowerProvider) tile, new OneList<>(startPipe.getFirewallFilter())));
+						powerNodes.add(new FilteredRoute<>((ILogisticsPowerProvider) tile, new OneList<>(startPipe.getFirewallFilter())));
 					} else {
-						powerNodes.add(new Pair<>((ILogisticsPowerProvider) tile, Collections.unmodifiableList(new ArrayList<>(0))));
+						powerNodes.add(new FilteredRoute<>((ILogisticsPowerProvider) tile, Collections.unmodifiableList(new ArrayList<>(0))));
 					}
 				} else if (tile instanceof ISubSystemPowerProvider) {
 					if (subPowerProvider == null) {
@@ -238,9 +237,9 @@ public class PathFinder {
 					}
 					//If we are a FireWall pipe add our filter to the pipes
 					if (startPipe.isFirewallPipe()) {
-						subPowerProvider.add(new Pair<>((ISubSystemPowerProvider) tile, new OneList<>(startPipe.getFirewallFilter())));
+						subPowerProvider.add(new FilteredRoute<>((ISubSystemPowerProvider) tile, new OneList<>(startPipe.getFirewallFilter())));
 					} else {
-						subPowerProvider.add(new Pair<>((ISubSystemPowerProvider) tile, Collections.unmodifiableList(new ArrayList<>(0))));
+						subPowerProvider.add(new FilteredRoute<>((ISubSystemPowerProvider) tile, Collections.unmodifiableList(new ArrayList<>(0))));
 					}
 				}
 			}

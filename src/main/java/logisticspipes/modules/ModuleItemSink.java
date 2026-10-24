@@ -39,6 +39,7 @@ import logisticspipes.interfaces.IModuleWatchReceiver;
 import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.inventory.IItemIdentifierInventory;
+import logisticspipes.inventory.IItemIdentifierInventory.SlotContent;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ItemSinkDefaultRouteMessage;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
@@ -53,7 +54,6 @@ import logisticspipes.utils.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.inventory.ItemSinkMenu;
 
 public class ModuleItemSink extends LogisticsModule
@@ -162,16 +162,13 @@ public class ModuleItemSink extends LogisticsModule
         }
         final ISlotUpgradeManager upgradeManager = getUpgradeManager();
         if (upgradeManager.isFuzzyUpgrade()) {
-            for (Pair<ItemIdentifierStack, Integer> filter : filterInventory.contents()) {
-                if (filter == null) {
-                    continue;
-                }
-                if (filter.getValue1() == null) {
+            for (SlotContent filter : filterInventory.contents()) {
+                if (filter.stack() == null) {
                     continue;
                 }
                 ItemIdentifier ident1 = item;
-                ItemIdentifier ident2 = filter.getValue1().getItem();
-                IBitSet slotFlags = getSlotFuzzyFlags(filter.getValue2());
+                ItemIdentifier ident2 = filter.stack().getItem();
+                IBitSet slotFlags = getSlotFuzzyFlags(filter.slot());
                 if (FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE)) {
                     ident1 = ident1.getIgnoringData();
                     ident2 = ident2.getIgnoringData();
@@ -267,12 +264,12 @@ public class ModuleItemSink extends LogisticsModule
         itemIdentifiers.addAll(mapIC.keySet());
         mapIC.keySet().stream().map(ItemIdentifier::getUndamaged).forEach(itemIdentifiers::add);
         if (getUpgradeManager().isFuzzyUpgrade()) {
-            for (Pair<ItemIdentifierStack, Integer> stack : filterInventory.contents()) {
-                if (stack.getValue1() == null) {
+            for (SlotContent filter : filterInventory.contents()) {
+                if (filter.stack() == null) {
                     continue;
                 }
-                ItemIdentifier ident = stack.getValue1().getItem();
-                IBitSet slotFlags = getSlotFuzzyFlags(stack.getValue2());
+                ItemIdentifier ident = filter.stack().getItem();
+                IBitSet slotFlags = getSlotFuzzyFlags(filter.slot());
                 if (FuzzyUtil.get(slotFlags, FuzzyFlag.IGNORE_DAMAGE)) {
                     itemIdentifiers.add(ident.getIgnoringData());
                 }

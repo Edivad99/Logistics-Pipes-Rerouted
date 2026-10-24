@@ -29,7 +29,7 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
             return;
         }
         PipeFluidUtil.getAdjacentTanks(this, false)
-            .forEach(tankData -> extractFrom(tankData.getValue2(), tankData.getValue1().getDirection()));
+            .forEach(adjacent -> extractFrom(adjacent.tank(), adjacent.neighbor().getDirection()));
     }
 
     private void extractFrom(ITankUtil container, Direction side) {

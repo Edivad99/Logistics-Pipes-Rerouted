@@ -16,12 +16,11 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
-import logisticspipes.interfaces.routing.IFilter;
+import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.utils.tuples.Pair;
 
 public class ClientRouter implements IRouter {
 
@@ -139,7 +138,7 @@ public class ClientRouter implements IRouter {
 	public void clearPipeCache() {}
 
 	@Override
-	public List<Pair<ILogisticsPowerProvider, List<IFilter>>> getPowerProvider() {
+	public List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider() {
 		return List.of();
 	}
 
@@ -170,7 +169,7 @@ public class ClientRouter implements IRouter {
 	}
 
 	@Override
-	public List<Pair<ISubSystemPowerProvider, List<IFilter>>> getSubSystemPowerProvider() {
+	public List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider() {
 		return List.of();
 	}
 
