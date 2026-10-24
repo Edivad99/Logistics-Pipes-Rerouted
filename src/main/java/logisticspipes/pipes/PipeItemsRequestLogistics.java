@@ -17,8 +17,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.inventory.OrdererMenu;
 
@@ -41,8 +40,8 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_REQUESTER_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.REQUEST;
     }
 
     @Override

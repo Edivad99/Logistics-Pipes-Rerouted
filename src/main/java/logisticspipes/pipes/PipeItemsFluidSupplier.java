@@ -35,8 +35,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.RequestTree;
 import logisticspipes.routing.pathfinder.PipeInformationManager;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.CacheHolder.CacheTypes;
@@ -84,8 +83,8 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUIDSUPPLIER_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_SUPPLIER;
     }
 
     @Override

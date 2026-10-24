@@ -20,8 +20,7 @@ import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.FreqCardMenu;
@@ -41,8 +40,8 @@ public class PipeItemsSystemDestinationLogistics extends CoreRoutedPipe implemen
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_DESTINATION_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.DESTINATION;
     }
 
     @Override

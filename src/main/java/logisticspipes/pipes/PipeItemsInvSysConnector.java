@@ -57,8 +57,7 @@ import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.channels.ChannelInformation;
 import logisticspipes.routing.channels.ChannelManager;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.TransportInvConnection;
 import logisticspipes.utils.PlayerCollectionList;
@@ -303,15 +302,15 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe
     }
 
     @Override
-    public TextureType getCenterTexture() {
+    public PipeTexture getCenterTexture() {
         if (!stillNeedReplace && hasRemoteConnection()) {
             if (isInventoryConnected(null)) {
-                return Textures.LOGISTICSPIPE_INVSYSCON_CON_TEXTURE;
+                return PipeTexture.INVSYSCON_CON;
             } else {
-                return Textures.LOGISTICSPIPE_INVSYSCON_MIS_TEXTURE;
+                return PipeTexture.INVSYSCON_MIS;
             }
         }
-        return Textures.LOGISTICSPIPE_INVSYSCON_DIS_TEXTURE;
+        return PipeTexture.INVSYSCON_DIS;
     }
 
     @Override

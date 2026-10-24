@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.network.to_client.pipe.PipePropertiesMessage;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
-import logisticspipes.textures.Textures;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;
 import logisticspipes.world.inventory.FluidTerminusMenu;
 
@@ -27,8 +27,8 @@ public class PipeFluidTerminus extends FluidSinkPipe implements IPipeMenuProvide
     }
 
     @Override
-    public Textures.TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUID_TERMINUS;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_TERMINUS;
     }
 
     @Override

@@ -8,8 +8,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import logisticspipes.api.util.ITankUtil;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 
 public class PipeFluidExtractor extends PipeFluidInsertion {
@@ -70,7 +69,7 @@ public class PipeFluidExtractor extends PipeFluidInsertion {
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUID_EXTRACTOR;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_EXTRACTOR;
     }
 }

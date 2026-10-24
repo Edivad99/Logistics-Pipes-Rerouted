@@ -13,8 +13,7 @@ import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleActiveSupplier;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.debug.StatusEntry;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class PipeItemsSupplierLogistics extends CoreRoutedPipe implements IRequestItems, IRequireReliableTransport {
@@ -29,8 +28,8 @@ public class PipeItemsSupplierLogistics extends CoreRoutedPipe implements IReque
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_SUPPLIER_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.SUPPLIER;
     }
 
     @Override

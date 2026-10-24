@@ -43,8 +43,7 @@ import logisticspipes.network.to_client.pipe.SatelliteNameMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.RequestTree;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.inventory.SatelliteMenu;
@@ -77,8 +76,8 @@ public class PipeItemsSatelliteLogistics extends CoreRoutedPipe
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_SATELLITE_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.SATELLITE;
     }
 
     @Override

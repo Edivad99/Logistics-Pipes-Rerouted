@@ -91,8 +91,7 @@ import logisticspipes.routing.order.LogisticsItemOrder;
 import logisticspipes.routing.order.LogisticsOrder;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.ticks.HudUpdateTick;
 import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
@@ -263,7 +262,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     }
 
     @Override
-    public TextureType getCenterTexture() {
+    public PipeTexture getCenterTexture() {
         return tier.texture;
     }
 
@@ -740,16 +739,16 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     }
 
     public enum Tier {
-        MK1(1, Textures.LOGISTICSPIPE_CHASSI1_TEXTURE),
-        MK2(2, Textures.LOGISTICSPIPE_CHASSI2_TEXTURE),
-        MK3(3, Textures.LOGISTICSPIPE_CHASSI3_TEXTURE),
-        MK4(4, Textures.LOGISTICSPIPE_CHASSI4_TEXTURE),
-        MK5(8, Textures.LOGISTICSPIPE_CHASSI5_TEXTURE);
+        MK1(1, PipeTexture.CHASSIS_MK1),
+        MK2(2, PipeTexture.CHASSIS_MK2),
+        MK3(3, PipeTexture.CHASSIS_MK3),
+        MK4(4, PipeTexture.CHASSIS_MK4),
+        MK5(8, PipeTexture.CHASSIS_MK5);
 
         private final int size;
-        private final TextureType texture;
+        private final PipeTexture texture;
 
-        Tier(int size, TextureType texture) {
+        Tier(int size, PipeTexture texture) {
             this.size = size;
             this.texture = texture;
         }

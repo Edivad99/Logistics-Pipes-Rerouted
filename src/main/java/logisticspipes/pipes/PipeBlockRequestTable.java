@@ -58,8 +58,7 @@ import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.CraftingUtil;
 import logisticspipes.utils.ISimpleInventoryEventHandler;
@@ -250,8 +249,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
      * The table is drawn as a solid block rather than from the pipe model, so this is never shown.
      */
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.BASIC;
     }
 
     @Override

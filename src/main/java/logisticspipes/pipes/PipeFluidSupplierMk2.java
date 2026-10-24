@@ -24,8 +24,7 @@ import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.network.to_client.pipe.FluidSupplierAmountMessage;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.request.RequestTree;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
@@ -73,8 +72,8 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUIDSUPPLIER_MK2_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_SUPPLIER_MK2;
     }
 
     @Override

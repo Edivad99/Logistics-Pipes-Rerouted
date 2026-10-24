@@ -31,8 +31,7 @@ import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
 import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.LogisticsOrder;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
@@ -59,8 +58,8 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_PROVIDER_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.PROVIDER;
     }
 
     @Override

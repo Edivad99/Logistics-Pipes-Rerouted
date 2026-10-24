@@ -16,8 +16,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.RemoteOrderer;
 
@@ -28,8 +27,8 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_REMOTE_ORDERER_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.REMOTE_ORDERER;
     }
 
     @Override

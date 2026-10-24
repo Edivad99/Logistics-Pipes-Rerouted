@@ -46,7 +46,7 @@ import logisticspipes.client.renderer.ImmediateSubmitCollector;
 import logisticspipes.client.renderer.LPRenderTypes;
 import logisticspipes.client.renderer.pip.SideConfigSceneState;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.textures.Textures;
+import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.utils.Color;
 
 public abstract class SideConfigDisplay {
@@ -316,7 +316,8 @@ public abstract class SideConfigDisplay {
 	private void renderSelection(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource) {
 		// TextureRegistrar binds the sprite during the block atlas stitch; before that has run, or
 		// on a resource pack without it, the marked faces simply go unmarked.
-		if (!(Textures.LOGISTICS_SIDE_SELECTION instanceof TextureAtlasSprite icon)) {
+		TextureAtlasSprite icon = TextureRegistrar.sideSelectionSprite();
+		if (icon == null) {
 			return;
 		}
 		if (highlights.isEmpty() && selection == null) {

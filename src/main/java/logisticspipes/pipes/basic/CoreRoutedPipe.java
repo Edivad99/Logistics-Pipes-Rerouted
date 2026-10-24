@@ -107,7 +107,7 @@ import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.routing.order.LogisticsOrderManager;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.util.PipeConfigTools;
@@ -635,10 +635,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
     @Override
     public int getTextureIndex() {
-        return getCenterTexture().index();
+        return getCenterTexture().ordinal();
     }
 
-    public abstract TextureType getCenterTexture();
+    public abstract PipeTexture getCenterTexture();
 
     @Override
     public void spawnParticle(Particles particle, int amount) {

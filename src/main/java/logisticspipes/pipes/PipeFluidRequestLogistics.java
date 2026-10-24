@@ -14,8 +14,7 @@ import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.world.inventory.FluidOrdererMenu;
 
@@ -49,8 +48,8 @@ public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IReque
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUID_REQUEST;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_REQUEST;
     }
 
     @Override

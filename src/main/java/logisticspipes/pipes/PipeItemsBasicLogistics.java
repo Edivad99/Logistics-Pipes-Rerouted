@@ -15,8 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.modules.ModuleItemSink;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -77,8 +76,8 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.BASIC;
     }
 
     @Override

@@ -30,8 +30,7 @@ import logisticspipes.routing.FluidLogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsFluidOrder;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
@@ -195,8 +194,8 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUID_PROVIDER;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_PROVIDER;
     }
 
     @Override

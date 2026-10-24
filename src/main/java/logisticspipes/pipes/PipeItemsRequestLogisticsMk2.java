@@ -18,8 +18,7 @@ import logisticspipes.Translations;
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.world.inventory.OrdererMk2Menu;
 import logisticspipes.world.item.ItemPipeController;
@@ -83,8 +82,8 @@ public class PipeItemsRequestLogisticsMk2 extends PipeItemsRequestLogistics impl
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_REQUESTERMK2_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.REQUEST_MK2;
     }
 
     @Override

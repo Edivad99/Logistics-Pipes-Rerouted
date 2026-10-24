@@ -43,8 +43,7 @@ import logisticspipes.network.to_client.pipe.SatelliteNameMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.request.RequestTree;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -90,8 +89,8 @@ public class PipeFluidSatellite extends FluidRoutedPipe
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUID_SATELLITE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_SATELLITE;
     }
 
     @Override

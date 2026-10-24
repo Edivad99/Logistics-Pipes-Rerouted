@@ -28,8 +28,7 @@ import logisticspipes.network.to_client.pipe.FirewallFlagsMessage;
 import logisticspipes.network.to_server.pipe.SetFirewallFlagsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.textures.Textures;
-import logisticspipes.textures.Textures.TextureType;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -95,8 +94,8 @@ public class PipeItemsFirewall extends CoreRoutedPipe implements IPipeMenuProvid
     }
 
     @Override
-    public TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_FIREWALL_TEXTURE;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.FIREWALL;
     }
 
     @Override

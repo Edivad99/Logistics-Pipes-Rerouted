@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
-import logisticspipes.textures.Textures;
+import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;
 import logisticspipes.world.inventory.FluidSinkMenu;
 
@@ -24,8 +24,8 @@ public class PipeFluidBasic extends FluidSinkPipe implements IPipeMenuProvider {
     }
 
     @Override
-    public Textures.TextureType getCenterTexture() {
-        return Textures.LOGISTICSPIPE_LIQUID_BASIC;
+    public PipeTexture getCenterTexture() {
+        return PipeTexture.LIQUID_BASIC;
     }
 
     @Override
