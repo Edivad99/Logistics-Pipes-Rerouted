@@ -56,7 +56,8 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermission;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
@@ -125,13 +126,13 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     }
 
     @Override
-    public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
+    public boolean handleClick(Player entityplayer, @Nullable SecurityPermissions permissions) {
         //allow using upgrade manager
         if (ItemPipeController.isHeldBy(entityplayer) && !(entityplayer.isCrouching())) {
             return false;
         }
         if (!getLevel().isClientSide()) {
-            if (settings == null || settings.openGui) {
+            if (permissions == null || permissions.allows(SecurityPermission.OPEN_GUI)) {
                 openGui(entityplayer);
             } else {
                 entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));

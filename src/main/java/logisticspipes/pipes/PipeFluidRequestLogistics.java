@@ -12,7 +12,8 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermission;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.FluidIdentifier;
@@ -36,9 +37,9 @@ public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IReque
     }
 
     @Override
-    public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
+    public boolean handleClick(Player entityplayer, @Nullable SecurityPermissions permissions) {
         if (!getLevel().isClientSide()) {
-            if (settings == null || settings.openRequest) {
+            if (permissions == null || permissions.allows(SecurityPermission.OPEN_REQUEST)) {
                 openGui(entityplayer);
             } else {
                 entityplayer.sendSystemMessage(Component.literal("Permission denied"));

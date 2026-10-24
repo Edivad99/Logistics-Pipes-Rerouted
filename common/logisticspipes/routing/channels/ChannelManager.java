@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.network.to_client.channel.ChannelInformationMessage;
 import logisticspipes.routing.RouterManager;
+import logisticspipes.security.SecurityPermission;
 import logisticspipes.utils.PlayerIdentifier;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
@@ -51,7 +52,7 @@ public final class ChannelManager {
                     .getStation(channel.getResponsibleSecurityID());
                 // Without its station a secured channel falls back to owner-only access.
                 yield station != null
-                    ? station.getSecuritySettingsForPlayer(player, false).accessRoutingChannels
+                    ? station.getPermissionsForPlayer(player, false).allows(SecurityPermission.ACCESS_ROUTING_CHANNELS)
                     : isOwner(channel, player);
             }
             case PRIVATE -> isOwner(channel, player);

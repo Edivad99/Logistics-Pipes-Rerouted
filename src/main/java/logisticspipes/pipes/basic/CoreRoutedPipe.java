@@ -104,7 +104,8 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.routing.order.LogisticsOrderManager;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermission;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeTransportLogistics;
@@ -797,18 +798,18 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (getContainer() == null) {
             return super.blockActivated(player);
         }
-        SecuritySettings settings = null;
+        SecurityPermissions permissions = null;
         if (!player.level().isClientSide()) {
             LogisticsSecurityBlockEntity station = RouterManager.get().getStation(
                 getOriginalUpgradeManager().getSecurityID());
             if (station != null) {
-                settings = station.getSecuritySettingsForPlayer(player, true);
+                permissions = station.getPermissionsForPlayer(player, true);
             }
         }
 
         if (ItemPipeController.isHeldBy(player)) {
             if (!player.level().isClientSide()) {
-                if (settings == null || settings.openNetworkMonitor) {
+                if (permissions == null || permissions.allows(SecurityPermission.OPEN_NETWORK_MONITOR)) {
                     if (player instanceof ServerPlayer serverPlayer) {
                         serverPlayer.openMenu(new SimpleMenuProvider(
                                 (containerId, inventory, viewer) ->
@@ -823,7 +824,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
             return true;
         }
 
-        if (handleClick(player, settings)) {
+        if (handleClick(player, permissions)) {
             return true;
         }
 
@@ -847,7 +848,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
         if (itemStack.is(LPItems.REMOTE_ORDERER)) {
             if (!player.level().isClientSide()) {
-                if (settings == null || settings.openRequest) {
+                if (permissions == null || permissions.allows(SecurityPermission.OPEN_REQUEST)) {
                     if (player instanceof ServerPlayer serverPlayer) {
                         OrdererMenu.open(serverPlayer, this);
                     }
@@ -860,7 +861,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
         if (PipeConfigTools.canConfigure(itemStack)) {
             if (!player.level().isClientSide()) {
-                if (settings == null || settings.openGui) {
+                if (permissions == null || permissions.allows(SecurityPermission.OPEN_GUI)) {
                     final LogisticsModule module = getLogisticsModule();
                     if (module instanceof IModuleMenuProvider && player instanceof ServerPlayer serverPlayer) {
                         IModuleMenuProvider.open(serverPlayer, module);
@@ -881,7 +882,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         return super.blockActivated(player);
     }
 
-    protected boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
+    protected boolean handleClick(Player entityplayer, @Nullable SecurityPermissions permissions) {
         return false;
     }
 
@@ -1166,7 +1167,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     public boolean canBeDestroyedByPlayer(Player entityPlayer) {
         LogisticsSecurityBlockEntity station = RouterManager.get().getStation(
             getOriginalUpgradeManager().getSecurityID());
-        return station == null || station.getSecuritySettingsForPlayer(entityPlayer, true).removePipes;
+        return station == null || station.getPermissionsForPlayer(entityPlayer, true).allows(SecurityPermission.REMOVE_PIPES);
     }
 
     @Override

@@ -90,7 +90,8 @@ import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
 import logisticspipes.routing.order.LogisticsOrder;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermission;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.ticks.HudUpdateTick;
@@ -455,7 +456,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     }
 
     @Override
-    public boolean handleClick(Player player, @Nullable SecuritySettings settings) {
+    public boolean handleClick(Player player, @Nullable SecurityPermissions permissions) {
         ItemStack item = player.getItemBySlot(EquipmentSlot.MAINHAND);
         if (item.isEmpty()) {
             return false;
@@ -463,7 +464,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
 
         if (player.isCrouching() && PipeConfigTools.canConfigure(item)) {
             if (!player.level().isClientSide()) {
-                if (settings == null || settings.openGui) {
+                if (permissions == null || permissions.allows(SecurityPermission.OPEN_GUI)) {
                     ((PipeLogisticsChassis) getContainer().pipe).nextOrientation();
                 } else {
                     player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));
@@ -474,7 +475,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
 
         if (!player.isCrouching() && item.getItem() instanceof ItemModule) {
             if (!player.level().isClientSide()) {
-                if (settings == null || settings.openGui) {
+                if (permissions == null || permissions.allows(SecurityPermission.OPEN_GUI)) {
                     return tryInsertingModule(player);
                 } else {
                     player.sendSystemMessage(Component.translatable(Translations.Chat.PERMISSION_DENIED));

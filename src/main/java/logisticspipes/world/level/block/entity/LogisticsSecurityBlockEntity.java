@@ -6,17 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.NameAndId;
@@ -49,7 +46,7 @@ import logisticspipes.network.to_client.security.SecurityStationFlagsMessage;
 import logisticspipes.network.to_client.security.SecurityStationIdMessage;
 import logisticspipes.network.to_client.security.SecurityStationSettingsMessage;
 import logisticspipes.routing.RouterManager;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.SecurityStationMenu;
@@ -59,18 +56,7 @@ import logisticspipes.world.item.component.LPDataComponents;
 public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     implements IScreenOpenController, ISecurityProvider, IBlockEntityMenuProvider {
 
-    public static final SecuritySettings allowAll = new SecuritySettings("");
-    /** What a player the station has no entry for may do: nothing. Shared, so never written to. */
-    private static final SecuritySettings noPermissions = new SecuritySettings("");
     public static PlayerCollectionList byPassed = new PlayerCollectionList();
-
-    static {
-        LogisticsSecurityBlockEntity.allowAll.openGui = true;
-        LogisticsSecurityBlockEntity.allowAll.openRequest = true;
-        LogisticsSecurityBlockEntity.allowAll.openUpgrades = true;
-        LogisticsSecurityBlockEntity.allowAll.openNetworkMonitor = true;
-        LogisticsSecurityBlockEntity.allowAll.removePipes = true;
-    }
 
     public ItemIdentifierInventory inv = new ItemIdentifierInventory(1, "ID Slots", 64);
     public List<Integer> excludedCC = new ArrayList<>();
@@ -86,13 +72,13 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
      * Settings by the id in the player's game profile, which survives a rename where the name
      * does not.
      */
-    private final Map<UUID, SecuritySettings> settingsById = new HashMap<>();
+    private final Map<UUID, PlayerEntry> settingsById = new HashMap<>();
     /**
      * Settings for names no profile has been found for yet, by lower-cased name: entries saved
      * before the station keyed by id, and names Mojang could not resolve. The first player seen
      * under the name claims the entry, and it moves to {@link #settingsById}.
      */
-    private final Map<String, SecuritySettings> settingsByName = new HashMap<>();
+    private final Map<String, PlayerEntry> settingsByName = new HashMap<>();
 
     public LogisticsSecurityBlockEntity(BlockPos pos, BlockState state) {
         super(LPBlockEntityTypes.SECURITY_STATION.get(), pos, state);
@@ -183,13 +169,11 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
         settingsById.clear();
         settingsByName.clear();
         for (ValueInput entry : input.childrenListOrEmpty("settings")) {
-            String name = entry.getStringOr("name", "");
-            SecuritySettings settings = new SecuritySettings(name);
-            settings.deserialize(entry.childOrEmpty("content"));
+            PlayerEntry settings = PlayerEntry.load(entry);
             if (settings.id != null) {
                 settingsById.put(settings.id, settings);
-            } else if (!name.isEmpty()) {
-                settingsByName.put(nameKey(name), settings);
+            } else if (!settings.name.isEmpty()) {
+                settingsByName.put(nameKey(settings.name), settings);
             }
         }
         excludedCC.clear();
@@ -210,10 +194,8 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
         output.putBoolean("authorized", authorized);
         inv.serialize(output);
         ValueOutput.ValueOutputList list = output.childrenList("settings");
-        for (SecuritySettings settings : Iterables.concat(settingsById.values(), settingsByName.values())) {
-            ValueOutput settingsEntry = list.addChild();
-            settingsEntry.putString("name", Objects.requireNonNullElse(settings.name, ""));
-            settingsEntry.putChild("content", settings);
+        for (PlayerEntry settings : Iterables.concat(settingsById.values(), settingsByName.values())) {
+            settings.save(list.addChild());
         }
         output.putIntArray("excludedCC", excludedCC.stream().mapToInt(Integer::intValue).toArray());
     }
@@ -283,40 +265,39 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     }
 
     private void sendSettings(ServerPlayer viewer, String name, @Nullable UUID id) {
-        final SecuritySettings setting = id != null ? settingsFor(id, name) : settingsByName.get(nameKey(name));
+        final PlayerEntry setting = id != null ? settingsFor(id, name) : settingsByName.get(nameKey(name));
         PacketDistributor.sendToPlayer(viewer, new SecurityStationSettingsMessage(
-            name, Optional.ofNullable(id), SecurityPermissions.of(setting != null ? setting : noPermissions)));
+            name, Optional.ofNullable(id), setting != null ? setting.permissions : SecurityPermissions.NONE));
     }
 
     public void saveSecuritySettings(String name, Optional<UUID> id, SecurityPermissions permissions) {
         if (!isValidName(name)) {
             return;
         }
-        SecuritySettings setting = id.isPresent() ? settingsFor(id.get(), name) : settingsByName.get(nameKey(name));
+        PlayerEntry setting = id.isPresent() ? settingsFor(id.get(), name) : settingsByName.get(nameKey(name));
         if (setting == null) {
-            setting = new SecuritySettings(name);
-            setting.id = id.orElse(null);
+            setting = new PlayerEntry(name, id.orElse(null));
             if (setting.id != null) {
                 settingsById.put(setting.id, setting);
             } else {
                 settingsByName.put(nameKey(name), setting);
             }
         }
-        permissions.applyTo(setting);
+        setting.permissions = permissions;
         setChanged();
     }
 
-    public SecuritySettings getSecuritySettingsForPlayer(Player entityplayer, boolean usePower) {
+    public SecurityPermissions getPermissionsForPlayer(Player entityplayer, boolean usePower) {
         if (LogisticsSecurityBlockEntity.byPassed.contains(entityplayer)) {
-            return LogisticsSecurityBlockEntity.allowAll;
+            return SecurityPermissions.ALL;
         }
         if (usePower && !useEnergy(10)) {
             entityplayer.sendSystemMessage(Component.translatable(Translations.Chat.NO_ENERGY));
-            return new SecuritySettings("No Energy");
+            return SecurityPermissions.NONE;
         }
         final GameProfile profile = entityplayer.getGameProfile();
-        final SecuritySettings setting = settingsFor(profile.id(), profile.name());
-        return setting != null ? setting : noPermissions;
+        final PlayerEntry setting = settingsFor(profile.id(), profile.name());
+        return setting != null ? setting.permissions : SecurityPermissions.NONE;
     }
 
     /**
@@ -326,8 +307,8 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
      * and an entry found by id takes the profile's current name, so the GUI shows what the player
      * is called now.
      */
-    private @Nullable SecuritySettings settingsFor(UUID id, String name) {
-        SecuritySettings setting = settingsById.get(id);
+    private @Nullable PlayerEntry settingsFor(UUID id, String name) {
+        PlayerEntry setting = settingsById.get(id);
         if (setting == null) {
             setting = settingsByName.remove(nameKey(name));
             if (setting == null) {
@@ -466,48 +447,40 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     }
 
     /**
-     * What one player is allowed to do at a security station.
+     * The station's entry for one player: who it is for, and what they may do.
      *
-     * <p>The same six switches {@link SecuritySettings} holds, as a value that can travel. The
-     * settings themselves stay mutable and keep their own NBT shape for the save file; this is only
-     * the sent form, so a message never has to hand a raw {@code CompoundTag} to the security store.
+     * <p>Saved as the name beside a {@code content} child holding the name again, the profile id
+     * once known, and one boolean per permission, the shape older saves already have.
      */
-    public record SecurityPermissions(
-        boolean openGui,
-        boolean openRequest,
-        boolean openUpgrades,
-        boolean openNetworkMonitor,
-        boolean removePipes,
-        boolean accessRoutingChannels
-    ) {
+    private static final class PlayerEntry {
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, SecurityPermissions> STREAM_CODEC =
-            StreamCodec.composite(
-                ByteBufCodecs.BOOL, SecurityPermissions::openGui,
-                ByteBufCodecs.BOOL, SecurityPermissions::openRequest,
-                ByteBufCodecs.BOOL, SecurityPermissions::openUpgrades,
-                ByteBufCodecs.BOOL, SecurityPermissions::openNetworkMonitor,
-                ByteBufCodecs.BOOL, SecurityPermissions::removePipes,
-                ByteBufCodecs.BOOL, SecurityPermissions::accessRoutingChannels,
-                SecurityPermissions::new);
+        private String name;
+        /** The profile id, or null while only the name is known. */
+        private @Nullable UUID id;
+        private SecurityPermissions permissions = SecurityPermissions.NONE;
 
-        public static SecurityPermissions of(SecuritySettings settings) {
-            return new SecurityPermissions(
-                settings.openGui,
-                settings.openRequest,
-                settings.openUpgrades,
-                settings.openNetworkMonitor,
-                settings.removePipes,
-                settings.accessRoutingChannels);
+        private PlayerEntry(String name, @Nullable UUID id) {
+            this.name = name;
+            this.id = id;
         }
 
-        public void applyTo(SecuritySettings settings) {
-            settings.openGui = openGui;
-            settings.openRequest = openRequest;
-            settings.openUpgrades = openUpgrades;
-            settings.openNetworkMonitor = openNetworkMonitor;
-            settings.removePipes = removePipes;
-            settings.accessRoutingChannels = accessRoutingChannels;
+        private static PlayerEntry load(ValueInput input) {
+            final ValueInput content = input.childOrEmpty("content");
+            final String name = content.getStringOr("name", "");
+            final PlayerEntry entry = new PlayerEntry(name.isEmpty() ? input.getStringOr("name", "") : name,
+                content.read("id", UUIDUtil.STRING_CODEC).orElse(null));
+            entry.permissions = SecurityPermissions.load(content);
+            return entry;
+        }
+
+        private void save(ValueOutput output) {
+            output.putString("name", name);
+            final ValueOutput content = output.child("content");
+            content.putString("name", name);
+            if (id != null) {
+                content.store("id", UUIDUtil.STRING_CODEC, id);
+            }
+            permissions.save(content);
         }
     }
 }

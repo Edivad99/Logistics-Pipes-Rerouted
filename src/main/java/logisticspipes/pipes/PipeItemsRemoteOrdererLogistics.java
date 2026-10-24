@@ -14,7 +14,8 @@ import logisticspipes.Translations;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermission;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.world.item.LPItems;
@@ -32,11 +33,11 @@ public class PipeItemsRemoteOrdererLogistics extends CoreRoutedPipe implements I
     }
 
     @Override
-    public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
+    public boolean handleClick(Player entityplayer, @Nullable SecurityPermissions permissions) {
         if (entityplayer.getItemBySlot(EquipmentSlot.MAINHAND).is(LPItems.REMOTE_ORDERER)) {
             if (!entityplayer.level().isClientSide()) {
                 MutableComponent resp;
-                if (settings == null || settings.openRequest) {
+                if (permissions == null || permissions.allows(SecurityPermission.OPEN_REQUEST)) {
                     ItemStack orderer = entityplayer.getItemBySlot(EquipmentSlot.MAINHAND);
                     RemoteOrderer.connectToPipe(orderer, this);
                     resp = Component.translatable(Translations.Chat.CONNECTED_TO_PIPE).withStyle(ChatFormatting.GREEN);

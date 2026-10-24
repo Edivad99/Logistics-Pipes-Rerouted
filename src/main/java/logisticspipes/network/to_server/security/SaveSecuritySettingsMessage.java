@@ -14,8 +14,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
-import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.SecurityPermissions;
 
 /**
  * The security station's per-player switches, as edited in its popup.

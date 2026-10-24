@@ -15,7 +15,8 @@ import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermission;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.Textures;
 import logisticspipes.textures.Textures.TextureType;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -56,9 +57,9 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
     }
 
     @Override
-    public boolean handleClick(Player entityplayer, @Nullable SecuritySettings settings) {
+    public boolean handleClick(Player entityplayer, @Nullable SecurityPermissions permissions) {
         if (!getLevel().isClientSide()) {
-            if (settings == null || settings.openRequest) {
+            if (permissions == null || permissions.allows(SecurityPermission.OPEN_REQUEST)) {
                 openGui(entityplayer);
             } else {
                 entityplayer.sendSystemMessage(Component.literal("Permission denied"));

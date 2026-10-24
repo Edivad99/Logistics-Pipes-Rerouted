@@ -1,6 +1,9 @@
 package logisticspipes.client.gui.popup;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
@@ -9,71 +12,46 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.Translations;
 import logisticspipes.network.to_server.security.SaveSecuritySettingsMessage;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermission;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
-import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.SecurityPermissions;
 
 public class GuiSecurityStationPopup extends SubGuiScreen {
 
     private final LogisticsSecurityBlockEntity tile;
-    private final SecuritySettings activeSetting;
-    private GuiCheckBox cb0, cb1, cb2, cb3, cb4, cb5;
+    private final String playerName;
+    private final Optional<UUID> playerId;
+    private SecurityPermissions permissions;
+    private final Map<SecurityPermission, GuiCheckBox> checkBoxes = new EnumMap<>(SecurityPermission.class);
 
-    public GuiSecurityStationPopup(SecuritySettings setting, LogisticsSecurityBlockEntity tile) {
+    public GuiSecurityStationPopup(String playerName, Optional<UUID> playerId, SecurityPermissions permissions,
+        LogisticsSecurityBlockEntity tile) {
         super(160, 135, 0, 0);
-        activeSetting = setting;
+        this.playerName = playerName;
+        this.playerId = playerId;
+        this.permissions = permissions;
         this.tile = tile;
     }
 
     @Override
     public void init() {
         super.init();
-        cb0 = new GuiCheckBox(0, guiLeft + 138, guiTop + 26, 16, 16, false);
-        cb1 = new GuiCheckBox(1, guiLeft + 138, guiTop + 41, 16, 16, false);
-        cb2 = new GuiCheckBox(2, guiLeft + 138, guiTop + 56, 16, 16, false);
-        cb3 = new GuiCheckBox(3, guiLeft + 138, guiTop + 71, 16, 16, false);
-        cb4 = new GuiCheckBox(4, guiLeft + 138, guiTop + 86, 16, 16, false);
-        cb5 = new GuiCheckBox(5, guiLeft + 138, guiTop + 101, 16, 16, false);
-        cb0.setPressListener(b -> {
-            activeSetting.openGui = !activeSetting.openGui;
-            refreshCheckBoxes();
-            sendSettings();
-        });
-        cb1.setPressListener(b -> {
-            activeSetting.openRequest = !activeSetting.openRequest;
-            refreshCheckBoxes();
-            sendSettings();
-        });
-        cb2.setPressListener(b -> {
-            activeSetting.openUpgrades = !activeSetting.openUpgrades;
-            refreshCheckBoxes();
-            sendSettings();
-        });
-        cb3.setPressListener(b -> {
-            activeSetting.openNetworkMonitor = !activeSetting.openNetworkMonitor;
-            refreshCheckBoxes();
-            sendSettings();
-        });
-        cb4.setPressListener(b -> {
-            activeSetting.removePipes = !activeSetting.removePipes;
-            refreshCheckBoxes();
-            sendSettings();
-        });
-        cb5.setPressListener(b -> {
-            activeSetting.accessRoutingChannels = !activeSetting.accessRoutingChannels;
-            refreshCheckBoxes();
-            sendSettings();
-        });
-        addRenderableWidget(cb0);
-        addRenderableWidget(cb1);
-        addRenderableWidget(cb2);
-        addRenderableWidget(cb3);
-        addRenderableWidget(cb4);
-        addRenderableWidget(cb5);
+        checkBoxes.clear();
+        for (SecurityPermission permission : SecurityPermission.values()) {
+            final int row = permission.ordinal();
+            GuiCheckBox checkBox = new GuiCheckBox(row, guiLeft + 138, guiTop + 26 + 15 * row, 16, 16, false);
+            checkBox.setPressListener(b -> {
+                permissions = permissions.with(permission, !permissions.allows(permission));
+                refreshCheckBoxes();
+                sendSettings();
+            });
+            checkBoxes.put(permission, checkBox);
+            addRenderableWidget(checkBox);
+        }
         SmallGuiButton closeBtn = new SmallGuiButton(6, guiLeft + 123, guiTop + 118, 30, 10,
             Component.translatable(Translations.Screen.CLOSE));
         closeBtn.setPressListener(b -> exitGui());
@@ -82,29 +60,22 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
     }
 
     private void sendSettings() {
-        if (activeSetting.name == null || activeSetting.name.isEmpty()) {
+        if (playerName.isEmpty()) {
             return;
         }
-        ClientPacketDistributor.sendToServer(new SaveSecuritySettingsMessage(
-            tile.getBlockPos(), activeSetting.name, Optional.ofNullable(activeSetting.id),
-            SecurityPermissions.of(activeSetting)));
+        ClientPacketDistributor.sendToServer(
+            new SaveSecuritySettingsMessage(tile.getBlockPos(), playerName, playerId, permissions));
     }
 
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, guiLeft, guiTop, right, bottom, 0.0f, true);
         label(guiGraphics, Component.translatable(Translations.Screen.SECURITY_STATION_PLAYER)
-            .append(": " + activeSetting.name), 10);
-        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_CONFIGURE_SETTINGS, 30);
-        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_ACTIVE_REQUESTING, 45);
-        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_UPGRADE_PIPES, 60);
-        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_CHECK_NETWORK, 75);
-        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_REMOVE_PIPES, 90);
-        label(guiGraphics, Translations.Screen.SECURITY_STATION_PLAYER_ACCESS_ROUTING_CHANNELS, 105);
-    }
-
-    private void label(GuiGraphicsExtractor guiGraphics, String key, int y) {
-        label(guiGraphics, Component.translatable(key).append(": "), y);
+            .append(": " + playerName), 10);
+        for (SecurityPermission permission : SecurityPermission.values()) {
+            label(guiGraphics, Component.translatable(permission.translationKey).append(": "),
+                30 + 15 * permission.ordinal());
+        }
     }
 
     private void label(GuiGraphicsExtractor guiGraphics, Component text, int y) {
@@ -112,14 +83,6 @@ public class GuiSecurityStationPopup extends SubGuiScreen {
     }
 
     public void refreshCheckBoxes() {
-        if (cb0 == null) {
-            return;
-        }
-        cb0.setState(activeSetting.openGui);
-        cb1.setState(activeSetting.openRequest);
-        cb2.setState(activeSetting.openUpgrades);
-        cb3.setState(activeSetting.openNetworkMonitor);
-        cb4.setState(activeSetting.removePipes);
-        cb5.setState(activeSetting.accessRoutingChannels);
+        checkBoxes.forEach((permission, checkBox) -> checkBox.setState(permissions.allows(permission)));
     }
 }

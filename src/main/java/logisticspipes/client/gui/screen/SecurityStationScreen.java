@@ -3,6 +3,8 @@ package logisticspipes.client.gui.screen;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.CharacterEvent;
@@ -25,7 +27,7 @@ import logisticspipes.network.to_server.security.SecurityCardActionMessage;
 import logisticspipes.network.to_server.security.SetSecurityStationAuthorizedMessage;
 import logisticspipes.network.to_server.security.ToggleSecurityStationFlagMessage;
 import logisticspipes.security.ClientAuthorizations;
-import logisticspipes.security.SecuritySettings;
+import logisticspipes.security.SecurityPermissions;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.GuiCheckBox;
 import logisticspipes.utils.gui.InputBar;
@@ -274,9 +276,9 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
         players.addAll(list);
     }
 
-    public void handlePlayerSecurityOpen(SecuritySettings setting) {
+    public void handlePlayerSecurityOpen(String playerName, Optional<UUID> playerId, SecurityPermissions permissions) {
         searchBar.setValue("");
-        setSubGui(new GuiSecurityStationPopup(setting, tile));
+        setSubGui(new GuiSecurityStationPopup(playerName, playerId, permissions, tile));
     }
 
     public void refreshCheckBoxes() {

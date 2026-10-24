@@ -14,8 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.gui.screen.SecurityStationScreen;
-import logisticspipes.security.SecuritySettings;
-import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity.SecurityPermissions;
+import logisticspipes.security.SecurityPermissions;
 
 /**
  * One player's security settings, for the station GUI that asked to edit them.
@@ -50,10 +49,7 @@ public record SecurityStationSettingsMessage(String playerName, Optional<UUID> p
 
         static void handle(SecurityStationSettingsMessage message, IPayloadContext context) {
             if (Minecraft.getInstance().screen instanceof SecurityStationScreen screen) {
-                final SecuritySettings settings = new SecuritySettings(message.playerName);
-                settings.id = message.playerId.orElse(null);
-                message.permissions.applyTo(settings);
-                screen.handlePlayerSecurityOpen(settings);
+                screen.handlePlayerSecurityOpen(message.playerName, message.playerId, message.permissions);
             }
         }
     }
