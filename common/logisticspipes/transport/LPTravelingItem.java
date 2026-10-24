@@ -443,7 +443,7 @@ public abstract class LPTravelingItem {
 		}
 
 		@Override
-		public void setAdditionalTargetInformation(IAdditionalTargetInformation targetInfo) {
+		public void setAdditionalTargetInformation(@Nullable IAdditionalTargetInformation targetInfo) {
 			info.targetInfo = targetInfo;
 		}
 

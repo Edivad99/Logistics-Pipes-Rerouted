@@ -48,7 +48,7 @@ public interface IRoutedItem {
 
 	TransportMode getTransportMode();
 
-	void setAdditionalTargetInformation(IAdditionalTargetInformation info);
+	void setAdditionalTargetInformation(@Nullable IAdditionalTargetInformation info);
 
 	@Nullable
 	IAdditionalTargetInformation getAdditionalTargetInformation();
