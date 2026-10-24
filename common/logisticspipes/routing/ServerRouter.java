@@ -11,6 +11,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -124,7 +125,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	private EnumMap<Direction, Integer> subPowerExits = new EnumMap<>(Direction.class);
 	private final Identifier dimension;
 	private @Nullable WeakReference<CoreRoutedPipe> myPipeCache = null;
-	private final LinkedList<QueuedTask> queue = new LinkedList<>();
+	private final PriorityQueue<QueuedTask> queue = new PriorityQueue<>(Comparator.comparingInt(QueuedTask::dueTick));
 	int connectionNeedsChecking = 0;
 	private final List<BlockPos> causedBy = new LinkedList<>();
 	private boolean isDestroyed = false;
@@ -1078,11 +1079,8 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	private void handleQueuedTasks(CoreRoutedPipe pipe) {
-		while (!queue.isEmpty()) {
-			QueuedTask element = queue.poll();
-			if (element.dueTick() > LPTickHandler.getGlobalTick()) {
-				element.task().call(pipe, this);
-			}
+		while (!queue.isEmpty() && queue.peek().dueTick() <= LPTickHandler.getGlobalTick()) {
+			queue.poll().task().call(pipe, this);
 		}
 	}
 
@@ -1338,16 +1336,16 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	private abstract static class RouterRunnable implements Comparable<RouterRunnable>, Runnable {
 
-		public abstract int getPrority();
+		public abstract int getPriority();
 
 		public abstract int localCompare(RouterRunnable o);
 
 		@Override
 		public int compareTo(RouterRunnable o) {
-			if (o.getPrority() == getPrority()) {
+			if (o.getPriority() == getPriority()) {
 				return localCompare(o);
 			}
-			return o.getPrority() - getPrority();
+			return o.getPriority() - getPriority();
 		}
 	}
 
@@ -1434,7 +1432,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		@Override
-		public int getPrority() {
+		public int getPriority() {
 			return 0;
 		}
 
@@ -1475,7 +1473,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 		@Override
-		public int getPrority() {
+		public int getPriority() {
 			return 1;
 		}
 
