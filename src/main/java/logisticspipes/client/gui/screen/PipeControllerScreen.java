@@ -175,12 +175,16 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
             if (!itemStack.isEmpty()) {
                 UUID id = itemStack.get(LPDataComponents.UUID);
                 guiGraphics.text(font, "Id: ", 10, 68, Color.getValue(Color.DARKER_GREY), false);
-                guiGraphics.text(font, ChatColor.BLUE + id.toString(), 10, 80, Color.getValue(Color.DARKER_GREY),
-                    false);
+                // A whole id is wider than the screen, so it is broken after its third group.
+                String[] groups = id.toString().split("-");
+                guiGraphics.text(font, ChatColor.BLUE + groups[0] + "-" + groups[1] + "-" + groups[2] + "-",
+                    10, 80, Color.getValue(Color.DARKER_GREY), false);
+                guiGraphics.text(font, ChatColor.BLUE + groups[3] + "-" + groups[4],
+                    10, 90, Color.getValue(Color.DARKER_GREY), false);
                 guiGraphics.text(font,
                     "Authorization: " + (ClientAuthorizations.isAuthorized(id) ?
                         ChatColor.GREEN + "Authorized" :
-                        ChatColor.RED + "Unauthorized"), 10, 94, Color.getValue(Color.DARKER_GREY), false);
+                        ChatColor.RED + "Unauthorized"), 10, 104, Color.getValue(Color.DARKER_GREY), false);
             }
         }
     }
