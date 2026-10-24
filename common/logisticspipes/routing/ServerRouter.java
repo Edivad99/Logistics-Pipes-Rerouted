@@ -71,7 +71,6 @@ import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.utils.tuples.Quartet;
 
 public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
@@ -599,9 +598,9 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	private void SendNewLSA() {
-		HashMap<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> neighboursWithMetric = new HashMap<>();
+		HashMap<IRouter, NeighborLink> neighboursWithMetric = new HashMap<>();
 		for (Entry<ServerRouter, ExitRoute> adjacent : adjacentRouter.entrySet()) {
-			neighboursWithMetric.put(adjacent.getKey(), new Quartet<>(adjacent
+			neighboursWithMetric.put(adjacent.getKey(), new NeighborLink(adjacent
 					.getValue().distanceToDestination, adjacent.getValue().connectionDetails, adjacent
 					.getValue().filters, adjacent.getValue().blockDistance));
 		}
@@ -620,7 +619,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 	}
 
-	private void lockAndUpdateLSA(HashMap<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> neighboursWithMetric, @Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power, @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower) {
+	private void lockAndUpdateLSA(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power, @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower) {
 		ServerRouter.SharedLSADatabasewriteLock.lock();
 		try {
 			myLsa.neighboursWithMetric = neighboursWithMetric;
@@ -814,13 +813,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 						}
 					}
 				}
-				for (Entry<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> newCandidate : lsa.neighboursWithMetric.entrySet()) {
-					double candidateCost = lowestCostNode.distanceToDestination + newCandidate.getValue().getValue1();
-					int blockDistance = lowestCostNode.blockDistance + newCandidate.getValue().getValue4();
+				for (Entry<IRouter, NeighborLink> newCandidate : lsa.neighboursWithMetric.entrySet()) {
+					double candidateCost = lowestCostNode.distanceToDestination + newCandidate.getValue().distance();
+					int blockDistance = lowestCostNode.blockDistance + newCandidate.getValue().blockDistance();
 					EnumSet<PipeRoutingConnectionType> newCT = lowestCostNode.getFlags();
-					newCT.retainAll(newCandidate.getValue().getValue2());
+					newCT.retainAll(newCandidate.getValue().connectionDetails());
 					if (!newCT.isEmpty()) {
-						ExitRoute next = new ExitRoute(lowestCostNode.root, newCandidate.getKey(), candidateCost, newCT, lowestCostNode.filters, newCandidate.getValue().getValue3(), blockDistance);
+						ExitRoute next = new ExitRoute(lowestCostNode.root, newCandidate.getKey(), candidateCost, newCT, lowestCostNode.filters, newCandidate.getValue().filters(), blockDistance);
 						next.debug.isTraced = lowestCostNode.debug.isTraced;
 						candidatesCost.add(next);
 						debug.newCandidate(next);
@@ -1326,9 +1325,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		queue.add(new Pair<>(i + LPTickHandler.getGlobalTick(), callable));
 	}
 
+	/** One link of a router's link state: what reaching that neighbor costs, and what it allows. */
+	protected record NeighborLink(double distance, EnumSet<PipeRoutingConnectionType> connectionDetails,
+			List<IFilter> filters, int blockDistance) {}
+
 	protected static class LSA {
 
-		public HashMap<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> neighboursWithMetric = new HashMap<>();
+		public HashMap<IRouter, NeighborLink> neighboursWithMetric = new HashMap<>();
 		public @Nullable List<Pair<ILogisticsPowerProvider, List<IFilter>>> power;
 		public @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
 	}
@@ -1456,11 +1459,11 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	private class LSARouterRunnable extends RouterRunnable {
 
 		private final int index = ServerRouter.maxLSAUpdateIndex++;
-		HashMap<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> neighboursWithMetric;
+		HashMap<IRouter, NeighborLink> neighboursWithMetric;
 		@Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power;
 		@Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower;
 
-		LSARouterRunnable(HashMap<IRouter, Quartet<Double, EnumSet<PipeRoutingConnectionType>, List<IFilter>, Integer>> neighboursWithMetric, @Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power, @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower) {
+		LSARouterRunnable(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<Pair<ILogisticsPowerProvider, List<IFilter>>> power, @Nullable ArrayList<Pair<ISubSystemPowerProvider, List<IFilter>>> subSystemPower) {
 			this.neighboursWithMetric = neighboursWithMetric;
 			this.power = power;
 			this.subSystemPower = subSystemPower;

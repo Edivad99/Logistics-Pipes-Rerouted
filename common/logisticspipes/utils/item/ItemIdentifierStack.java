@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -31,9 +30,6 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
-import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
-import logisticspipes.utils.tuples.Triplet;
 
 public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack> {
 
@@ -111,30 +107,6 @@ public final class ItemIdentifierStack implements Comparable<ItemIdentifierStack
                 }
             } else {
                 list.add(ItemIdentifierStack.getFromStack(inv.getItem(i)));
-            }
-        }
-        return list;
-    }
-
-    public static LinkedList<@Nullable ItemIdentifierStack> getListSendQueue(
-        LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> sendQueue) {
-        LinkedList<@Nullable ItemIdentifierStack> list = new LinkedList<>();
-        for (Triplet<IRoutedItem, Direction, ItemSendMode> part : sendQueue) {
-            if (part == null) {
-                list.add(null);
-            } else {
-                boolean added = false;
-                for (ItemIdentifierStack stack : list) {
-                    if (stack.getItem().equals(part.getValue1().getItemIdentifierStack().getItem())) {
-                        stack.setStackSize(
-                            stack.getStackSize() + part.getValue1().getItemIdentifierStack().getStackSize());
-                        added = true;
-                        break;
-                    }
-                }
-                if (!added) {
-                    list.add(new ItemIdentifierStack(part.getValue1().getItemIdentifierStack()));
-                }
             }
         }
         return list;

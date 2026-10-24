@@ -118,7 +118,6 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.ItemPipeController;
@@ -134,7 +133,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     public final PlayerCollectionList watchers = new PlayerCollectionList();
     protected final PriorityBlockingQueue<ItemRoutingInformation> inTransitToMe =
         new PriorityBlockingQueue<>(10, new ItemRoutingInformation.DelayComparator());
-    protected final LinkedList<Triplet<IRoutedItem, Direction, ItemSendMode>> sendQueue = new LinkedList<>();
+    protected final LinkedList<QueuedItem> sendQueue = new LinkedList<>();
     protected final Map<ItemIdentifier, Queue<Pair<Integer, ItemRoutingInformation>>> queuedDataForUnroutedItems =
         Collections.synchronizedMap(new TreeMap<>());
     protected final Object routerIdLock = new Object();
@@ -259,13 +258,13 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Override
     public void queueRoutedItem(IRoutedItem routedItem, Direction from) {
         Objects.requireNonNull(from);
-        sendQueue.addLast(new Triplet<>(routedItem, from, ItemSendMode.NORMAL));
+        sendQueue.addLast(new QueuedItem(routedItem, from, ItemSendMode.NORMAL));
         sendQueueChanged(false);
     }
 
     public void queueRoutedItem(IRoutedItem routedItem, Direction from, ItemSendMode mode) {
         Objects.requireNonNull(from);
-        sendQueue.addLast(new Triplet<>(routedItem, from, mode));
+        sendQueue.addLast(new QueuedItem(routedItem, from, mode));
         sendQueueChanged(false);
     }
 
@@ -444,14 +443,14 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (!sendQueue.isEmpty()) {
             switch (getItemSendMode()) {
                 case NORMAL -> {
-                    Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
-                    sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
+                    QueuedItem itemToSend = sendQueue.getFirst();
+                    sendRoutedItem(itemToSend.item(), itemToSend.from());
                     sendQueue.removeFirst();
                     for (int i = 0; i < 16 &&
                         !sendQueue.isEmpty() &&
-                        sendQueue.getFirst().getValue3() == ItemSendMode.FAST; i++) {
+                        sendQueue.getFirst().mode() == ItemSendMode.FAST; i++) {
                         itemToSend = sendQueue.getFirst();
-                        sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
+                        sendRoutedItem(itemToSend.item(), itemToSend.from());
                         sendQueue.removeFirst();
                     }
                     sendQueueChanged(false);
@@ -459,8 +458,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
                 case FAST -> {
                     for (int i = 0; i < 16; i++) {
                         if (!sendQueue.isEmpty()) {
-                            Triplet<IRoutedItem, Direction, ItemSendMode> itemToSend = sendQueue.getFirst();
-                            sendRoutedItem(itemToSend.getValue1(), itemToSend.getValue2());
+                            QueuedItem itemToSend = sendQueue.getFirst();
+                            sendRoutedItem(itemToSend.item(), itemToSend.from());
                             sendQueue.removeFirst();
                         }
                     }
@@ -700,11 +699,11 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         output.putChild("powerHandler", powerHandler);
 
         ValueOutput.ValueOutputList sendqueue = output.childrenList(SEND_QUEUE_KEY);
-        for (Triplet<IRoutedItem, Direction, ItemSendMode> p : sendQueue) {
+        for (QueuedItem p : sendQueue) {
             ValueOutput tagentry = sendqueue.addChild();
-            p.getValue1().serialize(tagentry.child("entityitem"));
-            tagentry.putByte("from", (byte) (p.getValue2().ordinal()));
-            tagentry.putByte("mode", (byte) (p.getValue3().ordinal()));
+            p.item().serialize(tagentry.child("entityitem"));
+            tagentry.putByte("from", (byte) (p.from().ordinal()));
+            tagentry.putByte("mode", (byte) (p.mode().ordinal()));
         }
 
         for (int i = 0; i < 6; i++) {
@@ -753,7 +752,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
             LPTravelingItemServer item = new LPTravelingItemServer(tagentry.childOrEmpty("entityitem"));
             Direction from = Direction.values()[tagentry.getByteOr("from", (byte) 0)];
             ItemSendMode mode = ItemSendMode.values()[tagentry.getByteOr("mode", (byte) 0)];
-            sendQueue.add(new Triplet<>(item, from, mode));
+            sendQueue.add(new QueuedItem(item, from, mode));
         }
         for (int i = 0; i < 6; i++) {
             if (input.getBooleanOr("PipeSign_" + i, false)) {
@@ -1512,6 +1511,29 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     public enum ItemSendMode {
         NORMAL,
         FAST
+    }
+
+    /** An item waiting to leave the pipe: the side it came in from, and how fast it may go. */
+    protected record QueuedItem(IRoutedItem item, Direction from, ItemSendMode mode) {}
+
+    /**
+     * What is waiting to leave, one stack per kind of item, in the order each kind first comes up.
+     */
+    protected List<@Nullable ItemIdentifierStack> sendQueueStacks() {
+        List<ItemIdentifierStack> stacks = new ArrayList<>();
+        outer:
+        for (QueuedItem queued : sendQueue) {
+            ItemIdentifierStack queuedStack = queued.item().getItemIdentifierStack();
+            for (ItemIdentifierStack stack : stacks) {
+                if (stack.getItem().equals(queuedStack.getItem())) {
+                    stack.setStackSize(stack.getStackSize() + queuedStack.getStackSize());
+                    continue outer;
+                }
+            }
+            stacks.add(new ItemIdentifierStack(queuedStack));
+        }
+        // The message's list allows empty slots, which the send queue never has.
+        return new ArrayList<>(stacks);
     }
 
     /**

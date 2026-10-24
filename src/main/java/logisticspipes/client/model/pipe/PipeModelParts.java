@@ -25,25 +25,23 @@ public final class PipeModelParts {
 
     /**
      * The four kinds of side texture plate, distinguished in the OBJ only by their size and
-     * distance from the block centre. The old code addressed them as
-     * {@code Quartet.getValue1()} .. {@code getValue4()}; the names here say what the
-     * classification in {@link PipeModelPartsLoader} actually tests for.
+     * distance from the block centre, as the classification in {@link PipeModelPartsLoader} tests.
      */
     public enum SidePlate {
         /**
-         * Large plate, near the centre. Was {@code Quartet.value1}.
+         * Large plate, near the centre.
          */
         LARGE_INNER,
         /**
-         * Small plate, near the centre. Was {@code Quartet.value2}.
+         * Small plate, near the centre.
          */
         SMALL_INNER,
         /**
-         * Large plate, further out. Was {@code Quartet.value3}.
+         * Large plate, further out.
          */
         LARGE_OUTER,
         /**
-         * Small plate, further out. Was {@code Quartet.value4}.
+         * Small plate, further out.
          */
         SMALL_OUTER
     }

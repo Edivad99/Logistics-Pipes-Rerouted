@@ -16,8 +16,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -45,7 +45,6 @@ import logisticspipes.routing.pathfinder.IRouteProvider.RouteInfo;
 import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.utils.OneList;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.utils.tuples.Quartet;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
@@ -208,7 +207,7 @@ public class PathFinder {
 			}
 		}
 
-		ArrayDeque<Quartet<BlockEntity, Direction, Integer, Boolean>> connections = new ArrayDeque<>();
+		ArrayDeque<Connection> connections = new ArrayDeque<>();
 
 		//Recurse in all directions
 		for (Direction direction : Direction.values()) {
@@ -245,21 +244,21 @@ public class PathFinder {
 					}
 				}
 			}
-			connections.add(new Quartet<>(tile, direction, 0, false));
+			connections.add(new Connection(tile, direction, 0, false));
 		}
 
 		while (!connections.isEmpty()) {
-			Quartet<BlockEntity, Direction, Integer, Boolean> quartet = connections.pollFirst();
-			BlockEntity tile = quartet.getValue1();
-			Direction direction = quartet.getValue2();
-			int resistance = quartet.getValue3();
-			boolean isDirectConnection = quartet.getValue4();
+			Connection connection = connections.pollFirst();
+			BlockEntity tile = connection.tile();
+			Direction direction = connection.direction();
+			int resistance = connection.resistance();
+			boolean isDirectConnection = connection.isDirectConnection();
 			EnumSet<PipeRoutingConnectionType> nextConnectionFlags = EnumSet.copyOf(connectionFlags);
 
 			if (root) {
 				Collection<BlockEntity> list = SpecialBlockEntityConnection.get().getConnectedPipes(tile);
 				if (!list.isEmpty()) {
-					connections.addAll(list.stream().map(pipe -> new Quartet<>(pipe, direction, 0, false)).collect(Collectors.toList()));
+					connections.addAll(list.stream().map(pipe -> new Connection(pipe, direction, 0, false)).toList());
 					listTileEntity(tile);
 					continue;
 				}
@@ -276,15 +275,15 @@ public class PathFinder {
 					startPipe.canConnect(tile, direction, false)) {
 				if (RouterManager.get().hasChannelConnection(startPipe.getRoutingPipe().getRouter())) {
 					List<CoreRoutedPipe> connectedPipes = RouterManager.get().getConnectedPipes(startPipe.getRoutingPipe().getRouter());
-					connections.addAll(connectedPipes.stream().map(pipe -> new Quartet<>((BlockEntity) pipe.getContainer(), direction, ((IChannelRoutingConnection) startPipe.getRoutingPipe()).getConnectionResistance(), true)).collect(Collectors.toList()));
+					connections.addAll(connectedPipes.stream()
+							.map(CoreRoutedPipe::getContainer)
+							.filter(Objects::nonNull)
+							.map(container -> new Connection(container, direction, ((IChannelRoutingConnection) startPipe.getRoutingPipe()).getConnectionResistance(), true))
+							.toList());
 					if (!connectedPipes.isEmpty()) {
 						continue;
 					}
 				}
-			}
-
-			if (tile == null) {
-				continue;
 			}
 
 			IPipeInformationProvider currentPipe = PipeInformationManager.getInformationProviderFor(tile);
@@ -423,4 +422,10 @@ public class PathFinder {
 		}
 		return dis;
 	}
+
+	/**
+	 * A block entity still to look at, the side it was reached from, and for a channel link its
+	 * resistance; a direct connection skips the usual can-connect check.
+	 */
+	private record Connection(BlockEntity tile, Direction direction, int resistance, boolean isDirectConnection) {}
 }

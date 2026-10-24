@@ -75,8 +75,6 @@ import logisticspipes.utils.CacheHolder.CacheTypes;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.SyncList;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
-import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerJunctionBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsSolidBlockEntity;
@@ -96,11 +94,10 @@ public class PipeTransportLogistics {
 
 	private final int bufferTimeOut = 20 * 2; // 2 Seconds
 	/**
-	 * What is waiting to be retried. The last two are null only in the client's copy, which
-	 * {@link #setClientItemBuffer} fills for display: the tick loop that reads them is server-only.
+	 * What is waiting to be retried. The client's copy, which {@link #setClientItemBuffer} fills for
+	 * display, only has the stacks: the tick loop that reads the rest is server-only.
 	 */
-	public final SyncList<Triplet<ItemIdentifierStack, Pair<Integer /* Time */, Integer /* BufferCounter */>,
-			@Nullable LPTravelingItemServer>> itemBuffer = new SyncList<>();
+	public final SyncList<BufferedItem> itemBuffer = new SyncList<>();
 	private @Nullable LevelChunk chunk;
 	public LPItemList items = new LPItemList(this);
 	public LogisticsGenericPipeBlockEntity container;
@@ -123,7 +120,7 @@ public class PipeTransportLogistics {
 					SectionPos.blockToSectionCoord(container.getBlockPos().getZ()));
 			itemBuffer.syncTo(getWorld(), container.getBlockPos(), buffered -> new PipeItemBufferMessage(
 				container.getBlockPos(),
-				buffered.stream().map(Triplet::getValue1).toList()));
+				buffered.stream().map(BufferedItem::stack).toList()));
 		}
 	}
 
@@ -166,7 +163,7 @@ public class PipeTransportLogistics {
 	/** Replaces what the client thinks is buffered. The timeout and travelling item stay server-side. */
 	public void setClientItemBuffer(List<ItemIdentifierStack> contents) {
 		itemBuffer.clear();
-		contents.forEach(stack -> itemBuffer.add(new Triplet<>(stack, null, null)));
+		contents.forEach(stack -> itemBuffer.add(new BufferedItem(stack, 0, 0, null)));
 	}
 
 	public void updateEntity() {
@@ -174,26 +171,25 @@ public class PipeTransportLogistics {
 		if (!getWorld().isClientSide()) {
 			if (!itemBuffer.isEmpty()) {
 				List<LPTravelingItem> toAdd = new LinkedList<>();
-				Iterator<Triplet<ItemIdentifierStack, Pair<Integer, Integer>, @Nullable LPTravelingItemServer>> iterator =
-						itemBuffer.iterator();
+				Iterator<BufferedItem> iterator = itemBuffer.iterator();
 				while (iterator.hasNext()) {
-					Triplet<ItemIdentifierStack, Pair<Integer, Integer>, @Nullable LPTravelingItemServer> next = iterator.next();
-					int currentTimeOut = next.getValue2().getValue1();
-					if (currentTimeOut > 0) {
-						next.getValue2().setValue1(currentTimeOut - 1);
-					} else if (next.getValue3() != null) {
-						if (getRoutedPipe().getRouter().hasRoute(next.getValue3().getDestination(), next.getValue3().getTransportMode() == TransportMode.Active, next.getValue3().getItemIdentifierStack().getItem()) || next.getValue2().getValue2() > MAX_DESTINATION_UNREACHABLE_BUFFER) {
-							next.getValue3().setBufferCounter(next.getValue2().getValue2() + 1);
-							toAdd.add(next.getValue3());
+					BufferedItem next = iterator.next();
+					final LPTravelingItemServer traveling = next.item;
+					if (next.timeOut > 0) {
+						next.timeOut--;
+					} else if (traveling != null) {
+						if (getRoutedPipe().getRouter().hasRoute(traveling.getDestination(), traveling.getTransportMode() == TransportMode.Active, traveling.getItemIdentifierStack().getItem()) || next.bufferCounter > MAX_DESTINATION_UNREACHABLE_BUFFER) {
+							traveling.setBufferCounter(next.bufferCounter + 1);
+							toAdd.add(traveling);
 							iterator.remove();
 						} else {
-							next.getValue2().setValue2(next.getValue2().getValue2() + 1);
-							next.getValue2().setValue1(bufferTimeOut);
+							next.bufferCounter++;
+							next.timeOut = bufferTimeOut;
 						}
 					} else {
-						LPTravelingItemServer item = new LPTravelingItemServer(next.getValue1());
+						LPTravelingItemServer item = new LPTravelingItemServer(next.stack);
 						item.setDoNotBuffer(true);
-						item.setBufferCounter(next.getValue2().getValue2() + 1);
+						item.setBufferCounter(next.bufferCounter + 1);
 						toAdd.add(item);
 						iterator.remove();
 					}
@@ -207,9 +203,9 @@ public class PipeTransportLogistics {
 	}
 
 	public void dropBuffer() {
-		Iterator<Triplet<ItemIdentifierStack, Pair<Integer, Integer>, LPTravelingItemServer>> iterator = itemBuffer.iterator();
+		Iterator<BufferedItem> iterator = itemBuffer.iterator();
 		while (iterator.hasNext()) {
-			ItemIdentifierStack next = iterator.next().getValue1();
+			ItemIdentifierStack next = iterator.next().stack;
             BlockPos pos = getPipe().getPos();
 			getWorld().addFreshEntity(new ItemEntity(getWorld(), pos.getX(), pos.getY(), pos.getZ(),
 					next.makeNormalStack()));
@@ -372,7 +368,7 @@ public class PipeTransportLogistics {
 		}
 
 		if (data.getDestination() >= 0 && !getRoutedPipe().getRouter().hasRoute(data.getDestination(), data.getTransportMode() == TransportMode.Active, data.getItemIdentifierStack().getItem()) && data.getBufferCounter() < MAX_DESTINATION_UNREACHABLE_BUFFER) {
-			itemBuffer.add(new Triplet<>(data.getItemIdentifierStack(), new Pair<>(bufferTimeOut, data.getBufferCounter()), data));
+			itemBuffer.add(new BufferedItem(data.getItemIdentifierStack(), bufferTimeOut, data.getBufferCounter(), data));
 			return new RoutingResult(null, false);
 		}
 
@@ -388,7 +384,7 @@ public class PipeTransportLogistics {
 		}
 
 		if (value == null && !data.getDoNotBuffer() && data.getBufferCounter() < 5) {
-			itemBuffer.add(new Triplet<>(data.getItemIdentifierStack(), new Pair<>(bufferTimeOut, data.getBufferCounter()), null));
+			itemBuffer.add(new BufferedItem(data.getItemIdentifierStack(), bufferTimeOut, data.getBufferCounter(), null));
 			return new RoutingResult(null, false);
 		}
 
@@ -435,7 +431,7 @@ public class PipeTransportLogistics {
 
 		for (ValueInput bufferEntry : input.childrenListOrEmpty(BUFFER_KEY)) {
 			ItemStack stack = ItemStackLoader.loadItemStack(bufferEntry);
-			itemBuffer.add(new Triplet<>(ItemIdentifierStack.getFromStack(stack), new Pair<>(bufferTimeOut, 0), null));
+			itemBuffer.add(new BufferedItem(ItemIdentifierStack.getFromStack(stack), bufferTimeOut, 0, null));
 		}
 
 	}
@@ -450,8 +446,8 @@ public class PipeTransportLogistics {
 		}
 
 		ValueOutput.ValueOutputList bufferContents = output.childrenList(BUFFER_KEY);
-		for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> stack : itemBuffer) {
-			ItemStackLoader.saveItemStack(bufferContents.addChild(), stack.getValue1().makeNormalStack());
+		for (BufferedItem buffered : itemBuffer) {
+			ItemStackLoader.saveItemStack(bufferContents.addChild(), buffered.stack.makeNormalStack());
 		}
 
 	}
@@ -836,5 +832,28 @@ public class PipeTransportLogistics {
 			return genericPipeBlockEntity.pipe;
 		}
 		return null;
+	}
+
+	/** An item waiting in the pipe to be sent on again. */
+	public static final class BufferedItem {
+
+		private final ItemIdentifierStack stack;
+		/** Ticks left before the next try. */
+		private int timeOut;
+		/** How many times the item has been buffered so far. */
+		private int bufferCounter;
+		/** The traveling item to send on, or null to make a fresh one from the stack. */
+		private final @Nullable LPTravelingItemServer item;
+
+		private BufferedItem(ItemIdentifierStack stack, int timeOut, int bufferCounter, @Nullable LPTravelingItemServer item) {
+			this.stack = stack;
+			this.timeOut = timeOut;
+			this.bufferCounter = bufferCounter;
+			this.item = item;
+		}
+
+		public ItemIdentifierStack stack() {
+			return stack;
+		}
 	}
 }

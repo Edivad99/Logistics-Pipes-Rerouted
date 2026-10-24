@@ -50,7 +50,6 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
-import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.inventory.PowerProviderMenu;
 
 /**
@@ -209,20 +208,20 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
         if (sourceRouter == destinationRouter) {
             return;
         }
-        LinkedList<Triplet<IRouter, Direction, Boolean>> todo = new LinkedList<>();
-        todo.add(new Triplet<>(sourceRouter, exitOrientation, addBall));
+        LinkedList<LaserLeg> todo = new LinkedList<>();
+        todo.add(new LaserLeg(sourceRouter, exitOrientation, addBall));
         while (!todo.isEmpty()) {
-            Triplet<IRouter, Direction, Boolean> part = todo.pollFirst();
-            List<ExitRoute> exits = part.getValue1().getRoutersOnSide(part.getValue2());
+            LaserLeg part = todo.pollFirst();
+            List<ExitRoute> exits = part.router().getRoutersOnSide(part.side());
             for (ExitRoute exit : exits) {
-                if (exit.containsFlag(
+                final Direction exitSide = exit.exitOrientation;
+                if (exitSide != null && exit.containsFlag(
                     PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) { // Find only result (caused by only straight connections)
-                    int distance = part.getValue1().getDistanceToNextPowerPipe(exit.exitOrientation);
-                    CoreRoutedPipe pipe = part.getValue1().getPipe();
+                    int distance = part.router().getDistanceToNextPowerPipe(exitSide);
+                    CoreRoutedPipe pipe = part.router().getPipe();
                     LogisticsGenericPipeBlockEntity container = pipe != null ? pipe.getContainer() : null;
                     if (container != null) {
-                        container.addLaser(exit.exitOrientation, distance, FE_COLOR, false,
-                            part.getValue3());
+                        container.addLaser(exitSide, distance, FE_COLOR, false, part.addBall());
                     }
                     IRouter nextRouter = exit.destination; // Use new sourceRouter
                     if (nextRouter == destinationRouter) {
@@ -236,14 +235,19 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
                                     continue outerRouters;
                                 }
                             }
-                            todo.addLast(new Triplet<>(nextRouter, newExit.exitOrientation,
-                                newExit.exitOrientation != exit.exitOrientation));
+                            if (newExit.exitOrientation != null) {
+                                todo.addLast(new LaserLeg(nextRouter, newExit.exitOrientation,
+                                    newExit.exitOrientation != exitSide));
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+    /** A stretch of the power laser still to draw: from {@code router}, out of {@code side}. */
+    private record LaserLeg(IRouter router, Direction side, boolean addBall) {}
 
     public int getLaserColor() {
         return FE_COLOR;

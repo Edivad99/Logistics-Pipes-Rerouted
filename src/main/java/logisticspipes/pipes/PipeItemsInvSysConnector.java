@@ -52,6 +52,7 @@ import logisticspipes.network.to_client.pipe.InvSysConResistanceMessage;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.channels.ChannelInformation;
@@ -63,8 +64,6 @@ import logisticspipes.transport.TransportInvConnection;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.tuples.Pair;
-import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.inventory.InvSysConMenu;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
@@ -352,29 +351,30 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe
             if (hasRemoteConnection()) {
                 List<CoreRoutedPipe> connectedPipes = RouterManager.get().getConnectedPipes(
                     getRouter());
+                final boolean active = info.transportMode == IRoutedItem.TransportMode.Active;
+                final ItemIdentifier item = info.getItem().getItem();
+                // Prefer a pipe that does not send the item straight back the way it reaches us.
                 Optional<CoreRoutedPipe> bestConnection = connectedPipes.stream()
-                    .map(con -> new Triplet<>(
-                        con,
-                        con.getRouter()
-                            .getExitFor(info.destinationint, info.transportMode == IRoutedItem.TransportMode.Active,
-                                info.getItem().getItem()),
-                        con.getRouter()
-                            .getExitFor(getRouterId(), info.transportMode == IRoutedItem.TransportMode.Active,
-                                info.getItem().getItem())
-                    ))
-                    .filter(triplet -> triplet.getValue2() != null && triplet.getValue3() != null)
-                    .filter(triplet -> triplet.getValue2().exitOrientation != triplet.getValue3().exitOrientation)
-                    .min(Comparator.comparing(trip -> trip.getValue2().blockDistance)).map(Pair::getValue1);
-                if (!bestConnection.isPresent()) {
+                    .<ChannelCandidate>mapMulti((con, out) -> {
+                        ExitRoute toDestination = con.getRouter().getExitFor(info.destinationint, active, item);
+                        ExitRoute toUs = con.getRouter().getExitFor(getRouterId(), active, item);
+                        if (toDestination != null && toUs != null
+                            && toDestination.exitOrientation != toUs.exitOrientation) {
+                            out.accept(new ChannelCandidate(con, toDestination));
+                        }
+                    })
+                    .min(Comparator.comparingInt(candidate -> candidate.toDestination().blockDistance))
+                    .map(ChannelCandidate::pipe);
+                if (bestConnection.isEmpty()) {
                     bestConnection = connectedPipes.stream()
-                        .map(con -> new Pair<>(
-                            con,
-                            con.getRouter()
-                                .getExitFor(info.destinationint, info.transportMode == IRoutedItem.TransportMode.Active,
-                                    info.getItem().getItem())
-                        ))
-                        .filter(triplet -> triplet.getValue2() != null)
-                        .min(Comparator.comparing(trip -> trip.getValue2().blockDistance)).map(Pair::getValue1);
+                        .<ChannelCandidate>mapMulti((con, out) -> {
+                            ExitRoute toDestination = con.getRouter().getExitFor(info.destinationint, active, item);
+                            if (toDestination != null) {
+                                out.accept(new ChannelCandidate(con, toDestination));
+                            }
+                        })
+                        .min(Comparator.comparingInt(candidate -> candidate.toDestination().blockDistance))
+                        .map(ChannelCandidate::pipe);
                 }
                 if (bestConnection.isPresent() && bestConnection.get() instanceof IChannelRoutingConnection pipe) {
                     pipe.addItem(info);
@@ -484,4 +484,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe
             .findFirst();
         channel.ifPresent(chan -> localGuiWatchers.send(new ChannelInformationMessage(chan, true)));
     }
+
+    /** A pipe on the same channel, and its route to where the item is going. */
+    private record ChannelCandidate(CoreRoutedPipe pipe, ExitRoute toDestination) {}
 }

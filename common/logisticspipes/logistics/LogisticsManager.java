@@ -41,7 +41,6 @@ import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.utils.tuples.Triplet;
 import logisticspipes.world.item.LogisticsFluidContainer;
 
 public final class LogisticsManager {
@@ -49,12 +48,12 @@ public final class LogisticsManager {
 	private LogisticsManager() {
 	}
 
-	private static Triplet<Integer, SinkReply, List<IFilter>> getBestReply(ItemStack stack, ItemIdentifier item, @Nullable IRouter sourceRouter,
-			List<ExitRoute> validDestinations, boolean excludeSource, List<Integer> jamList,
-			@Nullable Triplet<Integer, SinkReply, List<IFilter>> result, boolean allowDefault) {
-		if (result == null) {
-			result = new Triplet<>(null, null, null);
-		}
+	/** The router an item is best sent to, by simple id, and what it answered. */
+	private record BestReply(int routerId, SinkReply reply) {}
+
+	private static @Nullable BestReply getBestReply(ItemStack stack, ItemIdentifier item, @Nullable IRouter sourceRouter,
+			List<ExitRoute> validDestinations, boolean excludeSource, List<Integer> jamList, boolean allowDefault) {
+		BestReply best = null;
 
 		outer:
 		for (ExitRoute candidateRouter : validDestinations) {
@@ -77,40 +76,23 @@ public final class LogisticsManager {
 				}
 			}
 
-			SinkReply reply = LogisticsManager.canSink(stack, candidateRouter.destination, sourceRouter, excludeSource, item, result.getValue2(), false, allowDefault);
+			SinkReply reply = LogisticsManager.canSink(stack, candidateRouter.destination, sourceRouter, excludeSource, item, best == null ? null : best.reply(), false, allowDefault);
 
 			if (reply == null) {
 				continue;
 			}
-			if (result.getValue1() == null) {
-				result.setValue1(candidateRouter.destination.getSimpleID());
-				result.setValue2(reply);
-				List<IFilter> list = new LinkedList<>();
-				result.setValue3(list);
-				continue;
-			}
-
-			if (reply.fixedPriority.ordinal() > result.getValue2().fixedPriority.ordinal()) {
-				result.setValue1(candidateRouter.destination.getSimpleID());
-				result.setValue2(reply);
-				List<IFilter> list = new LinkedList<>();
-				result.setValue3(list);
-				continue;
-			}
-
-			if (reply.fixedPriority == result.getValue2().fixedPriority && reply.customPriority > result.getValue2().customPriority) {
-				result.setValue1(candidateRouter.destination.getSimpleID());
-				result.setValue2(reply);
-				List<IFilter> list = new LinkedList<>();
-				result.setValue3(list);
+			if (best == null
+					|| reply.fixedPriority.ordinal() > best.reply().fixedPriority.ordinal()
+					|| reply.fixedPriority == best.reply().fixedPriority && reply.customPriority > best.reply().customPriority) {
+				best = new BestReply(candidateRouter.destination.getSimpleID(), reply);
 			}
 		}
-		if (result.getValue1() != null) {
-			CoreRoutedPipe pipe = RouterManager.get().getServerRouter(result.getValue1()).getPipe();
-			pipe.useEnergy(result.getValue2().energyUse);
+		if (best != null) {
+			CoreRoutedPipe pipe = RouterManager.get().getServerRouter(best.routerId()).getPipe();
+			pipe.useEnergy(best.reply().energyUse);
 			pipe.spawnParticle(Particles.BLUE_SPARKLE, 10);
 		}
-		return result;
+		return best;
 	}
 
 	public static @Nullable SinkReply canSink(ItemStack stack, IRouter destination, @Nullable IRouter sourceRouter, boolean excludeSource, ItemIdentifier item,
@@ -203,11 +185,11 @@ public final class LogisticsManager {
 				}
 			}
 		} else {
-			Triplet<Integer, SinkReply, List<IFilter>> bestReply = getBestReply(stack, itemIdStack.getItem(), sourceRouter, validDestinations, excludeSource, item.getJamList(), null, true);
-			if (bestReply.getValue1() != null && bestReply.getValue1() != 0) {
-				item.setDestination(bestReply.getValue1());
-				if (bestReply.getValue2().isPassive) {
-					if (bestReply.getValue2().isDefault) {
+			BestReply bestReply = getBestReply(stack, itemIdStack.getItem(), sourceRouter, validDestinations, excludeSource, item.getJamList(), true);
+			if (bestReply != null && bestReply.routerId() != 0) {
+				item.setDestination(bestReply.routerId());
+				if (bestReply.reply().isPassive) {
+					if (bestReply.reply().isDefault) {
 						item.setTransportMode(TransportMode.Default);
 					} else {
 						item.setTransportMode(TransportMode.Passive);
@@ -215,7 +197,7 @@ public final class LogisticsManager {
 				} else {
 					item.setTransportMode(TransportMode.Active);
 				}
-				item.setAdditionalTargetInformation(bestReply.getValue2().addInfo);
+				item.setAdditionalTargetInformation(bestReply.reply().addInfo);
 			}
 		}
 		return item;

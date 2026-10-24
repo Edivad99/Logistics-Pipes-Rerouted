@@ -570,7 +570,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
                 PacketDistributor.sendToPlayer(serverPlayer, new ChassisModuleContentMessage(getPos(),
                     ItemIdentifierStack.getListFromInventory(moduleInventory)));
                 PacketDistributor.sendToPlayer(serverPlayer, new SendQueueContentMessage(
-                    getPos(), ItemIdentifierStack.getListSendQueue(sendQueue)));
+                    getPos(), sendQueueStacks()));
             }
         } else {
             super.playerStartWatching(player, mode);
@@ -594,7 +594,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
                 HudUpdateTick.add(getRouter());
             } else {
                 if (!localModeWatchers.isEmpty()) {
-                    LinkedList<@Nullable ItemIdentifierStack> items = ItemIdentifierStack.getListSendQueue(sendQueue);
+                    List<@Nullable ItemIdentifierStack> items = sendQueueStacks();
                     localModeWatchers.send(new SendQueueContentMessage(getPos(), items));
                     return items.size();
                 }

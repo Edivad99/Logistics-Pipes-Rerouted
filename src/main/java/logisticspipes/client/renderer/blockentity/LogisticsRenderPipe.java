@@ -46,7 +46,7 @@ import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
-import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.transport.PipeTransportLogistics.BufferedItem;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
@@ -345,11 +345,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
             .relative(Direction.SOUTH, dist)
             .relative(Direction.EAST, dist)
             .relative(Direction.UP, dist);
-        for (Pair<ItemIdentifierStack, Pair<Integer, Integer>> item : pipe.transport.itemBuffer) {
-            if (item == null || item.getValue1() == null) {
-                continue;
-            }
-            ItemStack stack = item.getValue1().makeNormalStack();
+        for (BufferedItem item : pipe.transport.itemBuffer) {
+            ItemStack stack = item.stack().makeNormalStack();
             doRenderItem(stack, pipe.getContainer().getLevel(), x + pos.x, y + pos.y,
                 z + pos.z, 0.25F, 0, 0, 0, 0, partialTickTime, poseStack, collector, packedLight,
                 packedOverlay);
