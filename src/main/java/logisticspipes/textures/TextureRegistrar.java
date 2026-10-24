@@ -22,70 +22,72 @@ import logisticspipes.client.model.pipe.PipeSprites;
  */
 public class TextureRegistrar {
 
-	// Written on the render thread when the atlas is stitched, read by the chunk builders.
-	private static volatile List<@Nullable TextureAtlasSprite> pipeSprites = List.of();
-	private static volatile List<@Nullable TextureAtlasSprite> pipeParticleSprites = List.of();
-	private static volatile @Nullable TextureAtlasSprite sideSelectionSprite;
+    // Written on the render thread when the atlas is stitched, read by the chunk builders.
+    private static volatile List<@Nullable TextureAtlasSprite> pipeSprites = List.of();
+    private static volatile List<@Nullable TextureAtlasSprite> pipeParticleSprites = List.of();
+    private static volatile @Nullable TextureAtlasSprite sideSelectionSprite;
 
-	@SubscribeEvent
-	public static void onPost(TextureAtlasStitchedEvent event) {
-		TextureAtlas atlas = event.getAtlas();
-		if (!atlas.location().equals(TextureAtlas.LOCATION_BLOCKS)) return;
+    @SubscribeEvent
+    public static void onPost(TextureAtlasStitchedEvent event) {
+        TextureAtlas atlas = event.getAtlas();
+        if (!atlas.location().equals(TextureAtlas.LOCATION_BLOCKS)) {
+            return;
+        }
 
-		pipeSprites = Arrays.stream(PipeTexture.values())
-			.map(texture -> atlas.getSprite(LPConstants.rl("blocks/pipes/new_texture/" + texture.path)))
-			.toList();
-		pipeParticleSprites = pipeSprites.stream()
-			.map(sprite -> sprite == null || isBlank(sprite) ? null : sprite)
-			.toList();
+        pipeSprites = Arrays.stream(PipeTexture.values())
+            .map(texture -> atlas.getSprite(LPConstants.rl("blocks/pipes/new_texture/" + texture.path)))
+            .toList();
+        pipeParticleSprites = pipeSprites.stream()
+            .map(sprite -> sprite == null || isBlank(sprite) ? null : sprite)
+            .toList();
 
-		TextureAtlasSprite base = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel"));
-		TextureAtlasSprite status = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel-status"));
-		TextureAtlasSprite inactive = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel-inactive"));
-		TextureAtlasSprite innerBox = atlas.getSprite(LPConstants.rl("blocks/pipes/innerbox"));
-		TextureAtlasSprite glassCenter = atlas.getSprite(LPConstants.rl("blocks/pipes/glass_texture_center"));
-		PipeModelStore.setSprites(new PipeSprites(base, inactive, status, glassCenter, innerBox,
-			TextureRegistrar::pipeSprite));
-		sideSelectionSprite = atlas.getSprite(LPConstants.rl("blocks/sideselection"));
-	}
+        TextureAtlasSprite base = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel"));
+        TextureAtlasSprite status = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel-status"));
+        TextureAtlasSprite inactive = atlas.getSprite(LPConstants.rl("blocks/pipes/pipemodel-inactive"));
+        TextureAtlasSprite innerBox = atlas.getSprite(LPConstants.rl("blocks/pipes/innerbox"));
+        TextureAtlasSprite glassCenter = atlas.getSprite(LPConstants.rl("blocks/pipes/glass_texture_center"));
+        PipeModelStore.setSprites(new PipeSprites(base, inactive, status, glassCenter, innerBox,
+            TextureRegistrar::pipeSprite));
+        sideSelectionSprite = atlas.getSprite(LPConstants.rl("blocks/sideselection"));
+    }
 
-	/**
-	 * The body sprite for a {@code TextureMatrix.getTextureIndex()}, or null before the atlas is stitched.
-	 */
-	@Nullable
-	public static TextureAtlasSprite pipeSprite(int index) {
-		List<@Nullable TextureAtlasSprite> sprites = pipeSprites;
-		return index >= 0 && index < sprites.size() ? sprites.get(index) : null;
-	}
+    /**
+     * The body sprite for a {@code TextureMatrix.getTextureIndex()}, or null before the atlas is stitched.
+     */
+    @Nullable
+    public static TextureAtlasSprite pipeSprite(int index) {
+        List<@Nullable TextureAtlasSprite> sprites = pipeSprites;
+        return index >= 0 && index < sprites.size() ? sprites.get(index) : null;
+    }
 
-	/**
-	 * The body sprite to break a pipe into, or null when there is none to use. Some body textures
-	 * are fully transparent -- the basic pipes show only the frame -- and particles cut from them
-	 * would be invisible.
-	 */
-	@Nullable
-	public static TextureAtlasSprite pipeParticleSprite(int index) {
-		List<@Nullable TextureAtlasSprite> sprites = pipeParticleSprites;
-		return index >= 0 && index < sprites.size() ? sprites.get(index) : null;
-	}
+    /**
+     * The body sprite to break a pipe into, or null when there is none to use. Some body textures
+     * are fully transparent -- the basic pipes show only the frame -- and particles cut from them
+     * would be invisible.
+     */
+    @Nullable
+    public static TextureAtlasSprite pipeParticleSprite(int index) {
+        List<@Nullable TextureAtlasSprite> sprites = pipeParticleSprites;
+        return index >= 0 && index < sprites.size() ? sprites.get(index) : null;
+    }
 
-	/**
-	 * The overlay the side config display marks faces with, or null before the atlas is stitched.
-	 */
-	@Nullable
-	public static TextureAtlasSprite sideSelectionSprite() {
-		return sideSelectionSprite;
-	}
+    /**
+     * The overlay the side config display marks faces with, or null before the atlas is stitched.
+     */
+    @Nullable
+    public static TextureAtlasSprite sideSelectionSprite() {
+        return sideSelectionSprite;
+    }
 
-	private static boolean isBlank(TextureAtlasSprite sprite) {
-		SpriteContents contents = sprite.contents();
-		for (int y = 0; y < contents.height(); y++) {
-			for (int x = 0; x < contents.width(); x++) {
-				if (!contents.isTransparent(0, x, y)) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
+    private static boolean isBlank(TextureAtlasSprite sprite) {
+        SpriteContents contents = sprite.contents();
+        for (int y = 0; y < contents.height(); y++) {
+            for (int x = 0; x < contents.width(); x++) {
+                if (!contents.isTransparent(0, x, y)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }
