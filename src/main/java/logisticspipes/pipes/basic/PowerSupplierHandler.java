@@ -18,10 +18,11 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.utils.tuples.Pair;
-import logisticspipes.world.WorldCoordinatesWrapper;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
 
 /**
@@ -65,12 +66,13 @@ public class PowerSupplierHandler implements ValueIOSerializable {
      */
     private void supplyNeighbors() {
         int available = buffer.getAmountAsInt();
-        if (available == 0) {
+        final LogisticsGenericPipeBlockEntity container = pipe.getContainer();
+        if (available == 0 || container == null) {
             return;
         }
         List<Receiver> receivers = new ArrayList<>();
         long totalDemand = 0;
-        for (var adjacent : new WorldCoordinatesWrapper(pipe.getContainer()).allNeighborBlockEntities()) {
+        for (var adjacent : LPNeighborBlockEntity.allAround(container)) {
             if (!pipe.canPipeConnect(adjacent.getBlockEntity(), adjacent.getDirection())) {
                 continue;
             }
@@ -91,8 +93,7 @@ public class PowerSupplierHandler implements ValueIOSerializable {
         for (Receiver receiver : receivers) {
             int moved = EnergyHandlerUtil.move(buffer, receiver.handler(), (int) (receiver.demand() * fraction), null);
             if (moved > 0) {
-                pipe.getContainer()
-                    .addLaser(receiver.direction(), 0.5F, LogisticsPowerProviderBlockEntity.FE_COLOR, false, true);
+                container.addLaser(receiver.direction(), 0.5F, LogisticsPowerProviderBlockEntity.FE_COLOR, false, true);
             }
         }
     }

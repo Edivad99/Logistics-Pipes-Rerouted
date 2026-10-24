@@ -1,16 +1,18 @@
 package logisticspipes.logisticspipes;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.IRouter;
-import logisticspipes.world.WorldCoordinatesWrapper;
 
 /**
  * This class is responsible for handling incoming items for standard pipes
@@ -54,12 +56,14 @@ public class PipeTransportLayer extends TransportLayer {
 
 			possibleDirection.add(adjacent.getDirection());
 		}
-		if (possibleDirection.size() != 0) {
-			return possibleDirection.get(routedPipe.getLevel().getRandom().nextInt(possibleDirection.size()));
+		// An item only arrives at a pipe that is in a level.
+		final RandomSource random = Objects.requireNonNull(routedPipe.getLevel()).getRandom();
+		if (!possibleDirection.isEmpty()) {
+			return possibleDirection.get(random.nextInt(possibleDirection.size()));
 		}
 
 		// 2nd priority, deliver to non-routed exit
-		new WorldCoordinatesWrapper(routedPipe.getContainer()).connectedBlockEntities().stream()
+		LPNeighborBlockEntity.connectedTo(Objects.requireNonNull(routedPipe.getContainer())).stream()
 				.filter(neighbor -> {
 					if (router.isRoutedExit(neighbor.getDirection())) return false;
 					final CoreRoutedPipe routerPipe = router.getPipe();
@@ -67,11 +71,11 @@ public class PipeTransportLayer extends TransportLayer {
 				})
 				.forEach(neighbor -> possibleDirection.add(neighbor.getDirection()));
 
-		if (possibleDirection.size() == 0) {
+		if (possibleDirection.isEmpty()) {
 			// last resort, drop item
 			return null;
 		} else {
-			return possibleDirection.get(routedPipe.getLevel().getRandom().nextInt(possibleDirection.size()));
+			return possibleDirection.get(random.nextInt(possibleDirection.size()));
 		}
 	}
 

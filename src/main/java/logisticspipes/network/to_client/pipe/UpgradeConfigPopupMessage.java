@@ -16,13 +16,13 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.client.gui.popup.DisconnectionConfigurationPopup;
 import logisticspipes.client.gui.popup.SneakyConfigurationPopup;
+import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.utils.gui.ISubGuiController;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.gui.UpgradeSlot;
-import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
@@ -54,7 +54,7 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
      * none, every neighbour, so the popup is never empty.
      */
     private static List<BlockPos> extractableSides(LogisticsGenericPipeBlockEntity container) {
-        final List<BlockPos> inventories = new WorldCoordinatesWrapper(container).connectedBlockEntities()
+        final List<BlockPos> inventories = LPNeighborBlockEntity.connectedTo(container)
             .stream()
             .filter(neighbor -> PipeInformationManager.isNotAPipe(neighbor.getBlockEntity()))
             .map(neighbor -> neighbor.getBlockEntity().getBlockPos())
@@ -62,7 +62,7 @@ public record UpgradeConfigPopupMessage(Kind kind, BlockPos pipePos, int slotInd
         if (!inventories.isEmpty()) {
             return inventories;
         }
-        return new WorldCoordinatesWrapper(container).connectedBlockEntities().stream()
+        return LPNeighborBlockEntity.connectedTo(container).stream()
             .map(neighbor -> neighbor.getBlockEntity().getBlockPos())
             .collect(Collectors.toList());
     }

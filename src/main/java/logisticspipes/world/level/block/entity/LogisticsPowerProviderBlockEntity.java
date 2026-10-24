@@ -51,7 +51,6 @@ import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.tuples.Triplet;
-import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.inventory.PowerProviderMenu;
 
 /**
@@ -171,7 +170,11 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
      * it that power may take.
      */
     private void deliver(IRouter destination, int amount) {
-        for (LPNeighborBlockEntity<BlockEntity> neighbor : new WorldCoordinatesWrapper(this).allNeighborBlockEntities()) {
+        final CoreRoutedPipe destinationPipe = destination.getPipe();
+        if (destinationPipe == null) {
+            return;
+        }
+        for (LPNeighborBlockEntity<BlockEntity> neighbor : LPNeighborBlockEntity.allAround(this)) {
             if (!(neighbor.getBlockEntity() instanceof LogisticsGenericPipeBlockEntity pipeBlockEntity)
                 || !(pipeBlockEntity.pipe instanceof CoreRoutedPipe sourcePipe) || sourcePipe.stillNeedReplace()) {
                 continue;
@@ -189,12 +192,13 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
                 if (extracted == 0) {
                     return;
                 }
-                if (sourcePipe.isInitialized()) {
-                    sourcePipe.getContainer().addLaser(neighbor.getOurDirection(), 1, FE_COLOR, true, true);
+                pipeBlockEntity.addLaser(neighbor.getOurDirection(), 1, FE_COLOR, true, true);
+                // A route without an exit ends at the neighbor itself, so there is no path to draw.
+                if (route.exitOrientation != null) {
+                    sendPowerLaserPackets(sourcePipe.getRouter(), destination, route.exitOrientation,
+                        route.exitOrientation != neighbor.getDirection());
                 }
-                sendPowerLaserPackets(sourcePipe.getRouter(), destination, route.exitOrientation,
-                    route.exitOrientation != neighbor.getDirection());
-                destination.getPipe().handleFEPowerArrival(extracted);
+                destinationPipe.handleFEPowerArrival(extracted);
                 return;
             }
         }
@@ -215,8 +219,9 @@ public class LogisticsPowerProviderBlockEntity extends LogisticsSolidBlockEntity
                     PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) { // Find only result (caused by only straight connections)
                     int distance = part.getValue1().getDistanceToNextPowerPipe(exit.exitOrientation);
                     CoreRoutedPipe pipe = part.getValue1().getPipe();
-                    if (pipe != null && pipe.isInitialized()) {
-                        pipe.getContainer().addLaser(exit.exitOrientation, distance, FE_COLOR, false,
+                    LogisticsGenericPipeBlockEntity container = pipe != null ? pipe.getContainer() : null;
+                    if (container != null) {
+                        container.addLaser(exit.exitOrientation, distance, FE_COLOR, false,
                             part.getValue3());
                     }
                     IRouter nextRouter = exit.destination; // Use new sourceRouter

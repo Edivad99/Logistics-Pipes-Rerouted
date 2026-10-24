@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -33,6 +34,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.client.renderer.hud.HUDInvSysConnector;
+import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
@@ -63,8 +65,8 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.tuples.Pair;
 import logisticspipes.utils.tuples.Triplet;
-import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.inventory.InvSysConMenu;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class PipeItemsInvSysConnector extends CoreRoutedPipe
     implements IChannelRoutingConnection, IHeadUpDisplayRendererProvider, IOrderManagerContentReceiver,
@@ -129,12 +131,13 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe
     }
 
     private void checkConnectedInvs() {
-        if (!itemsOnRoute.isEmpty()) { // don't check the inventory if you don't want anything
+        final LogisticsGenericPipeBlockEntity container = getContainer();
+        if (container != null && !itemsOnRoute.isEmpty()) { // don't check the inventory if you don't want anything
             final boolean shouldUpdate = getAvailableAdjacent().inventories().stream()
                 .anyMatch(neighbor -> {
                     final IInventoryUtil invUtil = NeighborBlockEntityUtil.getInventoryUtil(neighbor);
                     return invUtil != null &&
-                        getContainer().canPipeConnect(neighbor.getBlockEntity(), neighbor.getDirection()) &&
+                        container.canPipeConnect(neighbor.getBlockEntity(), neighbor.getDirection()) &&
                         checkOneConnectedInv(invUtil, neighbor.getDirection());
                 });
 
@@ -173,9 +176,9 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe
                             if (inv instanceof ITransactor) {
                                 ((ITransactor) inv).add(toSend, dir.getOpposite(), true);
                             } else {
-                                getContainer().getLevel()
-                                    .addFreshEntity(ItemIdentifierStack.getFromStack(toSend)
-                                        .makeEntityItem(getLevel(), getContainer().getPos()));
+                                final Level level = Objects.requireNonNull(getLevel());
+                                level.addFreshEntity(ItemIdentifierStack.getFromStack(toSend)
+                                    .makeEntityItem(level, getPos()));
                             }
                             new UnsupportedOperationException(
                                 "The extracted amount didn't match the requested one. (" + inv + ")").printStackTrace();
@@ -290,11 +293,14 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe
     }
 
     private boolean isInventoryConnected(@Nullable BlockEntity tileEntityFilter) {
-        return new WorldCoordinatesWrapper(this.getContainer())
-            .allNeighborBlockEntities().stream()
+        final LogisticsGenericPipeBlockEntity container = getContainer();
+        if (container == null) {
+            return false;
+        }
+        return LPNeighborBlockEntity.allAround(container).stream()
             .anyMatch(neighbor -> (tileEntityFilter == null || neighbor.getBlockEntity() == tileEntityFilter) &&
                 neighbor.canHandleItems() &&
-                this.getContainer().canPipeConnect(neighbor.getBlockEntity(), neighbor.getDirection()));
+                container.canPipeConnect(neighbor.getBlockEntity(), neighbor.getDirection()));
     }
 
     @Override

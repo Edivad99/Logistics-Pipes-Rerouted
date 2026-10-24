@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.connection.NeighborBlockEntity;
+import logisticspipes.connection.LPNeighborBlockEntity;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.IScreenOpenController;
 import logisticspipes.network.to_client.block.TrackingTasksMessage;
@@ -24,7 +25,6 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.util.TrackingTask;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.world.WorldCoordinatesWrapper;
 import logisticspipes.world.inventory.StatisticsMenu;
 
 public class LogisticsStatisticsBlockEntity extends LogisticsSolidBlockEntity
@@ -131,7 +131,7 @@ public class LogisticsStatisticsBlockEntity extends LogisticsSolidBlockEntity
 
     public @Nullable CoreRoutedPipe getConnectedPipe() {
         if (cachedConnectedPipe == null) {
-            new WorldCoordinatesWrapper(this).allNeighborBlockEntities().stream()
+            LPNeighborBlockEntity.allAround(this).stream()
                 .filter(NeighborBlockEntity::isLogisticsPipe)
                 .filter(
                     adjacent -> ((LogisticsGenericPipeBlockEntity) adjacent.getBlockEntity()).pipe instanceof CoreRoutedPipe)
