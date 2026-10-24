@@ -345,9 +345,13 @@ public class RequestMonitorPopup extends SubGuiScreen {
                 innerTopSide - mapY - 180, Color.GREEN, zoom.line);
         }
         renderLinkedOrderListLines(guiGraphics, list, innerLeftSide - mapX + 102, innerTopSide - mapY - 180);
-        for (Float progress : list.getProgresses()) {
-            int pos = (int) (29.0F * progress);
-            drawProgressPoint(guiGraphics, innerLeftSide - mapX + 110, innerTopSide - mapY - 197 + pos, 0xff00ff00);
+        int rootX = innerLeftSide - mapX + 110;
+        int itemX = rootX - (list.size() - 1) * (30 / 2);
+        for (IOrderInfoProvider order : list) {
+            for (Float progress : order.getProgresses()) {
+                drawRootProgressPoint(guiGraphics, rootX, itemX, innerTopSide - mapY - 197, progress);
+            }
+            itemX += 30;
         }
 
         String s = Integer.toString(orderId);
@@ -470,18 +474,35 @@ public class RequestMonitorPopup extends SubGuiScreen {
         }
     }
 
+    /**
+     * A point between the order badge at {@code (rootX, top)} and the item of its order at
+     * {@code itemX}: down the badge's own line, which ends 17 below it, then down the 10 of the
+     * item's own branch.
+     */
+    private void drawRootProgressPoint(GuiGraphicsExtractor guiGraphics, int rootX, int itemX, int top,
+        float progress) {
+        int pos = (int) (27.0F * progress);
+        drawProgressPoint(guiGraphics, pos <= 17 ? rootX : itemX, top + pos, 0xff00ff00);
+    }
+
     private void drawPointFor(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list, int xPos, int yPos,
         int i, int startLeft) {
         float totalLine = 10 + 1 + 10 + 1 + Math.abs(startLeft - (xPos + 20)) + 10 + 1 + 10;
-        for (Float point : list.getSubOrders().get(i).getProgresses()) {
+        LinkedLogisticsOrderList subOrders = list.getSubOrders().get(i);
+        // Each order's points start on its own item's branch; only further up do they merge.
+        int itemLeft = -(subOrders.size() - 1) * (30 / 2) + startLeft - 20;
+        for (IOrderInfoProvider order : subOrders) {
+            drawPointsFor(guiGraphics, list, order, xPos, yPos, startLeft, itemLeft, totalLine);
+            itemLeft += 30;
+        }
+    }
+
+    private void drawPointsFor(GuiGraphicsExtractor guiGraphics, LinkedLogisticsOrderList list,
+        IOrderInfoProvider order, int xPos, int yPos, int startLeft, int itemLeft, float totalLine) {
+        for (Float point : order.getProgresses()) {
             int pos = (int) (totalLine * (1.0F - point));
             if (pos < 13) {
-                int newSize = list.getSubOrders().get(i).size();
-                int newStartLeft = -(newSize - 1) * (30 / 2) + startLeft - 20;
-                for (int j = 0; j < newSize; j++) {
-                    drawProgressPoint(guiGraphics, newStartLeft + 8, yPos + 48 + 12 - pos, 0xff00ff00);
-                    newStartLeft += 30;
-                }
+                drawProgressPoint(guiGraphics, itemLeft + 8, yPos + 48 + 12 - pos, 0xff00ff00);
             } else if (pos < 10 + 1 + 10 + 1) {
                 pos -= 10;
                 drawProgressPoint(guiGraphics, startLeft - 20 + 8, yPos + 38 + 12 - pos, 0xff00ff00);
