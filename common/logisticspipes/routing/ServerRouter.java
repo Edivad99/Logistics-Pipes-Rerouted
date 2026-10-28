@@ -129,6 +129,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	int connectionNeedsChecking = 0;
 	private final List<BlockPos> causedBy = new LinkedList<>();
 	private boolean isDestroyed = false;
+	/**
+	 * Set by a routing thread once it has written this router's new LSA. The network was flagged
+	 * for an update when the LSA was queued, and another routing thread may have rebuilt a table
+	 * from the old LSA in between and marked that version done; the server thread flags the network
+	 * again when it sees this, so those tables are built once more.
+	 */
+	private volatile boolean lsaWrittenAsync = false;
 	private final ITileEntityChangeListener localChangeListener = new ITileEntityChangeListener() {
 
 		@Override
@@ -1034,6 +1041,10 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 	@Override
 	public void update(boolean doFullRefresh, CoreRoutedPipe pipe) {
+		if (lsaWrittenAsync) {
+			lsaWrittenAsync = false;
+			act(new BitSet(ServerRouter.getBiggestSimpleID()), new flagForLSAUpdate());
+		}
 		if (connectionNeedsChecking == 2) {
 			ensureChangeListenerAttachedToPipe(pipe);
 
@@ -1473,6 +1484,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		@Override
 		public void run() {
 			lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
+			lsaWrittenAsync = true;
 		}
 
 		@Override
