@@ -232,6 +232,9 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
             );
         }
         for (ItemIdentifier item : possible) {
+            if (blockedByFilters(item, filters)) {
+                continue; // a firewall on the way does not let it through
+            }
             int canProvide = getAvailableItemCount(item);
             canProvide -= root.getAllPromissesFor((IProvideItems) service, item);
             canProvide = Math.min(canProvide, tree.getMissingAmount());
@@ -263,6 +266,15 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
         return getTotalItemCount(item) - this.service.getItemOrderManager().totalItemsCountInOrders(item);
     }
 
+    /**
+     * Whether a filter between this provider and whoever asks, a firewall's, keeps {@code item} from
+     * being provided.
+     */
+    private static boolean blockedByFilters(ItemIdentifier item, List<IFilter> filters) {
+        return filters.stream().anyMatch(
+            filter -> filter.isBlocked() == filter.isFilteredItem(item.getUndamaged()) || filter.blockProvider());
+    }
+
     @Override
     public void getAllItems(Map<ItemIdentifier, Integer> items, List<IFilter> filters) {
         if (this.service == null) {
@@ -279,11 +291,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
                     if (filterBlocksItem(item.getKey())) {
                         return false; // skip provider-filtered items
                     }
-                    final boolean blockedInFilters = filters.stream().anyMatch(
-                        filter -> filter.isBlocked() == filter.isFilteredItem(item.getKey().getUndamaged())
-                            || filter.blockProvider()
-                    );
-                    return !blockedInFilters; // skip filters-parameter-filtered items
+                    return !blockedByFilters(item.getKey(), filters); // skip filters-parameter-filtered items
                 })
                 .map(item -> Map.entry(item.getKey(), item.getValue() - this.service.getItemOrderManager()
                     .totalItemsCountInOrders(item.getKey())))
