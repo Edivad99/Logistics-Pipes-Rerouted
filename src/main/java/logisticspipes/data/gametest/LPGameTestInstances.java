@@ -30,6 +30,7 @@ import logisticspipes.data.gametest.instances.NetworkSplitTestInstance;
 import logisticspipes.data.gametest.instances.PowerJunctionReloadTestInstance;
 import logisticspipes.data.gametest.instances.ProviderOptionsTestInstance;
 import logisticspipes.data.gametest.instances.ProviderToRequestTestInstance;
+import logisticspipes.data.gametest.instances.SatelliteCraftingTestInstance;
 import logisticspipes.data.gametest.instances.SinkVariantsTestInstance;
 import logisticspipes.data.gametest.instances.SupplierTestInstance;
 import logisticspipes.data.gametest.instances.TwoProvidersTestInstance;
@@ -63,6 +64,7 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("provider_options", () -> ProviderOptionsTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("firewall", () -> FirewallTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("extractor", () -> ExtractorTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("satellite_crafting", () -> SatelliteCraftingTestInstance.CODEC);
     }
 
     public static void bootstrap(BootstrapContext<GameTestInstance> bootstrap) {
@@ -97,6 +99,10 @@ public class LPGameTestInstances {
         for (var scenario : ChainedCraftingTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "chained_crafting/" + scenario.getSerializedName(), 800,
                 info -> new ChainedCraftingTestInstance(scenario, info));
+        }
+        for (var scenario : SatelliteCraftingTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "satellite_crafting/" + scenario.getSerializedName(), 800,
+                info -> new SatelliteCraftingTestInstance(scenario, info));
         }
 
         for (var scenario : FuzzyCraftingTestInstance.Scenario.values()) {

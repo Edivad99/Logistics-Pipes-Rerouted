@@ -567,8 +567,7 @@ public class ModuleCrafter extends LogisticsModule
                 if (satelliteRouterId == -1) {
                     return false;
                 }
-                List<ExitRoute> rt = getRouter().getRouteTable().get(satelliteRouterId);
-                if (rt == null || rt.isEmpty()) {
+                if (!hasRouteTo(satelliteRouterId)) {
                     return false;
                 }
             }
@@ -581,8 +580,7 @@ public class ModuleCrafter extends LogisticsModule
                 if (satelliteRouterId == -1) {
                     return false;
                 }
-                List<ExitRoute> rt = getRouter().getRouteTable().get(satelliteRouterId);
-                if (rt == null || rt.isEmpty()) {
+                if (!hasRouteTo(satelliteRouterId)) {
                     return false;
                 }
             }
@@ -605,6 +603,19 @@ public class ModuleCrafter extends LogisticsModule
         }
 
         return true;
+    }
+
+    /**
+     * The route table only reaches as far as the routers there were when it was last built, so a
+     * satellite added since, or one in another network, can have an id past its end.
+     */
+    private boolean hasRouteTo(int routerId) {
+        List<@Nullable List<ExitRoute>> table = getRouter().getRouteTable();
+        if (routerId >= table.size()) {
+            return false;
+        }
+        List<ExitRoute> routes = table.get(routerId);
+        return routes != null && !routes.isEmpty();
     }
 
     @Override

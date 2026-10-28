@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:satellite_crafting",
+  "environment": "logisticspipes:default",
+  "max_ticks": 800,
+  "scenario": "unreachable",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}
