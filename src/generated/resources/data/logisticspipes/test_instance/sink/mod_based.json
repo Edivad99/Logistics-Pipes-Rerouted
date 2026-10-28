@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:sink_variants",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9",
+  "variant": "mod_based"
+}

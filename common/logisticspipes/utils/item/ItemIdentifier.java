@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
@@ -52,6 +53,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
@@ -99,6 +101,12 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier> {
     // build the contents ourselves instead of depending on that screen having been opened.
     @Nullable
     private static volatile Map<Item, String> creativeTabNameByItem = null;
+    /**
+     * Whether {@link #creativeTabNameByItem} was built with a world's registries. Without them the
+     * tabs listing banners or enchanted books cannot be built and their items have no tab, so such
+     * a map is only kept until a server is there to build a complete one.
+     */
+    private static volatile boolean creativeTabNamesComplete = false;
     public final Item item;
     /**
      * The component patch that distinguishes this identity from the item's prototype. Always
@@ -190,19 +198,22 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier> {
 
     @Nullable
     private static Map<Item, String> getCreativeTabNameMap() {
+        final var server = ServerLifecycleHooks.getCurrentServer();
         Map<Item, String> map = ItemIdentifier.creativeTabNameByItem;
-        if (map != null) {
+        if (map != null && (ItemIdentifier.creativeTabNamesComplete || server == null)) {
             return map;
         }
         synchronized (ItemIdentifier.class) {
-            if (ItemIdentifier.creativeTabNameByItem != null) {
+            if (ItemIdentifier.creativeTabNameByItem != null
+                && (ItemIdentifier.creativeTabNamesComplete || server == null)) {
                 return ItemIdentifier.creativeTabNameByItem;
             }
             map = new HashMap<>();
+            final HolderLookup.Provider registries = server != null
+                ? server.registryAccess()
+                : RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY);
             CreativeModeTab.ItemDisplayParameters params =
-                new CreativeModeTab.ItemDisplayParameters(
-                    FeatureFlags.REGISTRY.allFlags(), false,
-                    RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY));
+                new CreativeModeTab.ItemDisplayParameters(FeatureFlags.REGISTRY.allFlags(), false, registries);
             for (CreativeModeTab tab : BuiltInRegistries.CREATIVE_MODE_TAB) {
                 // SEARCH aggregates every other tab's items and HOTBAR/INVENTORY are synthetic;
                 // only CATEGORY tabs correspond to LP1's per-item CreativeTabs#tabLabel.
@@ -230,6 +241,7 @@ public final class ItemIdentifier implements Comparable<ItemIdentifier> {
                 }
             }
             ItemIdentifier.creativeTabNameByItem = map;
+            ItemIdentifier.creativeTabNamesComplete = server != null;
             return map;
         }
     }
