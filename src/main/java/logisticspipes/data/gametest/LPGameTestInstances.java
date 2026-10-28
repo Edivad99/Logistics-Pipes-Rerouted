@@ -33,6 +33,7 @@ import logisticspipes.data.gametest.instances.PowerJunctionReloadTestInstance;
 import logisticspipes.data.gametest.instances.ProviderOptionsTestInstance;
 import logisticspipes.data.gametest.instances.ProviderToRequestTestInstance;
 import logisticspipes.data.gametest.instances.SatelliteCraftingTestInstance;
+import logisticspipes.data.gametest.instances.SinkPriorityTestInstance;
 import logisticspipes.data.gametest.instances.SinkVariantsTestInstance;
 import logisticspipes.data.gametest.instances.SupplierTestInstance;
 import logisticspipes.data.gametest.instances.TwoProvidersTestInstance;
@@ -71,6 +72,7 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("extractor", () -> ExtractorTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("satellite_crafting", () -> SatelliteCraftingTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("fluid", () -> FluidTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("sink_priority", () -> SinkPriorityTestInstance.CODEC);
     }
 
     public static void bootstrap(BootstrapContext<GameTestInstance> bootstrap) {
@@ -89,6 +91,10 @@ public class LPGameTestInstances {
         for (var variant : SinkVariantsTestInstance.Variant.values()) {
             registerTestInstance(bootstrap, "sink/" + variant.getSerializedName(),
                 info -> new SinkVariantsTestInstance(variant, info));
+        }
+        for (var scenario : SinkPriorityTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "sink_priority/" + scenario.getSerializedName(),
+                info -> new SinkPriorityTestInstance(scenario, info));
         }
         for (var scenario : ProviderOptionsTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "provider/" + scenario.getSerializedName(),

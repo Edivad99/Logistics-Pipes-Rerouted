@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:sink_priority",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "mod_based_before_default_route",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

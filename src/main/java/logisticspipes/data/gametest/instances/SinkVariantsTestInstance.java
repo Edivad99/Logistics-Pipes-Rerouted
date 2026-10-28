@@ -2,9 +2,11 @@ package logisticspipes.data.gametest.instances;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.GameTestInstance;
@@ -160,6 +162,11 @@ public class SinkVariantsTestInstance extends GameTestInstance {
          */
         CHASSIS,
         /**
+         * The item sink for cobblestone is in the second slot of a chassis whose first slot sinks
+         * something else.
+         */
+        CHASSIS_SECOND_SLOT,
+        /**
          * The polymorphic sink takes what its inventory already holds: one cobblestone.
          */
         POLYMORPHIC,
@@ -214,6 +221,19 @@ public class SinkVariantsTestInstance extends GameTestInstance {
                 }
                 case CHASSIS -> LPTestHelper.placeChassis(helper, SINK, ModuleItemSink.getName(), ModuleItemSink.class)
                     .filterInventory.setItem(0, wanted.copyWithCount(1));
+                case CHASSIS_SECOND_SLOT -> {
+                    var chassis = LPTestHelper.placePipe(helper, SINK,
+                        new PipeLogisticsChassis(LPItems.PIPE_CHASSIS_MK2.get(), PipeLogisticsChassis.Tier.MK2));
+                    var sinkModule = BuiltInRegistries.ITEM.getValue(LPItems.modules.get(ModuleItemSink.getName()));
+                    var modules = chassis.getModuleInventory(helper.getLevel().registryAccess());
+                    modules.setItem(0, new ItemStack(sinkModule));
+                    modules.setItem(1, new ItemStack(sinkModule));
+                    modules.setChanged();
+                    ((ModuleItemSink) Objects.requireNonNull(chassis.getSubModule(0)))
+                        .filterInventory.setItem(0, new ItemStack(Items.STONE));
+                    ((ModuleItemSink) Objects.requireNonNull(chassis.getSubModule(1)))
+                        .filterInventory.setItem(0, wanted.copyWithCount(1));
+                }
                 case POLYMORPHIC -> LPTestHelper.placeChassis(helper, SINK, ModulePolymorphicItemSink.getName(),
                     ModulePolymorphicItemSink.class);
                 // Filled in the way its screen fills it, from an item the player picks
