@@ -35,6 +35,9 @@ jobs:
       - name: Build
         run: ./gradlew build
 
+      - name: Test
+        run: ./gradlew runGameTestServer
+
       - name: Make Changelog
         run: ./gradlew makeChangelog
 

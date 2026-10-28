@@ -1,6 +1,6 @@
-name: Build
+name: Logistics Pipes CI
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: ./gradlew build
 
-      - name: Run game tests
+      - name: Test
         run: ./gradlew runGameTestServer
 
       - name: Upload test reports
