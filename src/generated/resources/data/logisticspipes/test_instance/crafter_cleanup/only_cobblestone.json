@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:crafter_cleanup",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "only_cobblestone",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

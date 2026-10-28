@@ -21,6 +21,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.data.gametest.instances.ChainedCraftingTestInstance;
+import logisticspipes.data.gametest.instances.CrafterByproductTestInstance;
+import logisticspipes.data.gametest.instances.CrafterCleanupTestInstance;
 import logisticspipes.data.gametest.instances.ExtractorTestInstance;
 import logisticspipes.data.gametest.instances.FirewallTestInstance;
 import logisticspipes.data.gametest.instances.FluidTestInstance;
@@ -73,6 +75,8 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("satellite_crafting", () -> SatelliteCraftingTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("fluid", () -> FluidTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("sink_priority", () -> SinkPriorityTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("crafter_cleanup", () -> CrafterCleanupTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("crafter_byproduct", () -> CrafterByproductTestInstance.CODEC);
     }
 
     public static void bootstrap(BootstrapContext<GameTestInstance> bootstrap) {
@@ -111,6 +115,14 @@ public class LPGameTestInstances {
         for (var scenario : ChainedCraftingTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "chained_crafting/" + scenario.getSerializedName(), 800,
                 info -> new ChainedCraftingTestInstance(scenario, info));
+        }
+        for (var scenario : CrafterByproductTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "crafter_byproduct/" + scenario.getSerializedName(),
+                info -> new CrafterByproductTestInstance(scenario, info));
+        }
+        for (var scenario : CrafterCleanupTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "crafter_cleanup/" + scenario.getSerializedName(),
+                info -> new CrafterCleanupTestInstance(scenario, info));
         }
         for (var scenario : FluidTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "fluid/" + scenario.getSerializedName(),
