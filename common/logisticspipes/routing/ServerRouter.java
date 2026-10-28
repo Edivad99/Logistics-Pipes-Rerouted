@@ -428,6 +428,9 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
 		for (CoreRoutedPipe pipe : adjacent.keySet()) {
 			if (pipe.stillNeedReplace()) {
+				// A neighbour that has not had its first tick yet, as after a chunk load: look again
+				// once it has, or it stays out of this router's adjacency until the next full refresh.
+				connectionNeedsChecking = 1;
 				return false;
 			}
 		}
