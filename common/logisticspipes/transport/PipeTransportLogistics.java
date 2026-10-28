@@ -384,7 +384,10 @@ public class PipeTransportLogistics {
 		}
 
 		if (value == null && !data.getDoNotBuffer() && data.getBufferCounter() < 5) {
-			itemBuffer.add(new BufferedItem(data.getItemIdentifierStack(), bufferTimeOut, data.getBufferCounter(), null));
+			// An item that already knows where it goes, say one arriving at a pipe whose chunk has
+			// just loaded, keeps that: buffered as a bare stack it would come back with no destination
+			LPTravelingItemServer keep = data.getDestinationUUID() != null ? data : null;
+			itemBuffer.add(new BufferedItem(data.getItemIdentifierStack(), bufferTimeOut, data.getBufferCounter(), keep));
 			return new RoutingResult(null, false);
 		}
 
