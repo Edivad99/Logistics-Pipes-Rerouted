@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:item_sink",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "reload": false,
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

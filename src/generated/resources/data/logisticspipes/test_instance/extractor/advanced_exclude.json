@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:extractor",
+  "environment": "logisticspipes:default",
+  "max_ticks": 1200,
+  "scenario": "advanced_exclude",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

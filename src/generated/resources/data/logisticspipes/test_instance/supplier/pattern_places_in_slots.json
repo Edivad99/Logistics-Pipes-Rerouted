@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:supplier",
+  "environment": "logisticspipes:default",
+  "max_ticks": 1000,
+  "scenario": "pattern_places_in_slots",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

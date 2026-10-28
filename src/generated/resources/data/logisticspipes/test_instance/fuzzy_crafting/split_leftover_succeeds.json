@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:fuzzy_crafting",
+  "environment": "logisticspipes:default",
+  "max_ticks": 800,
+  "scenario": "split_leftover_succeeds",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:firewall",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "blocks_power",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

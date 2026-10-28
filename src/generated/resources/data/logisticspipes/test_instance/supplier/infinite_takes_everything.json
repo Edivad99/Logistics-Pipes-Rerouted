@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:supplier",
+  "environment": "logisticspipes:default",
+  "max_ticks": 1000,
+  "scenario": "infinite_takes_everything",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

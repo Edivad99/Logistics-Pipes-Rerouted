@@ -1,0 +1,7 @@
+{
+  "type": "logisticspipes:power_junction_reload",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

@@ -61,9 +61,6 @@ public final class LogisticsPipesCommand {
             .then(dump())
             .then(bypass())
             .then(DebugCommand.build());
-        if (LogisticsPipes.isTesting()) {
-            root.then(TestsCommand.build());
-        }
 
         final LiteralCommandNode<CommandSourceStack> node = dispatcher.register(root);
         // The short form forwards to the same tree, so it never drifts out of step with it.

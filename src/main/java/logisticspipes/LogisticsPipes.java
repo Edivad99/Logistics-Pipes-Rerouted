@@ -1,8 +1,9 @@
 package logisticspipes;
 
-import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.function.Consumer;
+
+import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,12 +22,10 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 import com.mojang.logging.LogUtils;
 import lombok.Getter;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import logisticspipes.api.event.RegisterProgressProvidersEvent;
@@ -46,6 +45,8 @@ import logisticspipes.crafting.RegisterCraftingRecipeProvidersEvent;
 import logisticspipes.data.LPLanguageProvider;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.LPSpriteSourceProvider;
+import logisticspipes.data.gametest.LPGameTestInstances;
+import logisticspipes.data.gametest.LPTestEnvironments;
 import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
 import logisticspipes.entity.FakePlayers;
@@ -91,9 +92,6 @@ public class LogisticsPipes {
     private static final boolean DEBUG = !FMLEnvironment.isProduction();
     public static final Logger LOG = LogUtils.getLogger();
 
-    @Nullable
-    private Consumer<ServerStartedEvent> minecraftTestStartMethod = null;
-
     public LogisticsPipes(ModContainer modContainer, Dist dist) {
         NeoForge.EVENT_BUS.register(this);
 
@@ -121,6 +119,7 @@ public class LogisticsPipes {
         LPRecipeSerializers.register(modEventBus);
         LPDataComponents.register(modEventBus);
         LPAttachmentTypes.register(modEventBus);
+        LPGameTestInstances.register(modEventBus);
         if (ModList.get().isLoaded(LPConstants.COMPUTERCRAFT_MOD_ID)) {
             ComputerCraftIntegration.register(modEventBus);
         }
@@ -194,30 +193,6 @@ public class LogisticsPipes {
         for (int i = 0; i < LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt(); i++) {
             new RoutingTableUpdateThread(i);
         }
-
-        if (isTesting()) {
-            final Class<?> testClass;
-            try {
-                testClass = Class.forName("network.rs485.logisticspipes.integration.MinecraftTest");
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Error loading minecraft test class", e);
-            }
-            try {
-                final Object minecraftTestInstance = testClass.getDeclaredField("INSTANCE").get(null);
-                final Method serverStartMethod = testClass
-                    .getDeclaredMethod("serverStart", ServerStartedEvent.class);
-                minecraftTestStartMethod = (ServerStartedEvent serverStartedEvent) -> {
-                    try {
-                        serverStartMethod.invoke(minecraftTestInstance, serverStartedEvent);
-                    } catch (ReflectiveOperationException e) {
-                        throw new RuntimeException("Could not run server started hook in " + minecraftTestInstance, e);
-                    }
-                };
-                NeoForge.EVENT_BUS.register(minecraftTestInstance);
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException("Error accessing minecraft test instance", e);
-            }
-        }
     }
 
     private void handleLoadComplete(FMLLoadCompleteEvent event) {
@@ -231,16 +206,12 @@ public class LogisticsPipes {
         event.createProvider(LPSpriteSourceProvider::new);
         event.createProvider(LPModelProvider::new);
         event.createProvider(LPLanguageProvider::new);
+        event.createDatapackRegistryObjects(new RegistrySetBuilder()
+            .add(Registries.TEST_ENVIRONMENT, LPTestEnvironments::bootstrap)
+            .add(Registries.TEST_INSTANCE, LPGameTestInstances::bootstrap));
     }
 
     // NeoForge Events
-    @SubscribeEvent
-    public void serverStarted(ServerStartedEvent event) {
-        if (minecraftTestStartMethod != null) {
-            minecraftTestStartMethod.accept(event);
-        }
-    }
-
     @SubscribeEvent
     public void cleanup(ServerStoppingEvent event) {
         RouterManager.reset();

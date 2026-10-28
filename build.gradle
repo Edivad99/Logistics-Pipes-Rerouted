@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask
 
 plugins {
@@ -7,8 +6,6 @@ plugins {
     id 'eclipse'
     id 'net.neoforged.moddev' version "$mod_dev_gradle"
     id 'com.diffplug.spotless' version '8.0.0'
-    id 'org.jetbrains.kotlin.jvm' version "$kotlin_version"
-    id 'org.jetbrains.kotlin.plugin.lombok' version "$kotlin_version"
     id 'se.bjurr.gitchangelog.git-changelog-gradle-plugin' version '3.1.2'
     id 'me.modmuss50.mod-publish-plugin' version '2.2.0'
 }
@@ -38,13 +35,6 @@ java {
         if (System.getProperty('idea.active')) {
             vendor = JvmVendorSpec.JETBRAINS
         }
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_25)
-        freeCompilerArgs.add("-jvm-default=no-compatibility")
     }
 }
 
@@ -117,6 +107,8 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             gameDirectory = file('runs/gameTestServer')
+            // Turns some quietly logged inconsistencies into errors
+            systemProperty 'logisticspipes.test', 'true'
         }
     }
 
@@ -219,14 +211,8 @@ dependencies {
     localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758761"
     localRuntime "curse.maven:iron-tanks-236226:8786723"
 
-    testImplementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:$kotlinx_coroutines"
-    testImplementation "org.jetbrains.kotlin:kotlin-test:2.4.0"
-}
-
-kotlinLombok {
-    //noinspection GroovyAssignabilityCheck -- IDE misreads the decorated extension
-    lombokConfigurationFile file("lombok.config")
+    testImplementation "org.junit.jupiter:junit-jupiter:5.13.4"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher:1.13.4"
 }
 
 spotless {
