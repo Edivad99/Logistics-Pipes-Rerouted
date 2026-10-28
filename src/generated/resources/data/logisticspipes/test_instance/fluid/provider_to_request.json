@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:fluid",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "provider_to_request",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

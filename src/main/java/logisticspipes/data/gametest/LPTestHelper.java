@@ -168,7 +168,15 @@ public final class LPTestHelper {
      * not found yet.
      */
     public static void assertInterestedIn(GameTestHelper helper, CoreRoutedPipe pipe, Item item) {
-        if (!ServerRouter.getRoutersInterestedIn(ItemIdentifier.get(item)).get(pipe.getRouter().getSimpleID())) {
+        assertInterestedIn(helper, pipe, ItemIdentifier.get(item));
+    }
+
+    /**
+     * As {@link #assertInterestedIn(GameTestHelper, CoreRoutedPipe, Item)}, for an item that is
+     * more than its type: a fluid, say, which the network knows by its container's identifier.
+     */
+    public static void assertInterestedIn(GameTestHelper helper, CoreRoutedPipe pipe, ItemIdentifier item) {
+        if (!ServerRouter.getRoutersInterestedIn(item).get(pipe.getRouter().getSimpleID())) {
             throw helper.assertionException("%s is not interested in %s yet", describe(pipe), item);
         }
     }
