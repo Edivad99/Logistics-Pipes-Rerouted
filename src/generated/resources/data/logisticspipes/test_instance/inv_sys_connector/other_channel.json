@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:inv_sys_connector",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "other_channel",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

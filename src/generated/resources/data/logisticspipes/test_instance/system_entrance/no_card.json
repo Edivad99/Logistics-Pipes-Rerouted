@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:system_entrance",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "no_card",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

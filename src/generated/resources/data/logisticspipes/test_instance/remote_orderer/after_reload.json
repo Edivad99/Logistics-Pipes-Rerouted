@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:remote_orderer",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "after_reload",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

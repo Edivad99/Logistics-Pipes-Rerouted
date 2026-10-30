@@ -28,16 +28,19 @@ import logisticspipes.data.gametest.instances.FirewallTestInstance;
 import logisticspipes.data.gametest.instances.FluidTestInstance;
 import logisticspipes.data.gametest.instances.FuzzyCraftingTestInstance;
 import logisticspipes.data.gametest.instances.InTransitReloadTestInstance;
+import logisticspipes.data.gametest.instances.InvSysConnectorTestInstance;
 import logisticspipes.data.gametest.instances.ItemSinkTestInstance;
 import logisticspipes.data.gametest.instances.MissingItemsTestInstance;
 import logisticspipes.data.gametest.instances.NetworkSplitTestInstance;
 import logisticspipes.data.gametest.instances.PowerJunctionReloadTestInstance;
 import logisticspipes.data.gametest.instances.ProviderOptionsTestInstance;
 import logisticspipes.data.gametest.instances.ProviderToRequestTestInstance;
+import logisticspipes.data.gametest.instances.RemoteOrdererTestInstance;
 import logisticspipes.data.gametest.instances.SatelliteCraftingTestInstance;
 import logisticspipes.data.gametest.instances.SinkPriorityTestInstance;
 import logisticspipes.data.gametest.instances.SinkVariantsTestInstance;
 import logisticspipes.data.gametest.instances.SupplierTestInstance;
+import logisticspipes.data.gametest.instances.SystemEntranceTestInstance;
 import logisticspipes.data.gametest.instances.TwoProvidersTestInstance;
 
 /**
@@ -77,6 +80,9 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("sink_priority", () -> SinkPriorityTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("crafter_cleanup", () -> CrafterCleanupTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("crafter_byproduct", () -> CrafterByproductTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("system_entrance", () -> SystemEntranceTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("inv_sys_connector", () -> InvSysConnectorTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("remote_orderer", () -> RemoteOrdererTestInstance.CODEC);
     }
 
     public static void bootstrap(BootstrapContext<GameTestInstance> bootstrap) {
@@ -95,6 +101,18 @@ public class LPGameTestInstances {
         for (var variant : SinkVariantsTestInstance.Variant.values()) {
             registerTestInstance(bootstrap, "sink/" + variant.getSerializedName(),
                 info -> new SinkVariantsTestInstance(variant, info));
+        }
+        for (var scenario : InvSysConnectorTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "inv_sys_connector/" + scenario.getSerializedName(),
+                info -> new InvSysConnectorTestInstance(scenario, info));
+        }
+        for (var scenario : RemoteOrdererTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "remote_orderer/" + scenario.getSerializedName(),
+                info -> new RemoteOrdererTestInstance(scenario, info));
+        }
+        for (var scenario : SystemEntranceTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "system_entrance/" + scenario.getSerializedName(),
+                info -> new SystemEntranceTestInstance(scenario, info));
         }
         for (var scenario : SinkPriorityTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "sink_priority/" + scenario.getSerializedName(),
