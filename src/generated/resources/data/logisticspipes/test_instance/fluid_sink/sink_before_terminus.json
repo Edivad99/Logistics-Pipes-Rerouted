@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:fluid_sink",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "sink_before_terminus",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

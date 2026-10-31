@@ -26,6 +26,8 @@ import logisticspipes.data.gametest.instances.CrafterCleanupTestInstance;
 import logisticspipes.data.gametest.instances.ExtractorTestInstance;
 import logisticspipes.data.gametest.instances.FEPowerSupplierTestInstance;
 import logisticspipes.data.gametest.instances.FirewallTestInstance;
+import logisticspipes.data.gametest.instances.FluidSinkTestInstance;
+import logisticspipes.data.gametest.instances.FluidSupplierTestInstance;
 import logisticspipes.data.gametest.instances.FluidTestInstance;
 import logisticspipes.data.gametest.instances.FuzzyCraftingTestInstance;
 import logisticspipes.data.gametest.instances.InTransitReloadTestInstance;
@@ -80,6 +82,7 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("extractor", () -> ExtractorTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("satellite_crafting", () -> SatelliteCraftingTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("fluid", () -> FluidTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("fluid_sink", () -> FluidSinkTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("sink_priority", () -> SinkPriorityTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("crafter_cleanup", () -> CrafterCleanupTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("crafter_byproduct", () -> CrafterByproductTestInstance.CODEC);
@@ -88,6 +91,7 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("request_table", () -> RequestTableTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("inv_sys_connector", () -> InvSysConnectorTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("remote_orderer", () -> RemoteOrdererTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("fluid_supplier", () -> FluidSupplierTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("fe_power_supplier", () -> FEPowerSupplierTestInstance.CODEC);
     }
 
@@ -163,6 +167,14 @@ public class LPGameTestInstances {
         for (var scenario : FluidTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "fluid/" + scenario.getSerializedName(),
                 info -> new FluidTestInstance(scenario, info));
+        }
+        for (var scenario : FluidSinkTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "fluid_sink/" + scenario.getSerializedName(),
+                info -> new FluidSinkTestInstance(scenario, info));
+        }
+        for (var scenario : FluidSupplierTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "fluid_supplier/" + scenario.getSerializedName(), 800,
+                info -> new FluidSupplierTestInstance(scenario, info));
         }
         for (var scenario : SatelliteCraftingTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "satellite_crafting/" + scenario.getSerializedName(), 800,
