@@ -37,6 +37,7 @@ import logisticspipes.data.gametest.instances.PowerJunctionReloadTestInstance;
 import logisticspipes.data.gametest.instances.ProviderOptionsTestInstance;
 import logisticspipes.data.gametest.instances.ProviderToRequestTestInstance;
 import logisticspipes.data.gametest.instances.RemoteOrdererTestInstance;
+import logisticspipes.data.gametest.instances.RequestTableTestInstance;
 import logisticspipes.data.gametest.instances.SatelliteCraftingTestInstance;
 import logisticspipes.data.gametest.instances.SinkPriorityTestInstance;
 import logisticspipes.data.gametest.instances.SinkVariantsTestInstance;
@@ -84,6 +85,7 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("crafter_byproduct", () -> CrafterByproductTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("system_entrance", () -> SystemEntranceTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("sneaky_upgrade", () -> SneakyUpgradeTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("request_table", () -> RequestTableTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("inv_sys_connector", () -> InvSysConnectorTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("remote_orderer", () -> RemoteOrdererTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("fe_power_supplier", () -> FEPowerSupplierTestInstance.CODEC);
@@ -105,6 +107,10 @@ public class LPGameTestInstances {
         for (var variant : SinkVariantsTestInstance.Variant.values()) {
             registerTestInstance(bootstrap, "sink/" + variant.getSerializedName(),
                 info -> new SinkVariantsTestInstance(variant, info));
+        }
+        for (var scenario : RequestTableTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "request_table/" + scenario.getSerializedName(),
+                info -> new RequestTableTestInstance(scenario, info));
         }
         for (var scenario : InvSysConnectorTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "inv_sys_connector/" + scenario.getSerializedName(),
