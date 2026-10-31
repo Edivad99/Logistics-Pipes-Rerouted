@@ -1,4 +1,4 @@
-package logisticspipes.logistics;
+package logisticspipes.routing.sink;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,9 +11,9 @@ import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import logisticspipes.TestBootstrap;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.item.ItemIdentifier;
-import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

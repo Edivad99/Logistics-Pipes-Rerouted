@@ -10,11 +10,11 @@ import net.minecraft.core.Direction;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.logistics.ItemSinkFinder;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
+import logisticspipes.routing.sink.ItemSinkFinder;
 
 /**
  * @author Krapht This class is responsible for resolving where incoming items

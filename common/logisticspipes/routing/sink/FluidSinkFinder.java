@@ -1,4 +1,4 @@
-package logisticspipes.logistics;
+package logisticspipes.routing.sink;
 
 import java.util.List;
 import java.util.Optional;
