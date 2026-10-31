@@ -24,6 +24,7 @@ import logisticspipes.data.gametest.instances.ChainedCraftingTestInstance;
 import logisticspipes.data.gametest.instances.CrafterByproductTestInstance;
 import logisticspipes.data.gametest.instances.CrafterCleanupTestInstance;
 import logisticspipes.data.gametest.instances.ExtractorTestInstance;
+import logisticspipes.data.gametest.instances.FEPowerSupplierTestInstance;
 import logisticspipes.data.gametest.instances.FirewallTestInstance;
 import logisticspipes.data.gametest.instances.FluidTestInstance;
 import logisticspipes.data.gametest.instances.FuzzyCraftingTestInstance;
@@ -39,6 +40,7 @@ import logisticspipes.data.gametest.instances.RemoteOrdererTestInstance;
 import logisticspipes.data.gametest.instances.SatelliteCraftingTestInstance;
 import logisticspipes.data.gametest.instances.SinkPriorityTestInstance;
 import logisticspipes.data.gametest.instances.SinkVariantsTestInstance;
+import logisticspipes.data.gametest.instances.SneakyUpgradeTestInstance;
 import logisticspipes.data.gametest.instances.SupplierTestInstance;
 import logisticspipes.data.gametest.instances.SystemEntranceTestInstance;
 import logisticspipes.data.gametest.instances.TwoProvidersTestInstance;
@@ -81,8 +83,10 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("crafter_cleanup", () -> CrafterCleanupTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("crafter_byproduct", () -> CrafterByproductTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("system_entrance", () -> SystemEntranceTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("sneaky_upgrade", () -> SneakyUpgradeTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("inv_sys_connector", () -> InvSysConnectorTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("remote_orderer", () -> RemoteOrdererTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("fe_power_supplier", () -> FEPowerSupplierTestInstance.CODEC);
     }
 
     public static void bootstrap(BootstrapContext<GameTestInstance> bootstrap) {
@@ -109,6 +113,14 @@ public class LPGameTestInstances {
         for (var scenario : RemoteOrdererTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "remote_orderer/" + scenario.getSerializedName(),
                 info -> new RemoteOrdererTestInstance(scenario, info));
+        }
+        for (var scenario : FEPowerSupplierTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "fe_power_supplier/" + scenario.getSerializedName(),
+                info -> new FEPowerSupplierTestInstance(scenario, info));
+        }
+        for (var scenario : SneakyUpgradeTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "sneaky_upgrade/" + scenario.getSerializedName(),
+                info -> new SneakyUpgradeTestInstance(scenario, info));
         }
         for (var scenario : SystemEntranceTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "system_entrance/" + scenario.getSerializedName(),

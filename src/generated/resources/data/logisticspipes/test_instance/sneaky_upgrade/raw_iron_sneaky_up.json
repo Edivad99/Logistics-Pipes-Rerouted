@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:sneaky_upgrade",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "raw_iron_sneaky_up",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}

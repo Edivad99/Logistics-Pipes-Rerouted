@@ -99,16 +99,27 @@ public final class LPTestHelper {
      * Puts {@code upgrade} in the first free upgrade slot of {@code pipe}.
      */
     public static void addUpgrade(CoreRoutedPipe pipe, String upgradeName) {
-        var upgrade = BuiltInRegistries.ITEM.getValue(LPItems.upgrades.get(upgradeName));
+        addUpgrade(pipe, upgradeStack(upgradeName));
+    }
+
+    /**
+     * Puts {@code upgrade} in the first free upgrade slot of {@code pipe}, as it is: for an upgrade
+     * that carries its configuration on the stack.
+     */
+    public static void addUpgrade(CoreRoutedPipe pipe, ItemStack upgrade) {
         var upgrades = ((UpgradeManager) pipe.getUpgradeManager()).inv;
         for (int i = 0; i < upgrades.getContainerSize(); i++) {
             if (upgrades.getItem(i).isEmpty()) {
-                upgrades.setItem(i, new ItemStack(upgrade));
+                upgrades.setItem(i, upgrade);
                 upgrades.setChanged();
                 return;
             }
         }
         throw new IllegalStateException("No free upgrade slot on " + describe(pipe));
+    }
+
+    public static ItemStack upgradeStack(String upgradeName) {
+        return new ItemStack(BuiltInRegistries.ITEM.getValue(LPItems.upgrades.get(upgradeName)));
     }
 
     /**

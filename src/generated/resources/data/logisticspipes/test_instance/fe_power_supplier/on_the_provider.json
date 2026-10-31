@@ -1,0 +1,8 @@
+{
+  "type": "logisticspipes:fe_power_supplier",
+  "environment": "logisticspipes:default",
+  "max_ticks": 400,
+  "scenario": "on_the_provider",
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}
