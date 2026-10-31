@@ -14,8 +14,8 @@ import com.supermartijn642.tesseract.manager.TesseractReference;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.connection.special.ISpecialBlockEntityConnection;
-import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;

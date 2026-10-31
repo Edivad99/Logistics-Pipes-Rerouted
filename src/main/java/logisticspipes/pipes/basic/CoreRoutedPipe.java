@@ -75,12 +75,6 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
-import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
-import logisticspipes.logisticspipes.ITrackStatistics;
-import logisticspipes.logisticspipes.PipeTransportLayer;
-import logisticspipes.logisticspipes.RouteLayer;
-import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.TargetLookup;
@@ -101,6 +95,11 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
+import logisticspipes.routing.item.DeliveryHandler;
+import logisticspipes.routing.item.IRoutedItem;
+import logisticspipes.routing.item.IRoutedItem.TransportMode;
+import logisticspipes.routing.item.PipeDeliveryHandler;
+import logisticspipes.routing.item.RouteResolver;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.routing.order.LogisticsOrderManager;
@@ -125,7 +124,7 @@ import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe
-    implements IRequestItems, ITrackStatistics, ILevelProvider, IWatchingHandler, IPipeServiceProvider,
+    implements IRequestItems, ILevelProvider, IWatchingHandler, IPipeServiceProvider,
     ILPPositionProvider {
 
     private static int PIPE_COUNT = 0;
@@ -154,9 +153,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     protected int delayOffset;
     protected boolean initialInit = true;
     @Nullable
-    protected RouteLayer routeLayer;
+    protected RouteResolver routeResolver;
     @Nullable
-    protected TransportLayer transportLayer;
+    protected DeliveryHandler deliveryHandler;
     @Nullable
     protected LogisticsItemOrderManager orderItemManager = null;
     protected int throttleTime = 20;
@@ -227,18 +226,18 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
     }
 
-    public RouteLayer getRouteLayer() {
-        if (routeLayer == null) {
-            routeLayer = new RouteLayer(getRouter(), getTransportLayer(), this);
+    public RouteResolver getRouteResolver() {
+        if (routeResolver == null) {
+            routeResolver = new RouteResolver(getRouter(), getDeliveryHandler(), this);
         }
-        return routeLayer;
+        return routeResolver;
     }
 
-    public TransportLayer getTransportLayer() {
-        if (transportLayer == null) {
-            transportLayer = new PipeTransportLayer(this, this, getRouter());
+    public DeliveryHandler getDeliveryHandler() {
+        if (deliveryHandler == null) {
+            deliveryHandler = new PipeDeliveryHandler(this, getRouter());
         }
-        return transportLayer;
+        return deliveryHandler;
     }
 
     @Override
@@ -899,15 +898,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
     }
 
-    /* ITrackStatistics */
-    @Override
     public void receivedItem(int count) {
         sessionCounts = sessionCounts.plusReceived(count);
         lifetimeCounts = lifetimeCounts.plusReceived(count);
         updateStats();
     }
 
-    @Override
     public void relayedItem(int count) {
         sessionCounts = sessionCounts.plusRelayed(count);
         lifetimeCounts = lifetimeCounts.plusRelayed(count);

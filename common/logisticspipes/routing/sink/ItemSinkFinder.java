@@ -12,8 +12,6 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -22,6 +20,8 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
+import logisticspipes.routing.item.IRoutedItem;
+import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;

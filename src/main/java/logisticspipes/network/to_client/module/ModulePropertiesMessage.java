@@ -16,10 +16,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.api.property.PropertyHolder;
-import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.ModuleTarget;
+import logisticspipes.world.item.ItemModule;
 
 /**
  * A module's properties, as the server has them.
@@ -59,7 +59,7 @@ public record ModulePropertiesMessage(ModuleTarget target, CompoundTag propertie
         module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, message.properties));
         if (message.target.slot().filter(ModulePositionType::isInWorld).isEmpty()
             && context.player().containerMenu instanceof InventoryMenu) {
-            ItemModuleInformationManager.saveInformation(context.player().level(),
+            ItemModule.saveModuleData(context.player().level(),
                 context.player().getInventory().getItem(message.target.positionInt()), module, registries);
             context.player().getInventory().setChanged();
         }

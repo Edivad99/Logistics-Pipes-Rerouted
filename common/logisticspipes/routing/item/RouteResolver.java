@@ -4,31 +4,31 @@
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
  */
 
-package logisticspipes.logisticspipes;
+package logisticspipes.routing.item;
 
 import net.minecraft.core.Direction;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
+import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.routing.sink.ItemSinkFinder;
 
 /**
  * @author Krapht This class is responsible for resolving where incoming items
  * should go.
  */
-public class RouteLayer {
+public class RouteResolver {
 
 	protected final IRouter router;
-	private final TransportLayer transport;
+	private final DeliveryHandler deliveryHandler;
 	private final CoreRoutedPipe pipe;
 
-	public RouteLayer(IRouter router, TransportLayer transportLayer, CoreRoutedPipe pipe) {
+	public RouteResolver(IRouter router, DeliveryHandler deliveryHandler, CoreRoutedPipe pipe) {
 		this.router = router;
-		transport = transportLayer;
+		this.deliveryHandler = deliveryHandler;
 		this.pipe = pipe;
 	}
 
@@ -56,20 +56,20 @@ public class RouteLayer {
 		// Are we the destination? Deliver it
 		if (router.getId().equals(item.getDestinationUUID())) {
 
-			transport.handleItem(item);
+			deliveryHandler.handleItem(item);
 
 			if (item.getDistanceTracker() != null) {
 				item.getDistanceTracker().setCurrentDistanceToTarget(0);
 				item.getDistanceTracker().setDestinationReached();
 			}
 
-			if (item.getTransportMode() != TransportMode.Active && !transport.stillWantItem(item)) {
+			if (item.getTransportMode() != TransportMode.Active && !deliveryHandler.stillWantItem(item)) {
 				return getOrientationForItem(ItemSinkFinder.assignDestinationFor(item, router.getSimpleID(), true), null);
 			}
 
 			item.setDoNotBuffer(true);
 			item.setArrived(true);
-			return transport.itemArrived(item, blocked);
+			return deliveryHandler.itemArrived(item, blocked);
 		}
 
 		//Do we now know the destination?

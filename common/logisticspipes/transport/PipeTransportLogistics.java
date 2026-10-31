@@ -50,8 +50,6 @@ import logisticspipes.interfaces.routing.ITargetSlotInformation;
 import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.inventory.transactor.ITransactor;
-import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
-import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.PipeItemBufferMessage;
@@ -59,12 +57,14 @@ import logisticspipes.network.to_client.pipe.TravellingItemContentMessage;
 import logisticspipes.network.to_client.pipe.TravellingItemPositionMessage;
 import logisticspipes.network.to_server.pipe.RequestPipeContentMessage;
 import logisticspipes.pipes.PipeItemsFluidSupplier;
-import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.PipeLogisticsChassis;
+import logisticspipes.pipes.PipeLogisticsChassis.ChassiTargetInformation;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.item.IRoutedItem;
+import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.PipeInformationManager;
 import logisticspipes.ticks.LPTickHandler;
@@ -377,7 +377,7 @@ public class PipeTransportLogistics {
 			data.setDoNotBuffer(false);
 			value = null;
 		} else {
-			value = getRoutedPipe().getRouteLayer().getOrientationForItem(data, blocked);
+			value = getRoutedPipe().getRouteResolver().getOrientationForItem(data, blocked);
 		}
 		if (value == null && getWorld().isClientSide()) {
 			return new RoutingResult(null, true);
@@ -516,7 +516,7 @@ public class PipeTransportLogistics {
 					return;
 				}
 				// last chance for chassi to back out
-				if (arrivingItem.getTransportMode() != TransportMode.Active && !getRoutedPipe().getTransportLayer().stillWantItem(arrivingItem)) {
+				if (arrivingItem.getTransportMode() != TransportMode.Active && !getRoutedPipe().getDeliveryHandler().stillWantItem(arrivingItem)) {
 					reverseItem(arrivingItem);
 					return;
 				}

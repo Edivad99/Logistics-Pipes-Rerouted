@@ -9,11 +9,11 @@ import net.minecraft.world.inventory.Slot;
 import lombok.Getter;
 
 import logisticspipes.interfaces.IScreenOpenController;
-import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.utils.gui.UnmodifiableSlot;
+import logisticspipes.world.item.ItemModule;
 
 /**
  * A module's settings screen.
@@ -71,7 +71,7 @@ public abstract class ModuleMenu extends DummyMenu {
             controller.screenClosedByPlayer(player);
         }
         if (heldInHand()) {
-            ItemModuleInformationManager.saveInformation(player.level(),
+            ItemModule.saveModuleData(player.level(),
                 player.getInventory().getItem(target.positionInt()), module, player.registryAccess());
             player.getInventory().setChanged();
         }

@@ -1,4 +1,4 @@
-package logisticspipes.logisticspipes;
+package logisticspipes.routing.item;
 
 import java.util.LinkedList;
 import java.util.Objects;
@@ -19,22 +19,20 @@ import logisticspipes.routing.IRouter;
  *
  * @author Krapht
  */
-public class PipeTransportLayer extends TransportLayer {
+public class PipeDeliveryHandler extends DeliveryHandler {
 
 	private final CoreRoutedPipe routedPipe;
-	private final ITrackStatistics trackStatistics;
 	private final IRouter router;
 
-	public PipeTransportLayer(CoreRoutedPipe routedPipe, ITrackStatistics trackStatistics, IRouter router) {
+	public PipeDeliveryHandler(CoreRoutedPipe routedPipe, IRouter router) {
 		this.routedPipe = routedPipe;
-		this.trackStatistics = trackStatistics;
 		this.router = router;
 	}
 
 	@Override
 	public @Nullable Direction itemArrived(IRoutedItem item, @Nullable Direction denied) {
 		if (item.getItemIdentifierStack() != null) {
-			trackStatistics.receivedItem(item.getItemIdentifierStack().getStackSize());
+			routedPipe.receivedItem(item.getItemIdentifierStack().getStackSize());
 		}
 
 		// 1st priority, deliver to adjacent inventories

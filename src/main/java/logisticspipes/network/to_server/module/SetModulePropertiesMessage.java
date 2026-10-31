@@ -17,11 +17,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.api.property.PropertyHolder;
-import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ModulePropertiesMessage;
+import logisticspipes.world.item.ItemModule;
 
 /**
  * The properties the player changed in a module's GUI.
@@ -63,7 +63,7 @@ public record SetModulePropertiesMessage(ModuleTarget target, CompoundTag proper
         module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, message.properties));
         if (message.target.slot().filter(ModulePositionType::isInWorld).isEmpty()) {
             // A module held in hand lives in the item stack, so its properties have to go back into it.
-            ItemModuleInformationManager.saveInformation(player.level(),
+            ItemModule.saveModuleData(player.level(),
                 player.getInventory().getItem(message.target.positionInt()), module, registries);
             player.getInventory().setChanged();
         }

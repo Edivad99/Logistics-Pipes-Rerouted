@@ -5,7 +5,7 @@
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
  */
 
-package logisticspipes.logisticspipes;
+package logisticspipes.routing.item;
 
 import java.util.List;
 import java.util.UUID;

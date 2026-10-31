@@ -1,34 +1,42 @@
 package logisticspipes.world.item;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.IClientInformationProvider;
 import logisticspipes.interfaces.ILevelProvider;
 import logisticspipes.interfaces.IModuleMenuProvider;
 import logisticspipes.interfaces.IPipeServiceProvider;
-import logisticspipes.logisticspipes.ItemModuleInformationManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
@@ -65,8 +73,81 @@ public class ItemModule extends LogisticsItem {
             return null;
         }
         module.registerPosition(ModulePositionType.IN_HAND, invSlot);
-        ItemModuleInformationManager.readInformation(item, module);
+        loadModuleData(item, module);
         return module;
+    }
+
+    /**
+     * Stores a module's configuration on its item stack, with the lines it shows in the tooltip.
+     */
+    public static void saveModuleData(Level level, ItemStack stack, @Nullable LogisticsModule module,
+        HolderLookup.Provider provider) {
+        if (module == null) {
+            return;
+        }
+        // The module writes through a ValueOutput; this path stores the result on an ItemStack as a
+        // raw tag, so TagValueOutput is the adapter between the two.
+        TagValueOutput moduleOutput = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, provider);
+        module.serialize(moduleOutput);
+        CompoundTag nbt = moduleOutput.buildResult();
+        if (nbt.isEmpty()) {
+            return;
+        }
+        if (level.isClientSide()) {
+            ListTag list = new ListTag();
+            String info1 = "Please reopen the window";
+            String info2 = "to see the information.";
+            list.add(StringTag.valueOf(info1));
+            list.add(StringTag.valueOf(info2));
+            stack.update(
+                DataComponents.CUSTOM_DATA,
+                CustomData.EMPTY,
+                customData -> {
+                    CompoundTag tag = customData.copyTag();
+                    tag.put("informationList", list);
+                    tag.putDouble("Random-Stack-Prevent", new Random().nextDouble());
+                    return CustomData.of(tag);
+                }
+            );
+            return;
+        }
+        stack.update(
+            DataComponents.CUSTOM_DATA,
+            CustomData.EMPTY,
+            customData -> {
+                CompoundTag tag = customData.copyTag();
+                tag.put("moduleInformation", nbt);
+                if (module instanceof IClientInformationProvider informationProvider) {
+                    List<String> information = informationProvider.getClientInformation();
+                    if (!information.isEmpty()) {
+                        ListTag list = new ListTag();
+                        for (String info : information) {
+                            list.add(StringTag.valueOf(info));
+                        }
+                        tag.put("informationList", list);
+                    }
+                }
+                tag.putDouble("Random-Stack-Prevent", new Random().nextDouble());
+                return CustomData.of(tag);
+            }
+        );
+    }
+
+    /**
+     * Restores a module's configuration from the item stack it was saved on, if there is any.
+     */
+    public static void loadModuleData(ItemStack stack, @Nullable LogisticsModule module) {
+        if (module == null) {
+            return;
+        }
+        if (stack.has(DataComponents.CUSTOM_DATA)) {
+            CompoundTag nbt = Objects.requireNonNull(stack.get(DataComponents.CUSTOM_DATA)).copyTag();
+            if (nbt.contains("moduleInformation")) {
+                CompoundTag moduleInformation = nbt.getCompoundOrEmpty("moduleInformation");
+                module.deserialize(TagValueInput.create(ProblemReporter.DISCARDING,
+                    module.getLevel().registryAccess(), moduleInformation));
+            }
+        }
     }
 
     private void openConfigGui(ItemStack stack, Player player, Level level) {
@@ -75,7 +156,7 @@ public class ItemModule extends LogisticsItem {
             return;
         }
         module.registerPosition(ModulePositionType.IN_HAND, player.getInventory().getSelectedSlot());
-        ItemModuleInformationManager.readInformation(stack, module);
+        loadModuleData(stack, module);
         if (player instanceof ServerPlayer serverPlayer) {
             IModuleMenuProvider.open(serverPlayer, module);
         }

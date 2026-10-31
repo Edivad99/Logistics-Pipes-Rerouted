@@ -23,18 +23,18 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
-import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.routing.RouterManager;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.RouterManager;
+import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.order.IDistanceTracker;
 import logisticspipes.utils.DirectionUtil;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.SlidingWindowBitSet;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.LogisticsFluidContainer;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public abstract class LPTravelingItem {
 

@@ -6,9 +6,9 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.connection.Adjacent;
 import logisticspipes.api.provider.IRoutedPowerProvider;
-import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.debug.DebugLogController;
+import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.item.ItemIdentifier;

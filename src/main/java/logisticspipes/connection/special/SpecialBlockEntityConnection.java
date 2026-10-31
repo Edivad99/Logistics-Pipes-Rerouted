@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.routing.item.IRoutedItem;
 
 public final class SpecialBlockEntityConnection {
 

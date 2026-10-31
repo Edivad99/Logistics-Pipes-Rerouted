@@ -1,4 +1,4 @@
-package logisticspipes.logisticspipes;
+package logisticspipes.routing.item;
 
 import net.minecraft.core.Direction;
 
@@ -9,11 +9,11 @@ import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-public class ChassisTransportLayer extends TransportLayer {
+public class ChassisDeliveryHandler extends DeliveryHandler {
 
 	private final PipeLogisticsChassis chassisPipe;
 
-	public ChassisTransportLayer(PipeLogisticsChassis chassisPipe) {
+	public ChassisDeliveryHandler(PipeLogisticsChassis chassisPipe) {
 		this.chassisPipe = chassisPipe;
 	}
 

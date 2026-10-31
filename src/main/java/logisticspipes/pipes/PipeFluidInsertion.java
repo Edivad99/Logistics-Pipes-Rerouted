@@ -9,9 +9,9 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
+import logisticspipes.routing.item.IRoutedItem;
+import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.routing.sink.FluidSinkFinder;
 import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;

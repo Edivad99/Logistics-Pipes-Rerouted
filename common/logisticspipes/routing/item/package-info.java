@@ -1,4 +1,4 @@
 @NullMarked
-package logisticspipes.logisticspipes;
+package logisticspipes.routing.item;
 
 import org.jspecify.annotations.NullMarked;

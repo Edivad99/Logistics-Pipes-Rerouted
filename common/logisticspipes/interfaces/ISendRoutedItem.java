@@ -6,9 +6,9 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
-import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.routing.IRouter;
+import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.utils.SinkReply;
 
 public interface ISendRoutedItem {

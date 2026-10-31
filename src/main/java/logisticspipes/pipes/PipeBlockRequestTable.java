@@ -44,8 +44,6 @@ import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.IScreenOpenController;
-import logisticspipes.logisticspipes.IRoutedItem;
-import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
 import logisticspipes.network.to_client.orderer.OrderWatchMessage;
 import logisticspipes.network.to_client.orderer.OrdererWatchRemoveMessage;
@@ -53,6 +51,8 @@ import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.resources.IResource;
+import logisticspipes.routing.item.DeliveryHandler;
+import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.routing.sink.ItemSinkFinder;
@@ -216,7 +216,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
             IRoutedItem itemToSend = new LPTravelingItemServer(stack);
             ItemSinkFinder.assignDestinationFor(itemToSend, getRouter().getSimpleID(), false);
             if (itemToSend.getDestinationUUID() != null) {
-                Direction dir = getRouteLayer().getOrientationForItem(itemToSend, null);
+                Direction dir = getRouteResolver().getOrientationForItem(itemToSend, null);
                 super.queueRoutedItem(itemToSend, dir.getOpposite());
                 spawnParticle(Particles.ORANGE_SPARKLE, 4);
                 toSortInv.clearInventorySlotContents(0);
@@ -543,9 +543,9 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     }
 
     @Override
-    public TransportLayer getTransportLayer() {
-        if (transportLayer == null) {
-            transportLayer = new TransportLayer() {
+    public DeliveryHandler getDeliveryHandler() {
+        if (deliveryHandler == null) {
+            deliveryHandler = new DeliveryHandler() {
 
                 @Override
                 public void handleItem(IRoutedItem item) {
@@ -567,7 +567,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
                 }
             };
         }
-        return transportLayer;
+        return deliveryHandler;
     }
 
     @Override

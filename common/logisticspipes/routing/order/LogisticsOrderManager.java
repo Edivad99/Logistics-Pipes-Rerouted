@@ -23,8 +23,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
-import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.network.to_client.pipe.PipeOrdersMessage;
+import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;

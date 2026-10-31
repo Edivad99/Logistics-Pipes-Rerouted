@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import logisticspipes.logisticspipes.IRoutedItem;
+import logisticspipes.routing.item.IRoutedItem;
 
 public interface ISpecialBlockEntityConnection {
 

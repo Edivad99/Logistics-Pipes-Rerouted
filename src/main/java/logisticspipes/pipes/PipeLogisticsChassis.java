@@ -61,9 +61,6 @@ import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
 import logisticspipes.inventory.IInventoryUtil;
-import logisticspipes.logisticspipes.ChassisTransportLayer;
-import logisticspipes.logisticspipes.ItemModuleInformationManager;
-import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.modules.ChassisModule;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.LogisticsModule.ModulePositionType;
@@ -86,6 +83,8 @@ import logisticspipes.request.RequestTreeNode;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.LogisticsPromise;
+import logisticspipes.routing.item.ChassisDeliveryHandler;
+import logisticspipes.routing.item.DeliveryHandler;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrder;
 import logisticspipes.routing.order.LogisticsOrder;
@@ -246,7 +245,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
                 Item item = BuiltInRegistries.ITEM.getValue(resourceLocation);
                 moduleStack = new ItemStack(item);
             }
-            ItemModuleInformationManager.saveInformation(getLevel(), moduleStack, module, provider);
+            ItemModule.saveModuleData(getLevel(), moduleStack, module, provider);
             moduleInventory.setItem(slottedModule.slot(), moduleStack);
         });
     }
@@ -390,7 +389,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
                 if (current != next) {
                     module.installModule(i, next);
                     if (level != null && !level.isClientSide()) {
-                        ItemModuleInformationManager.readInformation(stack, next);
+                        ItemModule.loadModuleData(stack, next);
                     }
                     next.finishInit();
                 }
@@ -429,11 +428,11 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     }
 
     @Override
-    public TransportLayer getTransportLayer() {
-        if (transportLayer == null) {
-            transportLayer = new ChassisTransportLayer(this);
+    public DeliveryHandler getDeliveryHandler() {
+        if (deliveryHandler == null) {
+            deliveryHandler = new ChassisDeliveryHandler(this);
         }
-        return transportLayer;
+        return deliveryHandler;
     }
 
     private boolean tryInsertingModule(Player entityplayer) {

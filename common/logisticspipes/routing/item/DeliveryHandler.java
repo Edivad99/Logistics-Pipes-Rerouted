@@ -5,7 +5,7 @@
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
  */
 
-package logisticspipes.logisticspipes;
+package logisticspipes.routing.item;
 
 import net.minecraft.core.Direction;
 
@@ -16,7 +16,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @author Krapht
  */
-public abstract class TransportLayer {
+public abstract class DeliveryHandler {
 
 	public abstract boolean stillWantItem(IRoutedItem item);
 
