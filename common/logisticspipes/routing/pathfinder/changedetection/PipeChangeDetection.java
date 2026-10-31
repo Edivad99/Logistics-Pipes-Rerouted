@@ -12,7 +12,7 @@ import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
-public class TEControl {
+public class PipeChangeDetection {
 
     /**
      * Called from {@link LogisticsGenericPipeBlockEntity#onLoad()}.
@@ -53,7 +53,7 @@ public class TEControl {
                         PipeInformationManager.getInformationProviderFor(tile)
                             .refreshTileCacheOnSide(dir.getOpposite());
                     }
-                    for (ITileEntityChangeListener listener : new ArrayList<>(nextPipe.changeListeners)) {
+                    for (IBlockEntityChangeListener listener : new ArrayList<>(nextPipe.changeListeners)) {
                         listener.pipeAdded(pos, dir.getOpposite());
                     }
                 }
@@ -91,7 +91,7 @@ public class TEControl {
                     }
                 }
             }
-            for (ITileEntityChangeListener listener : new ArrayList<>(tile.changeListeners)) {
+            for (IBlockEntityChangeListener listener : new ArrayList<>(tile.changeListeners)) {
                 listener.pipeRemoved(pos);
             }
             return null;

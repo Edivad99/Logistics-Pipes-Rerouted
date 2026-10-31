@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,17 +10,17 @@ import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestItems;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.request.resources.DictResource;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsItemOrder, DictResource.Identifier> {
+public class ItemOrderManager extends OrderManager<ItemOrder, DictResource.Identifier> {
 
-	private static class IC implements LogisticsOrderLinkedList.IIdentityProvider<LogisticsItemOrder, DictResource.Identifier> {
+	private static class IC implements OrderQueue.IIdentityProvider<ItemOrder, DictResource.Identifier> {
 
 		@Override
-		public DictResource.Identifier getIdentity(LogisticsItemOrder o) {
+		public DictResource.Identifier getIdentity(ItemOrder o) {
 			if (o == null || o.getResource() == null) {
 				return null;
 			}
@@ -28,25 +28,25 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 		}
 
 		@Override
-		public boolean isExtra(LogisticsItemOrder o) {
-			return o instanceof LogisticsItemOrderExtra;
+		public boolean isExtra(ItemOrder o) {
+			return o instanceof ExtraItemOrder;
 		}
 	}
 
-	private static class LogisticsItemOrderExtra extends LogisticsItemOrder {
+	private static class ExtraItemOrder extends ItemOrder {
 
-		public LogisticsItemOrderExtra(DictResource item, @Nullable IRequestItems destination, ResourceType type,
+		public ExtraItemOrder(DictResource item, @Nullable IRequestItems destination, ResourceType type,
 				@Nullable IAdditionalTargetInformation info) {
 			super(item, destination, type, info);
 		}
 	}
 
-	public LogisticsItemOrderManager(ILPPositionProvider pos) {
-		super(new LogisticsOrderLinkedList<>(new IC()), pos);
+	public ItemOrderManager(ILPPositionProvider pos) {
+		super(new OrderQueue<>(new IC()), pos);
 	}
 
-	public LogisticsItemOrderManager(IChangeListener listener, ILPPositionProvider pos) {
-		super(listener, pos, new LogisticsOrderLinkedList<>(new IC()));
+	public ItemOrderManager(IChangeListener listener, ILPPositionProvider pos) {
+		super(listener, pos, new OrderQueue<>(new IC()));
 	}
 
 	@Override
@@ -55,24 +55,24 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 		super.sendFailed();
 	}
 
-	public LogisticsItemOrder addOrder(ItemIdentifierStack stack, IRequestItems requester, ResourceType type,
+	public ItemOrder addOrder(ItemIdentifierStack stack, IRequestItems requester, ResourceType type,
 			@Nullable IAdditionalTargetInformation info) {
-		LogisticsItemOrder order = new LogisticsItemOrder(new DictResource(stack, null), requester, type, info);
+		ItemOrder order = new ItemOrder(new DictResource(stack, null), requester, type, info);
 		orders.addLast(order);
 		listen();
 		return order;
 	}
 
-	public LogisticsItemOrder addOrder(DictResource stack, IRequestItems requester, ResourceType type,
+	public ItemOrder addOrder(DictResource stack, IRequestItems requester, ResourceType type,
 			@Nullable IAdditionalTargetInformation info) {
-		LogisticsItemOrder order = new LogisticsItemOrder(stack, requester, type, info);
+		ItemOrder order = new ItemOrder(stack, requester, type, info);
 		orders.addLast(order);
 		listen();
 		return order;
 	}
 
-	public LogisticsItemOrderExtra addExtra(DictResource stack) {
-		LogisticsItemOrderExtra order = new LogisticsItemOrderExtra(stack, null, ResourceType.EXTRA, null);
+	public ExtraItemOrder addExtra(DictResource stack) {
+		ExtraItemOrder order = new ExtraItemOrder(stack, null, ResourceType.EXTRA, null);
 		orders.addLast(order);
 		listen();
 		return order;
@@ -81,10 +81,10 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 	public void removeExtras(DictResource resource) {
 		int itemsToRemove = resource.getRequestedAmount();
 		DictResource.Identifier ident = resource.getIdentifier();
-		Iterator<LogisticsItemOrder> iter = orders.iterator();
-		List<LogisticsItemOrder> toRemove = new LinkedList<>();
+		Iterator<ItemOrder> iter = orders.iterator();
+		List<ItemOrder> toRemove = new LinkedList<>();
 		while (iter.hasNext()) {
-			LogisticsItemOrder order = iter.next();
+			ItemOrder order = iter.next();
 			if (order.getType() != ResourceType.EXTRA) continue;
 			if (order.getResource().getIdentifier().equals(ident)) {
 				if (itemsToRemove >= order.getAmount()) {
@@ -105,7 +105,7 @@ public class LogisticsItemOrderManager extends LogisticsOrderManager<LogisticsIt
 
 	public int totalItemsCountInOrders(ItemIdentifier item) {
 		int itemCount = 0;
-		for (LogisticsItemOrder request : orders) {
+		for (ItemOrder request : orders) {
 			if (!request.getResource().getItem().equals(item)) {
 				continue;
 			}

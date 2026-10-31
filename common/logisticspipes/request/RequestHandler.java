@@ -30,10 +30,10 @@ import logisticspipes.network.to_client.orderer.RequestAnswerMessage;
 import logisticspipes.network.to_client.orderer.RequestComponentsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.RequestTree.ActiveRequestType;
+import logisticspipes.request.order.OrderTree;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.PipeRoutingConnectionType;
-import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -67,7 +67,7 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOf(IResource item, @Nullable LinkedLogisticsOrderList parts) {
+			public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {
 				sendToPlayer(player, new RequestAnswerMessage(List.of(item), false));
 				if (pipe instanceof IRequestWatcher) {
 					((IRequestWatcher) pipe).handleOrderList(item, parts);
@@ -75,7 +75,7 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {}
+			public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {}
 		}, null);
 	}
 
@@ -90,10 +90,10 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOf(IResource item, @Nullable LinkedLogisticsOrderList parts) {}
+			public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {}
 
 			@Override
-			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {
+			public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {
 				usedList.addAll(resources);
 			}
 		});
@@ -143,10 +143,10 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOf(IResource item, @Nullable LinkedLogisticsOrderList parts) {}
+			public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {}
 
 			@Override
-			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {
+			public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {
 				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), false));
 				if (pipe instanceof IRequestWatcher) {
 					((IRequestWatcher) pipe).handleOrderList(null, parts);
@@ -176,10 +176,10 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOf(IResource item, @Nullable LinkedLogisticsOrderList parts) {}
+			public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {}
 
 			@Override
-			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {
+			public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {
 				sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), false));
 				if (requester instanceof IRequestWatcher) {
 					((IRequestWatcher) requester).handleOrderList(null, parts);
@@ -209,7 +209,7 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOf(IResource item, @Nullable LinkedLogisticsOrderList parts) {
+			public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {
 				status[0] = "DONE";
 				List<IResource> itemList = new LinkedList<>();
 				itemList.add(item);
@@ -217,7 +217,7 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {}
+			public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {}
 		}, false, false, true, false, requestFlags, null);
 		return status;
 	}
@@ -277,12 +277,12 @@ public class RequestHandler {
 			}
 
 			@Override
-			public void handleSucessfullRequestOf(IResource item, @Nullable LinkedLogisticsOrderList parts) {
+			public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {
 				sendToPlayer(player, new RequestAnswerMessage(List.of(item), false));
 			}
 
 			@Override
-			public void handleSucessfullRequestOfList(List<IResource> resources, LinkedLogisticsOrderList parts) {}
+			public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {}
 		});
 	}
 }

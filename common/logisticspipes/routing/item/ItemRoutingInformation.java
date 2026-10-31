@@ -16,8 +16,8 @@ import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
+import logisticspipes.request.order.IDistanceTracker;
 import logisticspipes.routing.item.IRoutedItem.TransportMode;
-import logisticspipes.routing.order.IDistanceTracker;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.util.ItemStackLoader;
 import logisticspipes.utils.item.ItemIdentifierStack;

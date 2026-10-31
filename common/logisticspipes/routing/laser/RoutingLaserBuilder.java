@@ -81,7 +81,7 @@ public class RoutingLaserBuilder {
             lasers.add(new LaserData(pipe.getBlockPos(), item.dir, item.connectionType).setStartPipe(firstPipe));
             firstPipe = false;
 
-            final HashMap<CoreRoutedPipe, ExitRoute> reachable = PathFinder.paintAndgetConnectedRoutingPipes(
+            final HashMap<CoreRoutedPipe, ExitRoute> reachable = PathFinder.findAndPaintConnectedRoutingPipes(
                     pipe, item.dir,
                     LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(),
                     LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(),

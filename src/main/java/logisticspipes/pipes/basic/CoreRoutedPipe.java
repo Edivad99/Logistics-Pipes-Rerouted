@@ -89,6 +89,9 @@ import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.PipeSignType;
 import logisticspipes.pipes.upgrades.UpgradeManager;
+import logisticspipes.request.order.IOrderInfoProvider;
+import logisticspipes.request.order.ItemOrderManager;
+import logisticspipes.request.order.OrderManager;
 import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
@@ -100,9 +103,6 @@ import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.routing.item.ItemRoutingInformation;
 import logisticspipes.routing.item.PipeDeliveryHandler;
 import logisticspipes.routing.item.RouteResolver;
-import logisticspipes.routing.order.IOrderInfoProvider;
-import logisticspipes.routing.order.LogisticsItemOrderManager;
-import logisticspipes.routing.order.LogisticsOrderManager;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.PipeTexture;
@@ -157,7 +157,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     @Nullable
     protected DeliveryHandler deliveryHandler;
     @Nullable
-    protected LogisticsItemOrderManager orderItemManager = null;
+    protected ItemOrderManager orderItemManager = null;
     protected int throttleTime = 20;
     protected @Nullable IPipeSign[] signItem = new IPipeSign[6];
     private TrafficCounts sessionCounts = TrafficCounts.ZERO;
@@ -1306,12 +1306,12 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     }
 
     @Override
-    public LogisticsItemOrderManager getItemOrderManager() {
-        orderItemManager = orderItemManager != null ? orderItemManager : new LogisticsItemOrderManager(this);
+    public ItemOrderManager getItemOrderManager() {
+        orderItemManager = orderItemManager != null ? orderItemManager : new ItemOrderManager(this);
         return orderItemManager;
     }
 
-    public LogisticsOrderManager<?, ?> getOrderManager() {
+    public OrderManager<?, ?> getOrderManager() {
         return getItemOrderManager();
     }
 

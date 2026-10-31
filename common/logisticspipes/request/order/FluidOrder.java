@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import lombok.Getter;
 
@@ -10,9 +10,9 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-public class LogisticsFluidOrder extends LogisticsOrder {
+public class FluidOrder extends Order {
 
-	public LogisticsFluidOrder(FluidIdentifier fluid, Integer amount, IRequestFluid destination, ResourceType type,
+	public FluidOrder(FluidIdentifier fluid, Integer amount, IRequestFluid destination, ResourceType type,
 			@Nullable IAdditionalTargetInformation info) {
 		super(type, info);
 		this.fluid = fluid;

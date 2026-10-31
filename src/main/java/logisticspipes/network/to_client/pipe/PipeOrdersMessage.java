@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.routing.order.IOrderInfoProvider;
+import logisticspipes.request.order.IOrderInfoProvider;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**

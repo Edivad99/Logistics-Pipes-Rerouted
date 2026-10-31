@@ -29,6 +29,10 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.ICraftingTemplate.Requirement;
 import logisticspipes.request.RequestTree.ActiveRequestType;
 import logisticspipes.request.RequestTree.workWeightedSorter;
+import logisticspipes.request.order.IOrderInfoProvider;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
+import logisticspipes.request.order.OrderManager;
+import logisticspipes.request.order.OrderTree;
 import logisticspipes.request.promise.IExtraPromise;
 import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.resources.IResource;
@@ -37,10 +41,6 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
-import logisticspipes.routing.order.IOrderInfoProvider;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
-import logisticspipes.routing.order.LinkedLogisticsOrderList;
-import logisticspipes.routing.order.LogisticsOrderManager;
 
 public class RequestTreeNode {
 
@@ -54,7 +54,7 @@ public class RequestTreeNode {
 	private List<IExtraPromise> extrapromises = new ArrayList<>();
 	private List<IExtraPromise> byproducts = new ArrayList<>();
 	private SortedSet<ICraftingTemplate> usedCrafters = new TreeSet<>();
-	private Set<LogisticsOrderManager<?, ?>> usedExtrasFromManager = new HashSet<LogisticsOrderManager<?, ?>>();
+	private Set<OrderManager<?, ?>> usedExtrasFromManager = new HashSet<OrderManager<?, ?>>();
 	private @Nullable ICraftingTemplate lastCrafterTried = null;
 	private int promiseAmount = 0;
 
@@ -281,8 +281,8 @@ public class RequestTreeNode {
 		}
 	}
 
-	protected LinkedLogisticsOrderList fullFill() {
-		LinkedLogisticsOrderList list = new LinkedLogisticsOrderList();
+	protected OrderTree fullFill() {
+		OrderTree list = new OrderTree();
 		for (RequestTreeNode subNode : subRequests) {
 			list.getSubOrders().add(subNode.fullFill());
 		}
@@ -538,11 +538,11 @@ public class RequestTreeNode {
 		return isDone();
 	}
 
-	public boolean hasBeenQueried(LogisticsOrderManager<?, ?> orderManager) {
+	public boolean hasBeenQueried(OrderManager<?, ?> orderManager) {
 		return usedExtrasFromManager.contains(orderManager);
 	}
 
-	public void setQueried(LogisticsOrderManager<?, ?> orderManager) {
+	public void setQueried(OrderManager<?, ?> orderManager) {
 		usedExtrasFromManager.add(orderManager);
 	}
 

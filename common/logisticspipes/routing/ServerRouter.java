@@ -64,7 +64,7 @@ import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.debug.IRoutingDebugAdapter;
 import logisticspipes.routing.debug.NoOpRoutingDebugAdapter;
 import logisticspipes.routing.pathfinder.PathFinder;
-import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
+import logisticspipes.routing.pathfinder.changedetection.IBlockEntityChangeListener;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.RoutingTableUpdateThread;
 import logisticspipes.utils.CacheHolder.CacheTypes;
@@ -137,7 +137,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	 * again when it sees this, so those tables are built once more.
 	 */
 	private volatile boolean lsaWrittenAsync = false;
-	private final ITileEntityChangeListener localChangeListener = new ITileEntityChangeListener() {
+	private final IBlockEntityChangeListener localChangeListener = new IBlockEntityChangeListener() {
 
 		@Override
 		public void pipeRemoved(BlockPos pos) {
@@ -160,7 +160,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		}
 
 	};
-	private Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
+	private Set<List<IBlockEntityChangeListener>> listenedPipes = new HashSet<>();
 	private Set<LogisticsGenericPipeBlockEntity> oldTouchedPipes = new HashSet<>();
 
 	public ServerRouter(@Nullable UUID globalID, Identifier dimension, BlockPos pos) {
@@ -552,7 +552,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 					routedexits.add(pipe.getValue().exitOrientation);
 				}
 				if (!subpowerexits.containsKey(pipe.getValue().exitOrientation) && pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
-					subpowerexits.put(pipe.getValue().exitOrientation, PathFinder.messureDistanceToNextRoutedPipe(getPos(), pipe.getValue().exitOrientation, pipe.getKey().getLevel()));
+					subpowerexits.put(pipe.getValue().exitOrientation, PathFinder.measureDistanceToNextRoutedPipe(getPos(), pipe.getValue().exitOrientation, pipe.getKey().getLevel()));
 				}
 			}
 			this.adjacent = Collections.unmodifiableMap(adjacent);
@@ -976,7 +976,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 		clearPipeCache();
 		isDestroyed = true;
 		RouterManager.get().removeRouter(simpleID);
-		for (List<ITileEntityChangeListener> list : listenedPipes) {
+		for (List<IBlockEntityChangeListener> list : listenedPipes) {
 			list.remove(localChangeListener);
 		}
 		updateAdjacentAndLsa();

@@ -4,8 +4,8 @@ import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IProvideItems;
+import logisticspipes.request.order.IOrderInfoProvider;
 import logisticspipes.request.resources.DictResource;
-import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class DictPromise extends ItemPromise {

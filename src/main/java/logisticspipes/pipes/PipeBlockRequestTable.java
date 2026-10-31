@@ -50,11 +50,11 @@ import logisticspipes.network.to_client.orderer.OrdererWatchRemoveMessage;
 import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.order.IOrderInfoProvider;
+import logisticspipes.request.order.OrderTree;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.item.DeliveryHandler;
 import logisticspipes.routing.item.IRoutedItem;
-import logisticspipes.routing.order.IOrderInfoProvider;
-import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.routing.sink.ItemSinkFinder;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
@@ -82,7 +82,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     public ItemIdentifierInventory resultInv = new ItemIdentifierInventory(1, "Crafting Result", 1);
     public SimpleStackInventory toSortInv = new SimpleStackInventory(1, "Sorting Slot", 64);
     /** An order the table is following for its crafting monitor; no resource for a whole list. */
-    public record WatchedRequest(@Nullable IResource resource, LinkedLogisticsOrderList orders) {}
+    public record WatchedRequest(@Nullable IResource resource, OrderTree orders) {}
 
     public Map<Integer, WatchedRequest> watchedRequests = new HashMap<>();
     public @Nullable ItemIdentifier targetType = null;
@@ -186,7 +186,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
         }
     }
 
-    private boolean isDone(LinkedLogisticsOrderList orders) {
+    private boolean isDone(OrderTree orders) {
         boolean isDone = true;
         for (IOrderInfoProvider order : orders) {
             if (!order.isFinished()) {
@@ -196,7 +196,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
                 isDone = false;
             }
         }
-        for (LinkedLogisticsOrderList orderList : orders.getSubOrders()) {
+        for (OrderTree orderList : orders.getSubOrders()) {
             if (!isDone(orderList)) {
                 isDone = false;
             }
@@ -571,7 +571,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     }
 
     @Override
-    public void handleOrderList(@Nullable IResource stack, LinkedLogisticsOrderList orders) {
+    public void handleOrderList(@Nullable IResource stack, OrderTree orders) {
         if (!getUpgradeManager().hasCraftingMonitoringUpgrade()) {
             return;
         }
@@ -605,7 +605,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     }
 
     @Override
-    public void handleClientSideListInfo(int id, IResource stack, LinkedLogisticsOrderList orders) {
+    public void handleClientSideListInfo(int id, IResource stack, OrderTree orders) {
         if (getLevel().isClientSide()) {
             watchedRequests.put(id, new WatchedRequest(stack, orders));
         }

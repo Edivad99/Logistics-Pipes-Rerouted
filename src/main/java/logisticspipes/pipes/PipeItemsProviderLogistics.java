@@ -29,8 +29,8 @@ import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.order.Order;
 import logisticspipes.request.promise.ItemPromise;
-import logisticspipes.routing.order.LogisticsOrder;
 import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
@@ -71,7 +71,7 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe
     }
 
     @Override
-    public @Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination,
+    public @Nullable Order fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         return providerModule.fullFill(promise, destination, info);
     }

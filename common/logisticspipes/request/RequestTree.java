@@ -17,13 +17,13 @@ import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.order.OrderTree;
 import logisticspipes.request.promise.IExtraPromise;
 import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.ExitRoute;
-import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.IHavePriority;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -76,7 +76,7 @@ public class RequestTree extends RequestTreeNode {
 		return extras;
 	}
 
-	protected LinkedLogisticsOrderList fullFillAll() {
+	protected OrderTree fullFillAll() {
 		return fullFill();
 	}
 
@@ -90,7 +90,7 @@ public class RequestTree extends RequestTreeNode {
 		Map<IResource, Integer> used = new HashMap<>();
 		Map<IResource, Integer> missing = new HashMap<>();
 		buildUsedMap(used, missing);
-		log.handleSucessfullRequestOfList(RequestTreeNode.shrinkToList(used), new LinkedLogisticsOrderList());
+		log.handleSucessfullRequestOfList(RequestTreeNode.shrinkToList(used), new OrderTree());
 		log.handleMissingItems(RequestTreeNode.shrinkToList(missing));
 	}
 
@@ -169,7 +169,7 @@ public class RequestTree extends RequestTreeNode {
 			isDone = isDone && node.isDone();
 		}
 		if (isDone) {
-			LinkedLogisticsOrderList list = tree.fullFillAll();
+			OrderTree list = tree.fullFillAll();
 			if (log != null) {
 				log.handleSucessfullRequestOfList(RequestTreeNode.shrinkToList(messages), list);
 			}
@@ -187,7 +187,7 @@ public class RequestTree extends RequestTreeNode {
 		ItemResource req = new ItemResource(item, requester);
 		RequestTree tree = new RequestTree(req, null, requestFlags, info);
 		if (!simulateOnly && (tree.isDone() || ((tree.getPromiseAmount() > 0) && acceptPartial))) {
-			LinkedLogisticsOrderList list = tree.fullFillAll();
+			OrderTree list = tree.fullFillAll();
 			if (log != null) {
 				log.handleSucessfullRequestOf(req.copyForDisplayWith(item.getStackSize()), list);
 			}

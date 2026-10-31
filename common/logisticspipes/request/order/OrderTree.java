@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
-public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
+public class OrderTree extends ArrayList<IOrderInfoProvider> {
 
     /**
      * An order and everything it had to be broken down into, all the way down.
@@ -18,14 +18,14 @@ public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
      * <p>Recursive because the structure is: a request for a crafted item becomes requests for its
      * ingredients, which may themselves be crafted.
      */
-    public static final StreamCodec<RegistryFriendlyByteBuf, LinkedLogisticsOrderList> STREAM_CODEC =
+    public static final StreamCodec<RegistryFriendlyByteBuf, OrderTree> STREAM_CODEC =
         StreamCodec.recursive(self -> StreamCodec.composite(
             IOrderInfoProvider.STREAM_CODEC.apply(ByteBufCodecs.list()), List::copyOf,
-            self.apply(ByteBufCodecs.list()), LinkedLogisticsOrderList::getSubOrders,
-            LinkedLogisticsOrderList::new));
+            self.apply(ByteBufCodecs.list()), OrderTree::getSubOrders,
+            OrderTree::new));
 
     @Getter
-    private final List<LinkedLogisticsOrderList> subOrders;
+    private final List<OrderTree> subOrders;
 
     /**
      * Null until first asked for; see {@link #getList()}.
@@ -37,11 +37,11 @@ public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
      */
     private @Nullable List<Float> cachedProgress;
 
-    public LinkedLogisticsOrderList() {
+    public OrderTree() {
         subOrders = new ArrayList<>();
     }
 
-    public LinkedLogisticsOrderList(List<IOrderInfoProvider> orders, List<LinkedLogisticsOrderList> subOrders) {
+    public OrderTree(List<IOrderInfoProvider> orders, List<OrderTree> subOrders) {
         addAll(orders);
         this.subOrders = new ArrayList<>(subOrders);
     }
@@ -56,7 +56,7 @@ public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
         List<IOrderInfoProvider> flattened = cachedList;
         if (flattened == null) {
             flattened = new ArrayList<>(this);
-            for (LinkedLogisticsOrderList sub : subOrders) {
+            for (OrderTree sub : subOrders) {
                 flattened.addAll(sub.getList());
             }
             cachedList = flattened;
@@ -66,7 +66,7 @@ public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
 
     public int getTreeRootSize() {
         int subSize = 0;
-        for (LinkedLogisticsOrderList sub : subOrders) {
+        for (OrderTree sub : subOrders) {
             subSize += sub.getTreeRootSize();
         }
         return Math.max(size(), subSize);
@@ -74,7 +74,7 @@ public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
 
     public int getSubTreeRootSize() {
         int subSize = 0;
-        for (LinkedLogisticsOrderList sub : subOrders) {
+        for (OrderTree sub : subOrders) {
             subSize += sub.getTreeRootSize();
         }
         return subSize;
@@ -82,7 +82,7 @@ public class LinkedLogisticsOrderList extends ArrayList<IOrderInfoProvider> {
 
     public void setWatched() {
         this.forEach(IOrderInfoProvider::setWatched);
-        subOrders.forEach(LinkedLogisticsOrderList::setWatched);
+        subOrders.forEach(OrderTree::setWatched);
     }
 
     /**

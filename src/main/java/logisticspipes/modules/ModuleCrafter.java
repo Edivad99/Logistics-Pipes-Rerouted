@@ -83,6 +83,8 @@ import logisticspipes.request.IReqCraftingTemplate;
 import logisticspipes.request.ItemCraftingTemplate;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
+import logisticspipes.request.order.ItemOrder;
 import logisticspipes.request.promise.DictPromise;
 import logisticspipes.request.promise.ExtraDictPromise;
 import logisticspipes.request.promise.ExtraItemPromise;
@@ -97,8 +99,6 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.item.IRoutedItem.TransportMode;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
-import logisticspipes.routing.order.LogisticsItemOrder;
 import logisticspipes.routing.sink.ItemSinkFinder;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.BlockMenus;
@@ -348,7 +348,7 @@ public class ModuleCrafter extends LogisticsModule
             }
         }
         int remaining = 0;
-        for (LogisticsItemOrder extra : service.getItemOrderManager()) {
+        for (ItemOrder extra : service.getItemOrderManager()) {
             if (extra.getType() == ResourceType.EXTRA) {
                 if (extra.getResource().getItem().equals(requestedItem.getAsItem())) {
                     remaining += extra.getResource().stack.getStackSize();
@@ -377,7 +377,7 @@ public class ModuleCrafter extends LogisticsModule
     }
 
     @Override
-    public @Nullable LogisticsItemOrder fullFill(ItemPromise promise, IRequestItems destination,
+    public @Nullable ItemOrder fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         final IPipeServiceProvider service = this.service;
         if (service == null) {
@@ -906,7 +906,7 @@ public class ModuleCrafter extends LogisticsModule
         int stacksLeft = stacksToExtract();
         while (itemsLeft > 0 && stacksLeft > 0 && (service.getItemOrderManager()
             .hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA))) {
-            LogisticsItemOrder nextOrder = service.getItemOrderManager()
+            ItemOrder nextOrder = service.getItemOrderManager()
                 .peekAtTopRequest(ResourceType.CRAFTING, ResourceType.EXTRA); // fetch but not remove.
             int maxToSend = Math.min(itemsLeft, nextOrder.getResource().stack.getStackSize());
             maxToSend = Math.min(nextOrder.getResource().getItem().getMaxStackSize(), maxToSend);
@@ -931,7 +931,7 @@ public class ModuleCrafter extends LogisticsModule
             ItemIdentifier extractedID = ItemIdentifier.get(extracted);
             while (!extracted.isEmpty()) {
                 if (isExtractedMismatch(nextOrder, extractedID)) {
-                    LogisticsItemOrder startOrder = nextOrder;
+                    ItemOrder startOrder = nextOrder;
                     if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING, ResourceType.EXTRA)) {
                         do {
                             service.getItemOrderManager().deferSend();
@@ -987,7 +987,7 @@ public class ModuleCrafter extends LogisticsModule
 
     }
 
-    private boolean isExtractedMismatch(LogisticsItemOrder nextOrder, ItemIdentifier extractedID) {
+    private boolean isExtractedMismatch(ItemOrder nextOrder, ItemIdentifier extractedID) {
         return !nextOrder.getResource().getItem().equals(extractedID) && (!getUpgradeManager().isFuzzyUpgrade() || (
             nextOrder.getResource().getBitSet().nextSetBit(0) == -1) || !nextOrder.getResource()
             .matches(extractedID, IResource.MatchSettings.NORMAL));
@@ -1003,7 +1003,7 @@ public class ModuleCrafter extends LogisticsModule
             return;
         }
         boolean result = true;
-        for (LogisticsItemOrder order : service.getItemOrderManager()) {
+        for (ItemOrder order : service.getItemOrderManager()) {
             if (order.getDestination() instanceof IItemSpaceControl) {
                 SinkReply reply = ItemSinkFinder
                     .canSink(order.getResource().stack.makeNormalStack(), order.getDestination().getRouter(), null,

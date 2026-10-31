@@ -12,10 +12,10 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IProvideFluids;
+import logisticspipes.request.order.IOrderInfoProvider;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.routing.order.IOrderInfoProvider;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 

@@ -22,13 +22,13 @@ import logisticspipes.pipes.PipeFluidUtil.AdjacentTank;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.order.FluidOrder;
+import logisticspipes.request.order.IOrderInfoProvider;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.request.promise.FluidPromise;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.item.IRoutedItem.TransportMode;
-import logisticspipes.routing.order.IOrderInfoProvider;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
-import logisticspipes.routing.order.LogisticsFluidOrder;
 import logisticspipes.textures.PipeTexture;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.utils.FluidIdentifier;
@@ -50,7 +50,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
             return;
         }
 
-        LogisticsFluidOrder order = getFluidOrderManager().peekAtTopRequest(ResourceType.PROVIDER);
+        FluidOrder order = getFluidOrderManager().peekAtTopRequest(ResourceType.PROVIDER);
         AtomicInteger amountToSend = new AtomicInteger();
         AtomicInteger attemptedAmount = new AtomicInteger();
         amountToSend.set(Math.min(order.getAmount(), 5000));

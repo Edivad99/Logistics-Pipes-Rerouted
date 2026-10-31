@@ -15,13 +15,13 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.ICraftItems;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.request.promise.DictPromise;
 import logisticspipes.request.promise.ExtraItemPromise;
 import logisticspipes.request.promise.IExtraPromise;
 import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class DictCraftingTemplate implements IReqCraftingTemplate {

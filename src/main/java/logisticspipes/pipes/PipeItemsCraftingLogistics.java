@@ -37,12 +37,12 @@ import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
+import logisticspipes.request.order.ItemOrderManager;
+import logisticspipes.request.order.Order;
 import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
-import logisticspipes.routing.order.LogisticsItemOrderManager;
-import logisticspipes.routing.order.LogisticsOrder;
 import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.IHavePriority;
 import logisticspipes.utils.PlayerCollectionList;
@@ -67,7 +67,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe
         craftingModule.registerHandler(this, this);
         craftingModule.registerPosition(ModulePositionType.IN_PIPE, 0);
         throttleTime = 40;
-        orderItemManager = new LogisticsItemOrderManager(this, this); // null by default when not needed
+        orderItemManager = new ItemOrderManager(this, this); // null by default when not needed
     }
 
     @Override
@@ -111,7 +111,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe
     }
 
     @Override
-    public @Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination,
+    public @Nullable Order fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         return craftingModule.fullFill(promise, destination, info);
     }

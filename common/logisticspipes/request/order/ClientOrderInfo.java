@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import logisticspipes.utils.item.ItemIdentifierStack;
  * <p>The server's own orders hang off a router and a crafting template, neither of which exists on
  * the client, so what arrives is flattened into this.
  */
-public class ClientSideOrderInfo implements IOrderInfoProvider {
+public class ClientOrderInfo implements IOrderInfoProvider {
 
 	@Getter
 	private final ItemIdentifierStack asDisplayItem;
@@ -42,7 +42,7 @@ public class ClientSideOrderInfo implements IOrderInfoProvider {
 	@Getter
 	private final boolean isWatched = false;
 
-	public ClientSideOrderInfo(ItemIdentifierStack asDisplayItem, int routerId, ResourceType type,
+	public ClientOrderInfo(ItemIdentifierStack asDisplayItem, int routerId, ResourceType type,
 			Progress progress, Optional<Target> target) {
 		this.asDisplayItem = asDisplayItem;
 		this.routerId = routerId;

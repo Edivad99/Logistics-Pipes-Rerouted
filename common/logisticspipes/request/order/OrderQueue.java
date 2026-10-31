@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class LogisticsOrderLinkedList<E extends LogisticsOrder, I> implements Iterable<E> {
+public class OrderQueue<E extends Order, I> implements Iterable<E> {
 
 	private final IIdentityProvider<E, I> identifyer;
 	private Map<I, Integer> extraSize = new HashMap<I, Integer>();
@@ -15,7 +15,7 @@ public class LogisticsOrderLinkedList<E extends LogisticsOrder, I> implements It
 	private List<E> unmodifiable = Collections.unmodifiableList(list);
 	private int globalExtraCount = 0;
 
-	public LogisticsOrderLinkedList(IIdentityProvider<E, I> identifyer) {
+	public OrderQueue(IIdentityProvider<E, I> identifyer) {
 		this.identifyer = identifyer;
 	}
 

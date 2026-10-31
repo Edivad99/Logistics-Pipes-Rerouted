@@ -57,6 +57,9 @@ import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
+import logisticspipes.request.order.ItemOrder;
+import logisticspipes.request.order.Order;
 import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
@@ -64,9 +67,6 @@ import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.item.IRoutedItem;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
-import logisticspipes.routing.order.LogisticsItemOrder;
-import logisticspipes.routing.order.LogisticsOrder;
 import logisticspipes.routing.sink.ItemSinkFinder;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.SinkReply;
@@ -169,8 +169,8 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
         }
         int itemsLeft = itemsToExtract();
         int stacksLeft = stacksToExtract();
-        LogisticsItemOrder firstOrder = null;
-        LogisticsItemOrder order = null;
+        ItemOrder firstOrder = null;
+        ItemOrder order = null;
         while (itemsLeft > 0 && stacksLeft > 0 && service.getItemOrderManager().hasOrders(ResourceType.PROVIDER) && (
             firstOrder == null || firstOrder != order)) {
             if (firstOrder == null) {
@@ -248,7 +248,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     }
 
     @Override
-    public @Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination,
+    public @Nullable Order fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         if (this.service == null) {
             return null;

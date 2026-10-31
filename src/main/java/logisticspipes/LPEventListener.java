@@ -345,7 +345,7 @@ public class LPEventListener {
     }
 
     /**
-     * Replaces the 1.12.2 ASM injection of TEControl.validate/invalidate into all TileEntity subclasses.
+     * Replaces the 1.12.2 ASM injection of PipeChangeDetection.validate/invalidate into all TileEntity subclasses.
      * When any block changes (placed, broken, or neighbour update), check the six adjacent positions for
      * LP routing pipes and flag their routers for adjacency recheck.  This covers the case where a
      * non-LP inventory (chest, machine, etc.) is placed or removed next to a provider/requester pipe.

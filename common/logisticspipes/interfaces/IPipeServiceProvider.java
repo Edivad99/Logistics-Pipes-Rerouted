@@ -8,8 +8,8 @@ import logisticspipes.api.connection.Adjacent;
 import logisticspipes.api.provider.IRoutedPowerProvider;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.debug.DebugLogController;
+import logisticspipes.request.order.ItemOrderManager;
 import logisticspipes.routing.item.IRoutedItem;
-import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.item.ItemIdentifier;
 
@@ -38,7 +38,7 @@ public interface IPipeServiceProvider extends IRoutedPowerProvider, ISpawnPartic
 	/**
 	 * to interact and send items you need to know about orders, upgrades, and have the ability to send
 	 */
-	LogisticsItemOrderManager getItemOrderManager();
+	ItemOrderManager getItemOrderManager();
 
 	void queueRoutedItem(IRoutedItem routedItem, Direction from);
 

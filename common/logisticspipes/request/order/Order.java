@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifier;
 
 @Accessors(chain = true)
-public abstract class LogisticsOrder implements IOrderInfoProvider {
+public abstract class Order implements IOrderInfoProvider {
 
 	private static final int MIN_DISTANCE_TO_DISPLAY = 4;
 
@@ -41,7 +41,7 @@ public abstract class LogisticsOrder implements IOrderInfoProvider {
 	private byte machineProgress = 0;
 	private final List<IDistanceTracker> trackers = new ArrayList<>();
 
-	public LogisticsOrder(ResourceType type, @Nullable IAdditionalTargetInformation info) {
+	public Order(ResourceType type, @Nullable IAdditionalTargetInformation info) {
 		this.type = type;
 		information = info;
 	}
@@ -77,7 +77,7 @@ public abstract class LogisticsOrder implements IOrderInfoProvider {
 					f = 1.0F;
 				}
 				if (!progresses.contains(f)) {
-					if (tracker.getInitialDistanceToTarget() > LogisticsOrder.MIN_DISTANCE_TO_DISPLAY || tracker.getInitialDistanceToTarget() == 0) {
+					if (tracker.getInitialDistanceToTarget() > Order.MIN_DISTANCE_TO_DISPLAY || tracker.getInitialDistanceToTarget() == 0) {
 						progresses.add(f);
 					}
 				}

@@ -17,8 +17,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
+import logisticspipes.request.order.IDistanceTracker;
 import logisticspipes.routing.IRouter;
-import logisticspipes.routing.order.IDistanceTracker;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 /**

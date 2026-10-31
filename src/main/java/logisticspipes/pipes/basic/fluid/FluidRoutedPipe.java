@@ -20,13 +20,13 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeFluidUtil;
 import logisticspipes.pipes.PipeFluidUtil.AdjacentTank;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.order.FluidOrderManager;
+import logisticspipes.request.order.OrderManager;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.routing.item.ItemRoutingInformation;
-import logisticspipes.routing.order.LogisticsFluidOrderManager;
-import logisticspipes.routing.order.LogisticsOrderManager;
 import logisticspipes.routing.sink.FluidSinkFinder;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeFluidTransportLogistics;
@@ -40,7 +40,7 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public abstract class FluidRoutedPipe extends CoreRoutedPipe {
 
-    private @Nullable LogisticsFluidOrderManager orderFluidManager;
+    private @Nullable FluidOrderManager orderFluidManager;
 
     public FluidRoutedPipe(Item item) {
         super(new PipeFluidTransportLogistics(), item);
@@ -293,13 +293,13 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
         return false;
     }
 
-    public LogisticsFluidOrderManager getFluidOrderManager() {
-        orderFluidManager = orderFluidManager != null ? orderFluidManager : new LogisticsFluidOrderManager(this);
+    public FluidOrderManager getFluidOrderManager() {
+        orderFluidManager = orderFluidManager != null ? orderFluidManager : new FluidOrderManager(this);
         return orderFluidManager;
     }
 
     @Override
-    public LogisticsOrderManager<?, ?> getOrderManager() {
+    public OrderManager<?, ?> getOrderManager() {
         return getFluidOrderManager();
     }
 }

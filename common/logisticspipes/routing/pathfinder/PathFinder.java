@@ -41,8 +41,7 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.laser.ILaserPainter;
 import logisticspipes.routing.laser.LaserData;
-import logisticspipes.routing.pathfinder.IRouteProvider.RouteInfo;
-import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
+import logisticspipes.routing.pathfinder.changedetection.IBlockEntityChangeListener;
 import logisticspipes.utils.OneList;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
@@ -65,7 +64,7 @@ public class PathFinder {
 	 *            - The maximum recurse depth, i.e. the maximum length pipe that
 	 *            is supported
 	 */
-	public static HashMap<CoreRoutedPipe, ExitRoute> paintAndgetConnectedRoutingPipes(BlockEntity startPipe, Direction startOrientation, int maxVisited, int maxLength, ILaserPainter pathPainter, EnumSet<PipeRoutingConnectionType> connectionType) {
+	public static HashMap<CoreRoutedPipe, ExitRoute> findAndPaintConnectedRoutingPipes(BlockEntity startPipe, Direction startOrientation, int maxVisited, int maxLength, ILaserPainter pathPainter, EnumSet<PipeRoutingConnectionType> connectionType) {
 		IPipeInformationProvider startProvider = PipeInformationManager.getInformationProviderFor(startPipe);
 		if (startProvider == null) {
 			return new HashMap<>();
@@ -82,7 +81,7 @@ public class PathFinder {
 		return newSearch.getConnectedRoutingPipes(provider, connectionType, startOrientation);
 	}
 
-	public PathFinder(@Nullable IPipeInformationProvider startPipe, int maxVisited, int maxLength, ITileEntityChangeListener changeListener) {
+	public PathFinder(@Nullable IPipeInformationProvider startPipe, int maxVisited, int maxLength, IBlockEntityChangeListener changeListener) {
 		this(maxVisited, maxLength, null);
 		if (startPipe == null) {
 			result = new HashMap<>();
@@ -124,8 +123,8 @@ public class PathFinder {
 	public @Nullable List<FilteredRoute<ISubSystemPowerProvider>> subPowerProvider;
 	public HashMap<CoreRoutedPipe, ExitRoute> result = new HashMap<>();
 
-	public @Nullable ITileEntityChangeListener changeListener;
-	public Set<List<ITileEntityChangeListener>> listenedPipes = new HashSet<>();
+	public @Nullable IBlockEntityChangeListener changeListener;
+	public Set<List<IBlockEntityChangeListener>> listenedPipes = new HashSet<>();
 	public Set<LogisticsGenericPipeBlockEntity> touchedPipes = new HashSet<>();
 
 	private HashMap<CoreRoutedPipe, ExitRoute> getConnectedRoutingPipes(IPipeInformationProvider startPipe, EnumSet<PipeRoutingConnectionType> connectionFlags, @Nullable Direction side) {
@@ -332,27 +331,7 @@ public class PathFinder {
 				}
 
 				int beforeRecurseCount = foundPipes.size();
-				HashMap<CoreRoutedPipe, ExitRoute> result = null;
-				if (currentPipe instanceof IRouteProvider) {
-					List<RouteInfo> list = ((IRouteProvider) currentPipe).getConnectedPipes(direction.getOpposite());
-					if (list != null) {
-						result = new HashMap<>();
-						BlockPos pos = currentPipe.getPos();
-						for (RouteInfo info : list) {
-							if (info.getPipe() == startPipe) continue;
-							if (setVisited.contains(info.getPipe().getPos())) {
-								//Don't go where we have been before
-								continue;
-							}
-							distances.put(new DistanceKey(pos, false), (currentPipe.getDistance() * currentPipe.getDistanceWeight()) + info.getLength());
-							result.putAll(getConnectedRoutingPipes(info.getPipe(), nextConnectionFlags, direction));
-							distances.remove(new DistanceKey(pos, false));
-						}
-					}
-				}
-				if (result == null) {
-					result = getConnectedRoutingPipes(currentPipe, nextConnectionFlags, direction);
-				}
+				HashMap<CoreRoutedPipe, ExitRoute> result = getConnectedRoutingPipes(currentPipe, nextConnectionFlags, direction);
 				for (Entry<CoreRoutedPipe, ExitRoute> pipeEntry : result.entrySet()) {
 					//Update Result with the direction we took
 					pipeEntry.getValue().exitOrientation = direction;
@@ -400,7 +379,7 @@ public class PathFinder {
 		}
 	}
 
-	public static int messureDistanceToNextRoutedPipe(BlockPos lpPosition, Direction exitOrientation, Level level) {
+	public static int measureDistanceToNextRoutedPipe(BlockPos lpPosition, Direction exitOrientation, Level level) {
 		int dis = 1;
 		BlockEntity tile = level.getBlockEntity(lpPosition);
 		if (tile instanceof LogisticsGenericPipeBlockEntity) {

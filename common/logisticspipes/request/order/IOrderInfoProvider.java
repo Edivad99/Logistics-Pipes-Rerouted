@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +20,7 @@ public interface IOrderInfoProvider {
 	/**
 	 * One order, as the client's monitor shows it.
 	 *
-	 * <p>Encodes any order the server holds and decodes into a {@link ClientSideOrderInfo}: the
+	 * <p>Encodes any order the server holds and decodes into a {@link ClientOrderInfo}: the
 	 * client has no routers or crafting templates to hang a real order off, and only ever displays
 	 * one.
 	 *
@@ -37,7 +37,7 @@ public interface IOrderInfoProvider {
 					IOrderInfoProvider::getType,
 					Progress.STREAM_CODEC, Progress::of,
 					ByteBufCodecs.optional(Target.STREAM_CODEC), Target::of,
-					ClientSideOrderInfo::new);
+					ClientOrderInfo::new);
 
 	/** How far along an order is. */
 	record Progress(boolean finished, boolean inProgress, byte machineProgress, List<Float> steps) {

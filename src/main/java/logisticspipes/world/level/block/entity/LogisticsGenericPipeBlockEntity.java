@@ -54,8 +54,8 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.ItemInsertionHandler;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
-import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
-import logisticspipes.routing.pathfinder.changedetection.TEControl;
+import logisticspipes.routing.pathfinder.changedetection.IBlockEntityChangeListener;
+import logisticspipes.routing.pathfinder.changedetection.PipeChangeDetection;
 import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
@@ -76,7 +76,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     /**
      * Routers whose last path search crossed this pipe; told when a pipe is added or removed next to it.
      */
-    public final List<ITileEntityChangeListener> changeListeners = new ArrayList<>();
+    public final List<IBlockEntityChangeListener> changeListeners = new ArrayList<>();
     public final PipeVisualState visualState = new PipeVisualState();
     public final CoreState coreState = new CoreState();
     @Getter
@@ -89,7 +89,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     @Nullable
     public CoreUnroutedPipe pipe;
     /**
-     * Set by {@link TEControl#validate} once this pipe is loaded on the server.
+     * Set by {@link PipeChangeDetection#validate} once this pipe is loaded on the server.
      */
     @Getter
     private boolean changeDetectionActive;
@@ -168,7 +168,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
             tileBuffer = null;
             pipe.invalidate();
             super.setRemoved();
-            TEControl.invalidate(this);
+            PipeChangeDetection.invalidate(this);
         }
     }
 
@@ -182,7 +182,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         if (pipe != null) {
             pipe.validate();
         }
-        TEControl.validate(this);
+        PipeChangeDetection.validate(this);
     }
 
     /**

@@ -13,8 +13,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import logisticspipes.LPConstants;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.network.TargetLookup;
+import logisticspipes.request.order.OrderTree;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
@@ -28,7 +28,7 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
  *                  monitor shows as "List"
  */
 public record OrderWatchMessage(BlockPos pos, int watcherId, Optional<IResource> resource,
-                                LinkedLogisticsOrderList orders) implements CustomPacketPayload {
+                                OrderTree orders) implements CustomPacketPayload {
 
     public static final Type<OrderWatchMessage> TYPE = new Type<>(LPConstants.rl("order_watch"));
 
@@ -37,7 +37,7 @@ public record OrderWatchMessage(BlockPos pos, int watcherId, Optional<IResource>
             BlockPos.STREAM_CODEC, OrderWatchMessage::pos,
             ByteBufCodecs.VAR_INT, OrderWatchMessage::watcherId,
             ByteBufCodecs.optional(IResource.STREAM_CODEC), OrderWatchMessage::resource,
-            LinkedLogisticsOrderList.STREAM_CODEC, OrderWatchMessage::orders,
+            OrderTree.STREAM_CODEC, OrderWatchMessage::orders,
             OrderWatchMessage::new);
 
     public static void handle(OrderWatchMessage message, IPayloadContext context) {

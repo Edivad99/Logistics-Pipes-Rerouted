@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import lombok.Getter;
 
@@ -10,9 +10,9 @@ import logisticspipes.request.resources.DictResource;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-public class LogisticsItemOrder extends LogisticsOrder {
+public class ItemOrder extends Order {
 
-	public LogisticsItemOrder(DictResource item, @Nullable IRequestItems destination, ResourceType type,
+	public ItemOrder(DictResource item, @Nullable IRequestItems destination, ResourceType type,
 			@Nullable IAdditionalTargetInformation info) {
 		super(type, info);
 		resource = item;

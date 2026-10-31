@@ -5,7 +5,7 @@
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
  */
 
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,24 +24,24 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.IChangeListener;
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.network.to_client.pipe.PipeOrdersMessage;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.item.IRoutedItem;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> implements Iterable<T> {
+public abstract class OrderManager<T extends Order, I> implements Iterable<T> {
 
-	protected final LogisticsOrderLinkedList<T, I> orders;
+	protected final OrderQueue<T, I> orders;
 	protected @Nullable IChangeListener listener = null;
 	protected PlayerCollectionList watchingPlayers = new PlayerCollectionList();
 	private final ILPPositionProvider pos;
 
-	public LogisticsOrderManager(LogisticsOrderLinkedList<T, I> orders, ILPPositionProvider pos) {
+	public OrderManager(OrderQueue<T, I> orders, ILPPositionProvider pos) {
 		this.orders = orders;
 		this.pos = pos;
 	}
 
-	public LogisticsOrderManager(IChangeListener listener, ILPPositionProvider pos, LogisticsOrderLinkedList<T, I> orders) {
+	public OrderManager(IChangeListener listener, ILPPositionProvider pos, OrderQueue<T, I> orders) {
 		this(orders, pos);
 		this.listener = listener;
 	}
@@ -79,8 +79,8 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 			return new LinkedList<>();
 		}
 		LinkedList<ItemIdentifierStack> list = new LinkedList<>();
-		for (LogisticsOrder request : orders) {
-			LogisticsOrderManager.addToList(request.getAsDisplayItem(), list);
+		for (Order request : orders) {
+			OrderManager.addToList(request.getAsDisplayItem(), list);
 		}
 		return list;
 	}
@@ -119,12 +119,12 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 		}
 		int destination = orders.getFirst().getRouterId();
 		if (orders.getFirst().getAmount() <= 0) {
-			LogisticsOrder order = orders.removeFirst();
+			Order order = orders.removeFirst();
 			order.setFinished(true);
 			order.setInProgress(false);
 		}
 		if (!orders.isEmpty()) {
-			LogisticsOrder start = orders.getFirst();
+			Order start = orders.getFirst();
 			if (defersend && destination == start.getRouterId()) {
 				orders.addLast((T) orders.removeFirst().setInProgress(false));
 				while (start != orders.getFirst() && destination == orders.getFirst().getRouterId()) {
@@ -141,7 +141,7 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 
 	public void sendFailed() {
 		if (!orders.isEmpty()) {
-			LogisticsOrder order = orders.removeFirst();
+			Order order = orders.removeFirst();
 			order.setFinished(true);
 			order.setInProgress(false);
 		}
@@ -160,7 +160,7 @@ public abstract class LogisticsOrderManager<T extends LogisticsOrder, I> impleme
 
 	public int totalAmountCountInAllOrders() {
 		int amount = 0;
-		for (LogisticsOrder request : orders) {
+		for (Order request : orders) {
 			amount += request.getAmount();
 		}
 		return amount;

@@ -23,7 +23,7 @@ import logisticspipes.network.to_server.block.OpenLogicControllerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeOrderWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.routing.order.IOrderInfoProvider;
+import logisticspipes.request.order.IOrderInfoProvider;
 import logisticspipes.security.ClientAuthorizations;
 import logisticspipes.utils.Color;
 import logisticspipes.utils.gui.ItemDisplay;

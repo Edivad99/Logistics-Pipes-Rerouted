@@ -1,4 +1,4 @@
-package logisticspipes.routing.order;
+package logisticspipes.request.order;
 
 import logisticspipes.ticks.LPTickHandler;
 

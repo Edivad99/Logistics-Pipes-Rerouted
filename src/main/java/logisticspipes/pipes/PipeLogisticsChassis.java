@@ -79,15 +79,15 @@ import logisticspipes.property.SlottedModule;
 import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
+import logisticspipes.request.order.ItemOrder;
+import logisticspipes.request.order.Order;
 import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.item.ChassisDeliveryHandler;
 import logisticspipes.routing.item.DeliveryHandler;
-import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
-import logisticspipes.routing.order.LogisticsItemOrder;
-import logisticspipes.routing.order.LogisticsOrder;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.PipeTexture;
@@ -110,7 +110,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     /**
      * ICraftItems
      */
-    private final LinkedList<LogisticsOrder> extras = new LinkedList<>();
+    private final LinkedList<Order> extras = new LinkedList<>();
     private final Tier tier;
     private final ChassisModule module;
     private final ItemIdentifierInventory moduleInventory;
@@ -498,14 +498,14 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     }
 
     @Override
-    public @Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination,
+    public @Nullable Order fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         if (!isEnabled()) {
             return null;
         }
         for (int i = 0; i < getChassisSize(); i++) {
             if (getSubModule(i) instanceof ILegacyActiveModule legacyActiveModule) {
-                LogisticsOrder result = legacyActiveModule.fullFill(promise, destination, info);
+                Order result = legacyActiveModule.fullFill(promise, destination, info);
                 if (result != null) {
                     spawnParticle(Particles.WHITE_SPARKLE, 2);
                     return result;
@@ -675,7 +675,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
         }
         ItemIdentifierStack stack = new ItemIdentifierStack(((ItemPromise) promise).item,
             ((ItemPromise) promise).numberOfItems);
-        extras.add(new LogisticsItemOrder(new DictResource(stack, null), null, ResourceType.EXTRA, null));
+        extras.add(new ItemOrder(new DictResource(stack, null), null, ResourceType.EXTRA, null));
     }
 
     @Override
