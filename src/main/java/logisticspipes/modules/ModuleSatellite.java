@@ -8,8 +8,8 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.connection.NeighborBlockEntityUtil;
 import logisticspipes.interfaces.IPipeServiceProvider;
-import logisticspipes.utils.SinkReply;
-import logisticspipes.utils.SinkReply.FixedPriority;
+import logisticspipes.routing.sink.SinkReply;
+import logisticspipes.routing.sink.SinkReply.FixedPriority;
 import logisticspipes.utils.item.ItemIdentifier;
 
 public class ModuleSatellite extends LogisticsModule {

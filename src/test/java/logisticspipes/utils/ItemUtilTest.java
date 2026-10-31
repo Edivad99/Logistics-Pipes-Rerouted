@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import logisticspipes.TestBootstrap;
+import logisticspipes.routing.sink.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

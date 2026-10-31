@@ -23,7 +23,6 @@ import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.utils.FluidIdentifierStack;
-import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.item.LogisticsFluidContainer;

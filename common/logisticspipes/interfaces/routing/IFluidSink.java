@@ -2,8 +2,8 @@ package logisticspipes.interfaces.routing;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.routing.sink.FluidSinkReply;
 import logisticspipes.utils.FluidIdentifierStack;
-import logisticspipes.utils.FluidSinkReply;
 
 public interface IFluidSink {
 

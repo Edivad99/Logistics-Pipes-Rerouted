@@ -6,7 +6,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.PipeLogisticsChassis;
-import logisticspipes.utils.SinkReply;
+import logisticspipes.routing.sink.SinkReply;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class ChassisDeliveryHandler extends DeliveryHandler {

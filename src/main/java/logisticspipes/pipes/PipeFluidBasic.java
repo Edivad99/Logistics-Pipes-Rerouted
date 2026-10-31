@@ -8,8 +8,8 @@ import net.minecraft.world.item.Item;
 
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.pipes.basic.fluid.FluidSinkPipe;
+import logisticspipes.routing.sink.FluidSinkReply.FixedFluidPriority;
 import logisticspipes.textures.PipeTexture;
-import logisticspipes.utils.FluidSinkReply.FixedFluidPriority;
 import logisticspipes.world.inventory.FluidSinkMenu;
 
 public class PipeFluidBasic extends FluidSinkPipe implements IPipeMenuProvider {

@@ -13,7 +13,6 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.FluidIdentifierStack;
-import logisticspipes.utils.FluidSinkReply;
 
 /**
  * Finds the fluid sink a fluid should go to: the fluid counterpart of {@link ItemSinkFinder}.

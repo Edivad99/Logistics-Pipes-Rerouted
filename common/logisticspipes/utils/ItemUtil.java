@@ -3,6 +3,7 @@ package logisticspipes.utils;
 import net.minecraft.world.item.ItemStack;
 
 import logisticspipes.inventory.IItemIdentifierInventory;
+import logisticspipes.routing.sink.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 

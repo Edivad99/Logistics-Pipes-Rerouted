@@ -28,7 +28,7 @@ import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.interfaces.ISlotUpgradeManager;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_server.module.ModuleWatchMessage;
-import logisticspipes.utils.SinkReply;
+import logisticspipes.routing.sink.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.item.ItemModule;
 import logisticspipes.world.item.LPItems;

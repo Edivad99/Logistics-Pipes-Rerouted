@@ -9,7 +9,7 @@ import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.routing.IRouter;
 import logisticspipes.routing.item.IRoutedItem;
-import logisticspipes.utils.SinkReply;
+import logisticspipes.routing.sink.SinkReply;
 
 public interface ISendRoutedItem {
 

@@ -1,4 +1,4 @@
-package logisticspipes.utils;
+package logisticspipes.routing.sink;
 
 import org.jspecify.annotations.Nullable;
 

@@ -19,9 +19,9 @@ import logisticspipes.particle.Particles;
 import logisticspipes.routing.AsyncRouting;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.routing.sink.PassiveSinkFinder;
+import logisticspipes.routing.sink.SinkReply;
 import logisticspipes.util.ModuleUtil;
 import logisticspipes.utils.ItemUtil;
-import logisticspipes.utils.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 

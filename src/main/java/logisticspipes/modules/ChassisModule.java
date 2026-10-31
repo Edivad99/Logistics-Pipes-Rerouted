@@ -23,7 +23,7 @@ import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.property.SlottedModule;
 import logisticspipes.property.SlottedModuleListProperty;
 import logisticspipes.property.UpgradeManagerListProperty;
-import logisticspipes.utils.SinkReply;
+import logisticspipes.routing.sink.SinkReply;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.inventory.ChassisMenu;
 
