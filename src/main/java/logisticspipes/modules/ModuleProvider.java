@@ -49,7 +49,7 @@ import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.inventory.IItemIdentifierInventory;
 import logisticspipes.inventory.InventoryUtilFactory;
 import logisticspipes.inventory.ProviderMode;
-import logisticspipes.logistics.LogisticsManager;
+import logisticspipes.logistics.ItemSinkFinder;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.network.ModuleTarget;
 import logisticspipes.network.to_client.module.ModuleInventoryMessage;
@@ -327,7 +327,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
                 this.service.getItemOrderManager().sendFailed();
                 return 0;
             }
-            SinkReply reply = LogisticsManager
+            SinkReply reply = ItemSinkFinder
                 .canSink(stack.makeNormalStack(), dRtr, null, true, stack.getItem(), null, true, false);
             boolean deferSend = false;
             if (reply != null) {// some pipes are not aware of the space in the adjacent inventory, so they return null

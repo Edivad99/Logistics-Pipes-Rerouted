@@ -28,7 +28,7 @@ import logisticspipes.utils.item.ItemIdentifier;
  * Finds the routers that passively accept an item, best offer first, for the modules that push
  * stacks out of their own accord.
  *
- * <p>Distinct from {@link LogisticsManager}, which serves active requests and the GUIs: this one
+ * <p>Distinct from {@link ItemSinkFinder}, which serves routed items and active requests: this one
  * starts from the interest index rather than a list of candidates, takes only modules that
  * {@link logisticspipes.modules.LogisticsModule#receivePassive() receive passively}, and charges
  * the destination for what it accepts.

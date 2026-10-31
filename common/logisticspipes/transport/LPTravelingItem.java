@@ -23,7 +23,6 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
-import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.RouterManager;
@@ -304,7 +303,7 @@ public abstract class LPTravelingItem {
 					}
 					if (destinationRouter.getPipe() instanceof IRequireReliableFluidTransport) {
 						if (info.getItem().getItem().isFluidContainer()) {
-							FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(info.getItem());
+							FluidIdentifierStack liquid = LogisticsFluidContainer.getFluid(info.getItem());
 							((IRequireReliableFluidTransport) destinationRouter.getPipe()).liquidLost(liquid.getFluid(), liquid.getAmount());
 						}
 					}

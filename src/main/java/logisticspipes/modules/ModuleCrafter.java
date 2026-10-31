@@ -62,7 +62,7 @@ import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.inventory.IInventoryUtil;
 import logisticspipes.inventory.IItemIdentifierInventory;
-import logisticspipes.logistics.LogisticsManager;
+import logisticspipes.logistics.ItemSinkFinder;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.network.ModuleTarget;
@@ -263,7 +263,7 @@ public class ModuleCrafter extends LogisticsModule
         while (lostItem != null && reRequested < 100) {
             LostItem lost = lostItem.get();
             if (service.getItemOrderManager().hasOrders(ResourceType.CRAFTING)) {
-                SinkReply reply = LogisticsManager.canSink(lost.stack().makeNormalStack(), getRouter(), null, true,
+                SinkReply reply = ItemSinkFinder.canSink(lost.stack().makeNormalStack(), getRouter(), null, true,
                     lost.stack().getItem(), null, true, true, false);
                 if (reply == null || reply.maxNumberOfItems < 1) {
                     lostItems.add(new DelayedGeneric<>(lost, 9000 + (int) (Math.random() * 2000)));
@@ -962,7 +962,7 @@ public class ModuleCrafter extends LogisticsModule
                 itemsLeft -= numToSend;
                 ItemStack stackToSend = extracted.split(numToSend);
                 if (nextOrder.getDestination() != null) {
-                    SinkReply reply = LogisticsManager
+                    SinkReply reply = ItemSinkFinder
                         .canSink(stackToSend, nextOrder.getDestination().getRouter(), null, true,
                             ItemIdentifier.get(stackToSend), null, true, false);
                     boolean deferSend = (reply == null || reply.bufferMode != BufferMode.NONE
@@ -1005,7 +1005,7 @@ public class ModuleCrafter extends LogisticsModule
         boolean result = true;
         for (LogisticsItemOrder order : service.getItemOrderManager()) {
             if (order.getDestination() instanceof IItemSpaceControl) {
-                SinkReply reply = LogisticsManager
+                SinkReply reply = ItemSinkFinder
                     .canSink(order.getResource().stack.makeNormalStack(), order.getDestination().getRouter(), null,
                         true, order.getResource().getItem(), null, true, false);
                 if (reply != null && reply.bufferMode == BufferMode.NONE && reply.maxNumberOfItems >= 1) {

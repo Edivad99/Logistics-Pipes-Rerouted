@@ -16,7 +16,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.api.util.ITankUtil;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.inventory.tank.SpecialTankHandler;
-import logisticspipes.logistics.LogisticsFluidManager;
+import logisticspipes.logistics.FluidSinkFinder;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.modules.LogisticsModule;
@@ -35,6 +35,7 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.transfer.LPFluidTank;
+import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public abstract class FluidRoutedPipe extends CoreRoutedPipe {
@@ -187,7 +188,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
         for (ItemRoutingInformation next : inTransitToMe) {
             ItemIdentifierStack item = next.getItem();
             if (item.getItem().isFluidContainer()) {
-                FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(item);
+                FluidIdentifierStack liquid = LogisticsFluidContainer.getFluid(item);
                 if (liquid.getFluid().equals(ident)) {
                     amount += liquid.getAmount();
                 }
@@ -213,7 +214,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
                 return false;
             }
             int filled;
-            FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(
+            FluidIdentifierStack liquid = LogisticsFluidContainer.getFluid(
                 arrivingItem.getItemIdentifierStack());
             if (isConnectableTank(tile, arrivingItem.output, false)) {
                 //Try to put liquid into all adjacent tanks.
@@ -247,7 +248,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
             }
 
             IRoutedItem routedItem = new LPTravelingItemServer(
-                LogisticsFluidManager.getFluidContainer(liquid));
+                LogisticsFluidContainer.of(liquid));
             // Carry forward the arriving item's jam list so the rerouted remainder does
             // not immediately pick the same (now-full) path again, and add this pipe's
             // router to prevent looping back here on the very next hop.
@@ -258,7 +259,7 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
                 }
             }
             routedItem.addToJamList(getRouter());
-            LogisticsFluidManager.BestReply replies = LogisticsFluidManager.getBestReply(liquid,
+            FluidSinkFinder.BestReply replies = FluidSinkFinder.getBestReply(liquid,
                 getRouter(), routedItem.getJamList());
             if (replies == null) {
                 // clear destination without marking item as lost

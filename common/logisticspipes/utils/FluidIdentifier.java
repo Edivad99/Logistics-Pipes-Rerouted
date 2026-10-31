@@ -31,9 +31,9 @@ import com.mojang.serialization.Codec;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
-import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.item.LogisticsFluidContainer;
 
 /**
  * The fluid counterpart of {@link ItemIdentifier}: an immutable, interned, unique handle on a fluid
@@ -151,7 +151,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier> {
 	 */
 	@Nullable
 	public static FluidIdentifier get(ItemIdentifierStack stack) {
-		FluidIdentifierStack fstack = LogisticsFluidManager.getFluidFromContainer(stack);
+		FluidIdentifierStack fstack = LogisticsFluidContainer.getFluid(stack);
 		if (fstack != null) {
 			return FluidIdentifier.get(fstack.makeFluidStack());
 		}
@@ -208,7 +208,7 @@ public class FluidIdentifier implements Comparable<FluidIdentifier> {
 	}
 
 	public ItemIdentifier getItemIdentifier() {
-		return LogisticsFluidManager.getFluidContainer(this.makeFluidIdentifierStack(1)).getItem();
+		return LogisticsFluidContainer.of(this.makeFluidIdentifierStack(1)).getItem();
 	}
 
 	public int getFreeSpaceInsideTank(ResourceHandler<FluidResource> tank) {

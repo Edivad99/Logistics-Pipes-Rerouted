@@ -9,7 +9,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import logisticspipes.logistics.LogisticsFluidManager;
+import logisticspipes.logistics.FluidSinkFinder;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
@@ -18,6 +18,7 @@ import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.item.LogisticsFluidContainer;
 
 public class PipeFluidInsertion extends FluidRoutedPipe {
 
@@ -49,7 +50,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
                 continue;
             }
 
-            LogisticsFluidManager.BestReply result = LogisticsFluidManager.getBestReply(
+            FluidSinkFinder.BestReply result = FluidSinkFinder.getBestReply(
                 FluidIdentifierStack.getFromStack(stack), getRouter(), List.of());
             if (result == null || result.reply().sinkAmount <= 0) {
                 nextSendMax[dir.ordinal()] = 100;
@@ -64,7 +65,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
             }
 
             FluidStack toSend = transport.sideTanks[dir.ordinal()].drain(result.reply().getSinkAmountInt(), true);
-            ItemIdentifierStack liquidContainer = LogisticsFluidManager.getFluidContainer(
+            ItemIdentifierStack liquidContainer = LogisticsFluidContainer.of(
                 FluidIdentifierStack.getFromStack(toSend));
             IRoutedItem routed = new LPTravelingItemServer(liquidContainer);
             routed.setDestination(result.routerId());

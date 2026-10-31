@@ -16,11 +16,11 @@ import dan200.computercraft.api.lua.MethodResult;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISecurityProvider;
-import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.pipes.PipeItemsCraftingLogistics;
 import logisticspipes.pipes.PipeItemsRequestLogistics;
 import logisticspipes.pipes.PipeLogisticsChassis;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.NetworkItems;
 import logisticspipes.request.RequestHandler;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.IRouter;
@@ -182,11 +182,11 @@ final class PipeMethods {
     }
 
     private static Map<ItemIdentifier, Integer> availableItems(CoreRoutedPipe pipe) {
-        return LogisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
+        return NetworkItems.getAvailableItems(pipe.getRouter().getIRoutersByCost());
     }
 
     private static List<ItemIdentifier> craftableItems(CoreRoutedPipe pipe) {
-        return LogisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
+        return NetworkItems.getCraftableItems(pipe.getRouter().getIRoutersByCost());
     }
 
     /**

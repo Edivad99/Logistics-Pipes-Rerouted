@@ -13,9 +13,9 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.Translations;
 import logisticspipes.interfaces.routing.IRequestItems;
-import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.NetworkItems;
 import logisticspipes.security.SecurityPermission;
 import logisticspipes.security.SecurityPermissions;
 import logisticspipes.textures.PipeTexture;
@@ -72,7 +72,7 @@ public class PipeItemsRequestLogistics extends CoreRoutedPipe implements IReques
     public void enabledUpdateEntity() {
         super.enabledUpdateEntity();
         if (getLevel().getGameTime() % 1200 == 0) {
-            history.addLast(LogisticsManager.getAvailableItems(getRouter().getIRoutersByCost()));
+            history.addLast(NetworkItems.getAvailableItems(getRouter().getIRoutersByCost()));
             if (history.size() > 20) {
                 history.removeFirst();
             }

@@ -75,7 +75,6 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.interfaces.routing.IRequireReliableFluidTransport;
 import logisticspipes.interfaces.routing.IRequireReliableTransport;
-import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.logisticspipes.ITrackStatistics;
@@ -122,6 +121,7 @@ import logisticspipes.world.inventory.OrdererMenu;
 import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.ItemPipeController;
 import logisticspipes.world.item.LPItems;
+import logisticspipes.world.item.LogisticsFluidContainer;
 import logisticspipes.world.level.block.entity.LogisticsSecurityBlockEntity;
 
 public abstract class CoreRoutedPipe extends CoreUnroutedPipe
@@ -1239,7 +1239,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (this instanceof IRequireReliableFluidTransport requireReliableFluidTransport) {
             ItemIdentifierStack stack = information.getItem();
             if (stack.getItem().isFluidContainer()) {
-                FluidIdentifierStack liquid = LogisticsFluidManager.getFluidFromContainer(stack);
+                FluidIdentifierStack liquid = LogisticsFluidContainer.getFluid(stack);
                 if (liquid != null) {
                     requireReliableFluidTransport.liquidArrived(liquid.getFluid(), liquid.getAmount());
                 }

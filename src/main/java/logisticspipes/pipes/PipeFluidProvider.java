@@ -18,7 +18,6 @@ import logisticspipes.interfaces.routing.IProvideFluids;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.inventory.tank.ISpecialTankAccessHandler;
 import logisticspipes.inventory.tank.ISpecialTankUtil;
-import logisticspipes.logistics.LogisticsFluidManager;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.IRoutedItem.TransportMode;
 import logisticspipes.pipes.PipeFluidUtil.AdjacentTank;
@@ -36,6 +35,7 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
+import logisticspipes.world.item.LogisticsFluidContainer;
 
 public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids {
 
@@ -71,7 +71,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
                         true);
                     int amount = drained.getAmount();
                     amountToSend.addAndGet(-amount);
-                    ItemIdentifierStack stack = LogisticsFluidManager.getFluidContainer(
+                    ItemIdentifierStack stack = LogisticsFluidContainer.of(
                         FluidIdentifierStack.getFromStack(drained));
                     IRoutedItem item = new LPTravelingItemServer(stack);
                     item.setDestination(order.getRouter().getSimpleID());
@@ -121,7 +121,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
                                         }
                                         amount = drained.getAmount();
                                         amountToSend.addAndGet(-amount);
-                                        ItemIdentifierStack stack = LogisticsFluidManager.getFluidContainer(
+                                        ItemIdentifierStack stack = LogisticsFluidContainer.of(
                                             drained);
                                         IRoutedItem item = new LPTravelingItemServer(stack);
                                         item.setDestination(order.getRouter().getSimpleID());

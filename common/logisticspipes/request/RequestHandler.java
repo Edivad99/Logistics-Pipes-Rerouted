@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -22,15 +23,16 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.Translations;
 import logisticspipes.interfaces.IRequestWatcher;
+import logisticspipes.interfaces.routing.IProvideFluids;
 import logisticspipes.interfaces.routing.IRequestFluid;
-import logisticspipes.logistics.LogisticsFluidManager;
-import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.to_client.orderer.OrdererContentMessage;
 import logisticspipes.network.to_client.orderer.RequestAnswerMessage;
 import logisticspipes.network.to_client.orderer.RequestComponentsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.RequestTree.ActiveRequestType;
 import logisticspipes.request.resources.IResource;
+import logisticspipes.routing.ExitRoute;
+import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.order.LinkedLogisticsOrderList;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.FluidIdentifierStack;
@@ -103,12 +105,12 @@ public class RequestHandler {
 		LinkedList<ItemIdentifier> craftableItems;
 
 		if (option == DisplayOptions.SupplyOnly || option == DisplayOptions.Both) {
-			availableItems = LogisticsManager.getAvailableItems(pipe.getRouter().getIRoutersByCost());
+			availableItems = NetworkItems.getAvailableItems(pipe.getRouter().getIRoutersByCost());
 		} else {
 			availableItems = new HashMap<>();
 		}
 		if (option == DisplayOptions.CraftOnly || option == DisplayOptions.Both) {
-			craftableItems = LogisticsManager.getCraftableItems(pipe.getRouter().getIRoutersByCost());
+			craftableItems = NetworkItems.getCraftableItems(pipe.getRouter().getIRoutersByCost());
 		} else {
 			craftableItems = new LinkedList<>();
 		}
@@ -221,10 +223,44 @@ public class RequestHandler {
 	}
 
 	public static void refreshFluid(Player player, CoreRoutedPipe pipe) {
-		TreeSet<FluidIdentifierStack> allItems = LogisticsFluidManager.getAvailableFluid(pipe.getRouter().getIRoutersByCost());
+		TreeSet<FluidIdentifierStack> allItems = getAvailableFluid(pipe.getRouter().getIRoutersByCost());
 		sendToPlayer(player, new OrdererContentMessage(allItems.stream()
 				.map(item -> new ItemIdentifierStack(item.getFluid().getItemIdentifier(), item.getAmount()))
 				.toList()));
+	}
+
+	/** Every fluid the reachable providers offer, amounts summed across them and capped at Integer.MAX_VALUE. */
+	private static TreeSet<FluidIdentifierStack> getAvailableFluid(List<ExitRoute> validDestinations) {
+		Map<FluidIdentifier, Integer> allAvailableItems = new HashMap<>();
+		for (ExitRoute r : validDestinations) {
+			if (r == null) {
+				continue;
+			}
+			if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
+				continue;
+			}
+			if (!(r.destination.getPipe() instanceof IProvideFluids provider)) {
+				continue;
+			}
+
+			Map<FluidIdentifier, Integer> allItems = provider.getAvailableFluids();
+
+			for (Entry<FluidIdentifier, Integer> liquid : allItems.entrySet()) {
+				Integer amount = allAvailableItems.get(liquid.getKey());
+				if (amount == null) {
+					allAvailableItems.put(liquid.getKey(), liquid.getValue());
+				} else {
+					long addition = ((long) amount) + liquid.getValue();
+					if (addition > Integer.MAX_VALUE) {
+						addition = Integer.MAX_VALUE;
+					}
+					allAvailableItems.put(liquid.getKey(), (int) addition);
+				}
+			}
+		}
+		return allAvailableItems.entrySet().stream()
+				.map(item -> new FluidIdentifierStack(item.getKey(), item.getValue()))
+				.collect(Collectors.toCollection(TreeSet::new));
 	}
 
 	public static void requestFluid(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe, IRequestFluid requester) {

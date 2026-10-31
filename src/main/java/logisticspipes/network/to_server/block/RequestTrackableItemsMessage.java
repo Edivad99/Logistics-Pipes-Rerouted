@@ -18,10 +18,10 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.Translations;
-import logisticspipes.logistics.LogisticsManager;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.block.TrackableItemsMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.NetworkItems;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
@@ -56,9 +56,9 @@ public record RequestTrackableItemsMessage(BlockPos pos) implements CustomPacket
         }
         final var routers = pipe.getRouter().getIRoutersByCost();
         final Map<ItemIdentifier, Integer> available =
-            LogisticsManager.getAvailableItems(routers);
+            NetworkItems.getAvailableItems(routers);
         final LinkedList<ItemIdentifier> craftable =
-            LogisticsManager.getCraftableItems(routers);
+            NetworkItems.getCraftableItems(routers);
 
         // Sorted and deduplicated: an item that is both stocked and craftable is offered once,
         // showing what there is rather than a placeholder count.

@@ -44,7 +44,7 @@ import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.IRequestWatcher;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.IScreenOpenController;
-import logisticspipes.logistics.LogisticsManager;
+import logisticspipes.logistics.ItemSinkFinder;
 import logisticspipes.logisticspipes.IRoutedItem;
 import logisticspipes.logisticspipes.TransportLayer;
 import logisticspipes.network.to_client.crafting.CraftingTargetMessage;
@@ -214,7 +214,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
                 return;
             }
             IRoutedItem itemToSend = new LPTravelingItemServer(stack);
-            LogisticsManager.assignDestinationFor(itemToSend, getRouter().getSimpleID(), false);
+            ItemSinkFinder.assignDestinationFor(itemToSend, getRouter().getSimpleID(), false);
             if (itemToSend.getDestinationUUID() != null) {
                 Direction dir = getRouteLayer().getOrientationForItem(itemToSend, null);
                 super.queueRoutedItem(itemToSend, dir.getOpposite());
