@@ -9,8 +9,8 @@ import net.minecraft.world.item.component.CustomData;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.TestBootstrap;
+import logisticspipes.utils.item.ItemIdentifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

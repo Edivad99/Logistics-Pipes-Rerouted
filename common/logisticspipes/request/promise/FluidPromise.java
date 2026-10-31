@@ -5,15 +5,13 @@
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
  */
 
-package logisticspipes.routing;
+package logisticspipes.request.promise;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IProvideFluids;
-import logisticspipes.request.IExtraPromise;
-import logisticspipes.request.IPromise;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.order.IOrderInfoProvider;
@@ -21,7 +19,7 @@ import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 
-public class FluidLogisticsPromise implements IPromise {
+public class FluidPromise implements IPromise {
 
 	public FluidIdentifier liquid;
 	public int amount;
@@ -29,8 +27,8 @@ public class FluidLogisticsPromise implements IPromise {
 	public ResourceType type;
 
 	@Override
-	public FluidLogisticsPromise copy() {
-		FluidLogisticsPromise result = new FluidLogisticsPromise();
+	public FluidPromise copy() {
+		FluidPromise result = new FluidPromise();
 		result.liquid = liquid;
 		result.amount = amount;
 		result.sender = sender;
@@ -55,7 +53,7 @@ public class FluidLogisticsPromise implements IPromise {
 	@Override
 	public IExtraPromise split(int more) {
 		amount -= more;
-		return new FluidLogisticsExtraPromise(liquid, more, sender, false);
+		return new ExtraFluidPromise(liquid, more, sender, false);
 	}
 
 	@Override

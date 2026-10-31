@@ -1,4 +1,4 @@
-package logisticspipes.interfaces;
+package logisticspipes.routing.debug;
 
 import java.util.ArrayList;
 import java.util.EnumMap;

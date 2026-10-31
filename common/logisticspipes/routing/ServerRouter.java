@@ -50,7 +50,6 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.api.provider.ILogisticsPowerProvider;
-import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IFilter;
@@ -58,11 +57,12 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.PipeItemsFirewall;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
+import logisticspipes.routing.debug.IRoutingDebugAdapter;
+import logisticspipes.routing.debug.NoOpRoutingDebugAdapter;
 import logisticspipes.routing.pathfinder.PathFinder;
 import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.ticks.LPTickHandler;
@@ -72,6 +72,7 @@ import logisticspipes.utils.OneList;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
@@ -642,7 +643,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 	}
 
 	public void CreateRouteTable(int version_to_update_to) {
-		CreateRouteTable(version_to_update_to, new DummyRoutingDebugAdapter());
+		CreateRouteTable(version_to_update_to, new NoOpRoutingDebugAdapter());
 	}
 
 	/**

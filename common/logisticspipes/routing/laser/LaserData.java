@@ -1,4 +1,4 @@
-package logisticspipes.routing;
+package logisticspipes.routing.laser;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -10,6 +10,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import net.neoforged.neoforge.network.codec.NeoForgeStreamCodecs;
+
+import logisticspipes.routing.PipeRoutingConnectionType;
 
 /**
  * One segment of the routing beam drawn between two pipes.

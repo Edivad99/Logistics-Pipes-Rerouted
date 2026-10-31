@@ -8,9 +8,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import logisticspipes.routing.pathfinder.PipeInformationManager;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.QueuedTasks;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class TEControl {
 

@@ -1,4 +1,4 @@
-package logisticspipes.request;
+package logisticspipes.request.promise;
 
 import logisticspipes.request.resources.IResource;
 

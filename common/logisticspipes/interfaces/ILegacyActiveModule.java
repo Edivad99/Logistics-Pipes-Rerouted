@@ -10,7 +10,7 @@ import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
-import logisticspipes.routing.LogisticsPromise;
+import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.routing.order.LogisticsOrder;
 import logisticspipes.utils.item.ItemIdentifier;
 
@@ -20,7 +20,7 @@ public interface ILegacyActiveModule {
 
 	void canProvide(RequestTreeNode tree, RequestTree root, List<IFilter> filter);
 
-	@Nullable LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination, @Nullable IAdditionalTargetInformation info);
+	@Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination, @Nullable IAdditionalTargetInformation info);
 
 	void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter);
 }

@@ -1,4 +1,4 @@
-package logisticspipes.routing;
+package logisticspipes.routing.laser;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -15,8 +15,11 @@ import net.minecraft.core.Direction;
 import logisticspipes.LPConfigs;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
+import logisticspipes.routing.ExitRoute;
+import logisticspipes.routing.IRouter;
+import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.pathfinder.PathFinder;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
  * Walks a pipe's routing table and turns it into the beam segments the HUD draws.

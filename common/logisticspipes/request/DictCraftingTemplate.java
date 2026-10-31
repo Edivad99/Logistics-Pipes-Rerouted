@@ -15,11 +15,12 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.ICraftItems;
+import logisticspipes.request.promise.DictPromise;
+import logisticspipes.request.promise.ExtraItemPromise;
+import logisticspipes.request.promise.IExtraPromise;
+import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.routing.LogisticsDictPromise;
-import logisticspipes.routing.LogisticsExtraPromise;
-import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
@@ -55,8 +56,8 @@ public class DictCraftingTemplate implements IReqCraftingTemplate {
 	}
 
 	@Override
-	public LogisticsPromise generatePromise(int nResultSets) {
-		return new LogisticsDictPromise(result, result.stack.getStackSize() * nResultSets, crafter, ResourceType.CRAFTING);
+	public ItemPromise generatePromise(int nResultSets) {
+		return new DictPromise(result, result.stack.getStackSize() * nResultSets, crafter, ResourceType.CRAFTING);
 	}
 
 	//TODO: refactor so that other classes don't reach through the template to the crafter.
@@ -116,7 +117,7 @@ public class DictCraftingTemplate implements IReqCraftingTemplate {
 	@Override
 	public List<IExtraPromise> getByproducts(int workSets) {
 		return byproduct.stream()
-				.map(stack -> new LogisticsExtraPromise(stack.getItem(), stack.getStackSize() * workSets, getCrafter(), false))
+				.map(stack -> new ExtraItemPromise(stack.getItem(), stack.getStackSize() * workSets, getCrafter(), false))
 				.collect(Collectors.toList());
 	}
 

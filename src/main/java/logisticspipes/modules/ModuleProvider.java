@@ -57,11 +57,11 @@ import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.IRouter;
-import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
@@ -241,14 +241,14 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
             if (canProvide < 1) {
                 continue;
             }
-            LogisticsPromise promise = new LogisticsPromise(item, canProvide, (IProvideItems) service,
+            ItemPromise promise = new ItemPromise(item, canProvide, (IProvideItems) service,
                 ResourceType.PROVIDER);
             tree.addPromise(promise);
         }
     }
 
     @Override
-    public @Nullable LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination,
+    public @Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         if (this.service == null) {
             return null;

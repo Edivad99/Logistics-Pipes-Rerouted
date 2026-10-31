@@ -1,6 +1,6 @@
 package logisticspipes.interfaces.routing;
 
-import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.item.ItemRoutingInformation;
 
 public interface IChannelRoutingConnection {
 

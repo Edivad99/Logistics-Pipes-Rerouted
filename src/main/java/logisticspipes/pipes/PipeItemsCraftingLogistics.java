@@ -35,11 +35,11 @@ import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.signs.CraftingPipeSign;
 import logisticspipes.request.ICraftingTemplate;
-import logisticspipes.request.IPromise;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.promise.IPromise;
+import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.routing.order.LogisticsItemOrderManager;
 import logisticspipes.routing.order.LogisticsOrder;
@@ -111,7 +111,7 @@ public class PipeItemsCraftingLogistics extends CoreRoutedPipe
     }
 
     @Override
-    public @Nullable LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination,
+    public @Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         return craftingModule.fullFill(promise, destination, info);
     }

@@ -30,17 +30,17 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.provider.ILogisticsPowerProvider;
 import logisticspipes.connection.special.SpecialBlockEntityConnection;
-import logisticspipes.connection.special.SpecialPipeConnection.ConnectionInformation;
 import logisticspipes.connection.special.SpecialPipeConnection;
+import logisticspipes.connection.special.SpecialPipeConnection.ConnectionInformation;
 import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IChannelRoutingConnection;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.ExitRoute;
-import logisticspipes.routing.IPaintPath;
-import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
 import logisticspipes.routing.RouterManager;
+import logisticspipes.routing.laser.ILaserPainter;
+import logisticspipes.routing.laser.LaserData;
 import logisticspipes.routing.pathfinder.IRouteProvider.RouteInfo;
 import logisticspipes.routing.pathfinder.changedetection.ITileEntityChangeListener;
 import logisticspipes.utils.OneList;
@@ -65,7 +65,7 @@ public class PathFinder {
 	 *            - The maximum recurse depth, i.e. the maximum length pipe that
 	 *            is supported
 	 */
-	public static HashMap<CoreRoutedPipe, ExitRoute> paintAndgetConnectedRoutingPipes(BlockEntity startPipe, Direction startOrientation, int maxVisited, int maxLength, IPaintPath pathPainter, EnumSet<PipeRoutingConnectionType> connectionType) {
+	public static HashMap<CoreRoutedPipe, ExitRoute> paintAndgetConnectedRoutingPipes(BlockEntity startPipe, Direction startOrientation, int maxVisited, int maxLength, ILaserPainter pathPainter, EnumSet<PipeRoutingConnectionType> connectionType) {
 		IPipeInformationProvider startProvider = PipeInformationManager.getInformationProviderFor(startPipe);
 		if (startProvider == null) {
 			return new HashMap<>();
@@ -97,7 +97,7 @@ public class PathFinder {
 		result = getConnectedRoutingPipes(startPipe, EnumSet.allOf(PipeRoutingConnectionType.class), side);
 	}
 
-	private PathFinder(int maxVisited, int maxLength, @Nullable IPaintPath pathPainter) {
+	private PathFinder(int maxVisited, int maxLength, @Nullable ILaserPainter pathPainter) {
 		this.maxVisited = maxVisited;
 		this.maxLength = maxLength;
 		setVisited = new HashSet<>();
@@ -117,7 +117,7 @@ public class PathFinder {
 	private final HashMap<DistanceKey, Double> distances;
 
 	private record DistanceKey(BlockPos pos, boolean viaSpecialConnection) {}
-	private final @Nullable IPaintPath pathPainter;
+	private final @Nullable ILaserPainter pathPainter;
 	private double pipesVisited;
 
 	public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> powerNodes;

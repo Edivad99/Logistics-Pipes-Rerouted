@@ -1,16 +1,15 @@
-package logisticspipes.routing;
+package logisticspipes.request.promise;
 
 import lombok.Getter;
 
 import logisticspipes.interfaces.routing.ICraftItems;
 import logisticspipes.interfaces.routing.IProvideItems;
-import logisticspipes.request.IExtraPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
 
-public class LogisticsExtraDictPromise extends LogisticsDictPromise implements IExtraPromise {
+public class ExtraDictPromise extends DictPromise implements IExtraPromise {
 
-	public LogisticsExtraDictPromise(DictResource item, int numberOfItems, IProvideItems sender, boolean provided) {
+	public ExtraDictPromise(DictResource item, int numberOfItems, IProvideItems sender, boolean provided) {
 		super(item, numberOfItems, sender, null);
 		this.provided = provided;
 	}
@@ -19,8 +18,8 @@ public class LogisticsExtraDictPromise extends LogisticsDictPromise implements I
 	public boolean provided;
 
 	@Override
-	public LogisticsExtraDictPromise copy() {
-		return new LogisticsExtraDictPromise(getResource(), numberOfItems, sender, provided);
+	public ExtraDictPromise copy() {
+		return new ExtraDictPromise(getResource(), numberOfItems, sender, provided);
 	}
 
 	@Override

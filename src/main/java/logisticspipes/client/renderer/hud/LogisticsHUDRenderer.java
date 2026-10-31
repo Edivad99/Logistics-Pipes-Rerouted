@@ -35,8 +35,8 @@ import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.IRouter;
-import logisticspipes.routing.LaserData;
 import logisticspipes.routing.PipeRoutingConnectionType;
+import logisticspipes.routing.laser.LaserData;
 import logisticspipes.world.item.component.HUDComponent;
 import logisticspipes.world.item.component.LPDataComponents;
 

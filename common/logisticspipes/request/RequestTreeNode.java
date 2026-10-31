@@ -20,15 +20,17 @@ import lombok.Getter;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.ICraft;
-import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.ICraftingTemplate.Requirement;
 import logisticspipes.request.RequestTree.ActiveRequestType;
 import logisticspipes.request.RequestTree.workWeightedSorter;
+import logisticspipes.request.promise.IExtraPromise;
+import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
@@ -196,7 +198,7 @@ public class RequestTreeNode {
 			int more = promise.getAmount() - getMissingAmount();
 			//promise.numberOfItems = getMissingAmount();
 			//Add Extra
-			//LogisticsExtraPromise extra = new LogisticsExtraPromise(promise.item, more, promise.sender, false);
+			//ExtraItemPromise extra = new ExtraItemPromise(promise.item, more, promise.sender, false);
 			extrapromises.add(promise.split(more));
 		}
 		if (promise.getAmount() <= 0) {

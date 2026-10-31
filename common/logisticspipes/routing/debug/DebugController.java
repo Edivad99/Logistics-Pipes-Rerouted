@@ -30,7 +30,6 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.LPConstants;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.commands.ChatUi;
-import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateListMessage;
 import logisticspipes.network.to_client.debug.RoutingDebugCandidateMessage;
@@ -151,7 +150,7 @@ public class DebugController implements IRoutingDebugAdapter {
 				waiting = false;
 				step = null;
 			}
-			final Thread thread = new RoutingTableDebugUpdateThread() {
+			final Thread thread = new Thread() {
 
 				@Override
 				public void run() {

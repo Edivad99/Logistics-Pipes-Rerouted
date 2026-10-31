@@ -79,21 +79,21 @@ import logisticspipes.pipes.basic.CoreRoutedPipe.ItemSendMode;
 import logisticspipes.property.ItemIdentifierInventoryProperty;
 import logisticspipes.request.DictCraftingTemplate;
 import logisticspipes.request.ICraftingTemplate;
-import logisticspipes.request.IPromise;
 import logisticspipes.request.IReqCraftingTemplate;
 import logisticspipes.request.ItemCraftingTemplate;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.promise.DictPromise;
+import logisticspipes.request.promise.ExtraDictPromise;
+import logisticspipes.request.promise.ExtraItemPromise;
+import logisticspipes.request.promise.IPromise;
+import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
 import logisticspipes.routing.ExitRoute;
 import logisticspipes.routing.IRouter;
-import logisticspipes.routing.LogisticsDictPromise;
-import logisticspipes.routing.LogisticsExtraDictPromise;
-import logisticspipes.routing.LogisticsExtraPromise;
-import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.item.IRoutedItem.TransportMode;
@@ -365,11 +365,11 @@ public class ModuleCrafter extends LogisticsModule
         }
         if (getUpgradeManager().isFuzzyUpgrade() && outputFuzzy().nextSetBit(0) != -1) {
             DictResource dict = new DictResource(craftedItem, null).loadFromBitSet(outputFuzzy().copyValue());
-            LogisticsExtraDictPromise promise = new LogisticsExtraDictPromise(dict,
+            ExtraDictPromise promise = new ExtraDictPromise(dict,
                 Math.min(remaining, tree.getMissingAmount()), this, true);
             tree.addPromise(promise);
         } else {
-            LogisticsExtraPromise promise = new LogisticsExtraPromise(craftedItem.getItem(),
+            ExtraItemPromise promise = new ExtraItemPromise(craftedItem.getItem(),
                 Math.min(remaining, tree.getMissingAmount()), this, true);
             tree.addPromise(promise);
         }
@@ -377,23 +377,23 @@ public class ModuleCrafter extends LogisticsModule
     }
 
     @Override
-    public @Nullable LogisticsItemOrder fullFill(LogisticsPromise promise, IRequestItems destination,
+    public @Nullable LogisticsItemOrder fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         final IPipeServiceProvider service = this.service;
         if (service == null) {
             return null;
         }
-        if (promise instanceof LogisticsExtraDictPromise) {
-            service.getItemOrderManager().removeExtras(((LogisticsExtraDictPromise) promise).getResource());
+        if (promise instanceof ExtraDictPromise) {
+            service.getItemOrderManager().removeExtras(((ExtraDictPromise) promise).getResource());
         }
-        if (promise instanceof LogisticsExtraPromise) {
+        if (promise instanceof ExtraItemPromise) {
             service.getItemOrderManager()
                 .removeExtras(new DictResource(new ItemIdentifierStack(promise.item, promise.numberOfItems), null));
         }
-        if (promise instanceof LogisticsDictPromise) {
+        if (promise instanceof DictPromise) {
             service.spawnParticle(Particles.WHITE_SPARKLE, 2);
             return service.getItemOrderManager()
-                .addOrder(((LogisticsDictPromise) promise).getResource(), destination, ResourceType.CRAFTING, info);
+                .addOrder(((DictPromise) promise).getResource(), destination, ResourceType.CRAFTING, info);
         }
         service.spawnParticle(Particles.WHITE_SPARKLE, 2);
         return service.getItemOrderManager()
@@ -435,8 +435,8 @@ public class ModuleCrafter extends LogisticsModule
         if (service == null) {
             return;
         }
-        if (promise instanceof LogisticsDictPromise) {
-            service.getItemOrderManager().addExtra(((LogisticsDictPromise) promise).getResource());
+        if (promise instanceof DictPromise) {
+            service.getItemOrderManager().addExtra(((DictPromise) promise).getResource());
         } else {
             ItemIdentifierStack stack = new ItemIdentifierStack(promise.getItemType(), promise.getAmount());
             service.getItemOrderManager().addExtra(new DictResource(stack, null));

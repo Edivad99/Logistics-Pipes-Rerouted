@@ -12,14 +12,14 @@ import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.routing.LogisticsPromise;
+import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.routing.order.LogisticsOrder;
 import logisticspipes.utils.item.ItemIdentifier;
 
 public interface IProvideItems extends IProvide {
 
 	@Nullable
-	LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination, @Nullable IAdditionalTargetInformation info);
+	LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination, @Nullable IAdditionalTargetInformation info);
 
 	void getAllItems(Map<ItemIdentifier, Integer> list, List<IFilter> filter);
 }

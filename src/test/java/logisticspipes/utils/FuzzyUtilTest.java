@@ -13,8 +13,8 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.TestBootstrap;
+import logisticspipes.utils.item.ItemIdentifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

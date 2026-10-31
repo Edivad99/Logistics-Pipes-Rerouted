@@ -11,7 +11,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 import logisticspipes.LPConstants;
 import logisticspipes.client.renderer.hud.LogisticsHUDRenderer;
-import logisticspipes.routing.LaserData;
+import logisticspipes.routing.laser.LaserData;
 
 /**
  * The beam segments to draw for the pipe the player asked about.

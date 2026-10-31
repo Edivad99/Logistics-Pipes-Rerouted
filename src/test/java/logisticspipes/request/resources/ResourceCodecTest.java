@@ -13,9 +13,9 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import logisticspipes.TestBootstrap;
 import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.TestBootstrap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;

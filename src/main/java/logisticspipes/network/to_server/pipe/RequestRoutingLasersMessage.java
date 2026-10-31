@@ -13,7 +13,7 @@ import logisticspipes.LPConstants;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.to_client.pipe.RoutingLasersMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.routing.RoutingLaserBuilder;
+import logisticspipes.routing.laser.RoutingLaserBuilder;
 
 /**
  * Asks a pipe to show where it can route to.

@@ -5,16 +5,11 @@
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
  */
 
-package logisticspipes.routing;
+package logisticspipes.routing.laser;
 
-class RouterCost {
+import net.minecraft.world.level.Level;
 
-	public final IRouter router;
-	public final int cost;
+public interface ILaserPainter {
 
-	public RouterCost(IRouter router, int cost) {
-		this.router = router;
-		this.cost = cost;
-	}
-
+	void addLaser(Level level, LaserData laser);
 }

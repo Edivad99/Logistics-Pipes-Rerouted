@@ -17,6 +17,8 @@ import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.promise.IExtraPromise;
+import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.resources.FluidResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;

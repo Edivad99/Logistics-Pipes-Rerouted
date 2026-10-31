@@ -1,4 +1,4 @@
-package logisticspipes.request;
+package logisticspipes.request.promise;
 
 import org.jspecify.annotations.Nullable;
 

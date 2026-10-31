@@ -77,12 +77,12 @@ import logisticspipes.pipes.upgrades.ModuleUpgradeManager;
 import logisticspipes.property.AdjacentProperty;
 import logisticspipes.property.SlottedModule;
 import logisticspipes.request.ICraftingTemplate;
-import logisticspipes.request.IPromise;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.promise.IPromise;
+import logisticspipes.request.promise.ItemPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
-import logisticspipes.routing.LogisticsPromise;
 import logisticspipes.routing.item.ChassisDeliveryHandler;
 import logisticspipes.routing.item.DeliveryHandler;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
@@ -498,7 +498,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     }
 
     @Override
-    public @Nullable LogisticsOrder fullFill(LogisticsPromise promise, IRequestItems destination,
+    public @Nullable LogisticsOrder fullFill(ItemPromise promise, IRequestItems destination,
         @Nullable IAdditionalTargetInformation info) {
         if (!isEnabled()) {
             return null;
@@ -670,11 +670,11 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
 
     @Override
     public void registerExtras(IPromise promise) {
-        if (!(promise instanceof LogisticsPromise)) {
+        if (!(promise instanceof ItemPromise)) {
             throw new UnsupportedOperationException("Extra has to be an item for a chassis pipe");
         }
-        ItemIdentifierStack stack = new ItemIdentifierStack(((LogisticsPromise) promise).item,
-            ((LogisticsPromise) promise).numberOfItems);
+        ItemIdentifierStack stack = new ItemIdentifierStack(((ItemPromise) promise).item,
+            ((ItemPromise) promise).numberOfItems);
         extras.add(new LogisticsItemOrder(new DictResource(stack, null), null, ResourceType.EXTRA, null));
     }
 

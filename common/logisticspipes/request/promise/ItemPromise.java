@@ -5,7 +5,7 @@
  * http://www.mod-buildcraft.com/MMPL-1.0.txt
  */
 
-package logisticspipes.routing;
+package logisticspipes.request.promise;
 
 import java.util.Objects;
 
@@ -15,8 +15,6 @@ import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
-import logisticspipes.request.IExtraPromise;
-import logisticspipes.request.IPromise;
 import logisticspipes.request.resources.DictResource;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.request.resources.ItemResource;
@@ -24,14 +22,14 @@ import logisticspipes.routing.order.IOrderInfoProvider;
 import logisticspipes.routing.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.utils.item.ItemIdentifier;
 
-public class LogisticsPromise implements IPromise {
+public class ItemPromise implements IPromise {
 
 	public ItemIdentifier item;
 	public int numberOfItems;
 	public IProvideItems sender;
 	public @Nullable ResourceType type;
 
-	public LogisticsPromise(ItemIdentifier item, int numberOfItems, IProvideItems sender, @Nullable ResourceType type) {
+	public ItemPromise(ItemIdentifier item, int numberOfItems, IProvideItems sender, @Nullable ResourceType type) {
 		this.item = item;
 		this.numberOfItems = numberOfItems;
 		this.sender = sender;
@@ -39,8 +37,8 @@ public class LogisticsPromise implements IPromise {
 	}
 
 	@Override
-	public LogisticsPromise copy() {
-		return new LogisticsPromise(item, numberOfItems, sender, type);
+	public ItemPromise copy() {
+		return new ItemPromise(item, numberOfItems, sender, type);
 	}
 
 	@Override
@@ -56,7 +54,7 @@ public class LogisticsPromise implements IPromise {
 	@Override
 	public IExtraPromise split(int more) {
 		numberOfItems -= more;
-		return new LogisticsExtraPromise(getItemType(), more, sender, false);
+		return new ExtraItemPromise(getItemType(), more, sender, false);
 	}
 
 	@Override

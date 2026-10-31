@@ -19,8 +19,8 @@ import logisticspipes.interfaces.ISubSystemPowerProvider;
 import logisticspipes.interfaces.routing.FilteredRoute;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 import logisticspipes.utils.item.ItemIdentifier;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class ClientRouter implements IRouter {
 

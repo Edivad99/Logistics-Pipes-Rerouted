@@ -1,4 +1,4 @@
-package logisticspipes.routing;
+package logisticspipes.routing.item;
 
 import java.util.ArrayList;
 import java.util.Comparator;

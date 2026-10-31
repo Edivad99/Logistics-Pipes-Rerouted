@@ -7,6 +7,8 @@ import org.jspecify.annotations.Nullable;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.ICraft;
 import logisticspipes.interfaces.routing.ICraftItems;
+import logisticspipes.request.promise.IExtraPromise;
+import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.item.ItemIdentifierStack;
 

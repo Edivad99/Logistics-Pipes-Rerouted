@@ -1,4 +1,4 @@
-package logisticspipes.routing;
+package logisticspipes.routing.debug;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -8,10 +8,11 @@ import java.util.PriorityQueue;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.interfaces.IRoutingDebugAdapter;
 import logisticspipes.interfaces.routing.IFilter;
+import logisticspipes.routing.ExitRoute;
+import logisticspipes.routing.PipeRoutingConnectionType;
 
-public class DummyRoutingDebugAdapter implements IRoutingDebugAdapter {
+public class NoOpRoutingDebugAdapter implements IRoutingDebugAdapter {
 
 	@Override
 	public void start(PriorityQueue<ExitRoute> candidatesCost, ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet, ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList) {}

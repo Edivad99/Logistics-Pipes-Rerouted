@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
 
 import logisticspipes.pipes.PipeItemsInvSysConnector;
-import logisticspipes.routing.ItemRoutingInformation;
+import logisticspipes.routing.item.ItemRoutingInformation;
 import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.item.ItemIdentifierStack;
 

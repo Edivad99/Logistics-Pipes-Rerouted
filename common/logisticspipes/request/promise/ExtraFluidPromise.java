@@ -1,28 +1,27 @@
-package logisticspipes.routing;
+package logisticspipes.request.promise;
 
 import lombok.Getter;
 
 import logisticspipes.interfaces.routing.IProvideFluids;
-import logisticspipes.request.IExtraPromise;
 import logisticspipes.request.resources.IResource;
 import logisticspipes.utils.FluidIdentifier;
 
-public class FluidLogisticsExtraPromise extends FluidLogisticsPromise implements IExtraPromise {
+public class ExtraFluidPromise extends FluidPromise implements IExtraPromise {
 
 	@Getter
 	private boolean provided;
 
-	public FluidLogisticsExtraPromise(FluidIdentifier liquid, int amount, IProvideFluids sender, boolean provided) {
+	public ExtraFluidPromise(FluidIdentifier liquid, int amount, IProvideFluids sender, boolean provided) {
 		this.liquid = liquid;
 		this.amount = amount;
 		this.sender = sender;
-		this.type = null; // extra promises carry no ResourceType, consistent with LogisticsExtraPromise
+		this.type = null; // extra promises carry no ResourceType, consistent with ExtraItemPromise
 		this.provided = provided;
 	}
 
 	@Override
-	public FluidLogisticsExtraPromise copy() {
-		return new FluidLogisticsExtraPromise(liquid, amount, sender, provided);
+	public ExtraFluidPromise copy() {
+		return new ExtraFluidPromise(liquid, amount, sender, provided);
 	}
 
 	@Override

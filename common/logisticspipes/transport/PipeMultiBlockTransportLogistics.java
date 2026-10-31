@@ -14,10 +14,10 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
-import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
-import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemClient;
 import logisticspipes.transport.LPTravelingItem.LPTravelingItemServer;
+import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
+import logisticspipes.world.level.block.entity.LogisticsGenericSubMultiBlockBlockEntity;
 
 public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 

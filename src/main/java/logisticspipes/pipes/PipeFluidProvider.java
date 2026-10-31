@@ -22,8 +22,8 @@ import logisticspipes.pipes.PipeFluidUtil.AdjacentTank;
 import logisticspipes.pipes.basic.fluid.FluidRoutedPipe;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.promise.FluidPromise;
 import logisticspipes.request.resources.FluidResource;
-import logisticspipes.routing.FluidLogisticsPromise;
 import logisticspipes.routing.item.IRoutedItem;
 import logisticspipes.routing.item.IRoutedItem.TransportMode;
 import logisticspipes.routing.order.IOrderInfoProvider;
@@ -238,7 +238,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
                 }
             }
         }
-        FluidLogisticsPromise promise = new FluidLogisticsPromise();
+        FluidPromise promise = new FluidPromise();
         promise.liquid = fluid;
         promise.amount = Math.min(tree.getMissingAmount(),
             containedAmount.get() - root.getAllPromissesFor(this, fluid.getItemIdentifier()));
@@ -250,7 +250,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
     }
 
     @Override
-    public IOrderInfoProvider fullFill(FluidLogisticsPromise promise, IRequestFluid destination, ResourceType type,
+    public IOrderInfoProvider fullFill(FluidPromise promise, IRequestFluid destination, ResourceType type,
         IAdditionalTargetInformation info) {
         return getFluidOrderManager().addOrder(promise, destination, type, info);
     }
