@@ -52,7 +52,7 @@ public class PipeFluidInsertion extends FluidRoutedPipe {
 
             FluidSinkFinder.BestReply result = FluidSinkFinder.getBestReply(
                 FluidIdentifierStack.getFromStack(stack), getRouter(), List.of());
-            if (result == null || result.reply().sinkAmount <= 0) {
+            if (result == null || result.reply().sinkAmount() <= 0) {
                 nextSendMax[dir.ordinal()] = 100;
                 nextSendMin[dir.ordinal()] = 10;
                 continue;

@@ -26,39 +26,39 @@ import logisticspipes.routing.PipeRoutingConnectionType;
  * @param index              its place in the candidate list, or -1
  */
 public record RouteDebugInfo(
-        BlockPos destination,
-        String destinationName,
-        String networkDescription,
-        int index,
-        boolean newlyAddedCandidate,
-        Set<PipeRoutingConnectionType> flags,
-        List<BlockPos> filterPositions
+    BlockPos destination,
+    String destinationName,
+    String networkDescription,
+    int index,
+    boolean newlyAddedCandidate,
+    Set<PipeRoutingConnectionType> flags,
+    List<BlockPos> filterPositions
 ) {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, RouteDebugInfo> STREAM_CODEC =
-            StreamCodec.composite(
-                    BlockPos.STREAM_CODEC, RouteDebugInfo::destination,
-                    ByteBufCodecs.STRING_UTF8, RouteDebugInfo::destinationName,
-                    ByteBufCodecs.STRING_UTF8, RouteDebugInfo::networkDescription,
-                    ByteBufCodecs.VAR_INT, RouteDebugInfo::index,
-                    ByteBufCodecs.BOOL, RouteDebugInfo::newlyAddedCandidate,
-                    NeoForgeStreamCodecs.<RegistryFriendlyByteBuf, PipeRoutingConnectionType>enumCodec(
-                            PipeRoutingConnectionType.class).apply(ByteBufCodecs.collection(java.util.HashSet::new)),
-                    RouteDebugInfo::flags,
-                    BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()), RouteDebugInfo::filterPositions,
-                    RouteDebugInfo::new);
+        StreamCodec.composite(
+            BlockPos.STREAM_CODEC, RouteDebugInfo::destination,
+            ByteBufCodecs.STRING_UTF8, RouteDebugInfo::destinationName,
+            ByteBufCodecs.STRING_UTF8, RouteDebugInfo::networkDescription,
+            ByteBufCodecs.VAR_INT, RouteDebugInfo::index,
+            ByteBufCodecs.BOOL, RouteDebugInfo::newlyAddedCandidate,
+            NeoForgeStreamCodecs.<RegistryFriendlyByteBuf, PipeRoutingConnectionType>enumCodec(
+                PipeRoutingConnectionType.class).apply(ByteBufCodecs.collection(java.util.HashSet::new)),
+            RouteDebugInfo::flags,
+            BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()), RouteDebugInfo::filterPositions,
+            RouteDebugInfo::new);
 
     public static RouteDebugInfo of(ExitRoute route) {
         final List<BlockPos> filters = route.debug.filterPosition == null
-                ? List.of()
-                : List.copyOf(route.debug.filterPosition);
+            ? List.of()
+            : List.copyOf(route.debug.filterPosition);
         return new RouteDebugInfo(
-                route.destination.getPos(),
-                route.destination.toString(),
-                route.debug.toStringNetwork == null ? "" : route.debug.toStringNetwork,
-                route.debug.index,
-                route.debug.isNewlyAddedCanidate,
-                route.getFlags(),
-                filters);
+            route.destination.getPos(),
+            route.destination.toString(),
+            route.debug.toStringNetwork == null ? "" : route.debug.toStringNetwork,
+            route.debug.index,
+            route.debug.isNewlyAddedCanidate,
+            route.getFlags(),
+            filters);
     }
 }

@@ -76,254 +76,258 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
-	public static final int REFRESH_TIME = 20;
+    public static final int REFRESH_TIME = 20;
 
-	protected static final ReentrantReadWriteLock SharedLSADatabaseLock = new ReentrantReadWriteLock();
-	protected static final Lock SharedLSADatabasereadLock = ServerRouter.SharedLSADatabaseLock.readLock();
-	protected static final Lock SharedLSADatabasewriteLock = ServerRouter.SharedLSADatabaseLock.writeLock();
-	protected static int[] lastLsaVersion = new int[0];
-	protected static @Nullable LSA[] SharedLSADatabase = new LSA[0];
+    protected static final ReentrantReadWriteLock SharedLSADatabaseLock = new ReentrantReadWriteLock();
+    protected static final Lock SharedLSADatabasereadLock = ServerRouter.SharedLSADatabaseLock.readLock();
+    protected static final Lock SharedLSADatabasewriteLock = ServerRouter.SharedLSADatabaseLock.writeLock();
+    protected static int[] lastLsaVersion = new int[0];
+    protected static @Nullable LSA[] SharedLSADatabase = new LSA[0];
 
-	// things with specific interests -- providers (including crafters)
-	private static final ConcurrentHashMap<ItemIdentifier, TreeSet<ServerRouter>> globalSpecificInterests = new ConcurrentHashMap<>();
+    // things with specific interests -- providers (including crafters)
+    private static final ConcurrentHashMap<ItemIdentifier, TreeSet<ServerRouter>> globalSpecificInterests = new ConcurrentHashMap<>();
 
-	// things potentially interested in every item (chassi with generic sinks)
-	private static TreeSet<ServerRouter> genericInterests = new TreeSet<>();
-	private static final Lock genericInterestsWLock = new ReentrantLock();
+    // things potentially interested in every item (chassi with generic sinks)
+    private static TreeSet<ServerRouter> genericInterests = new TreeSet<>();
+    private static final Lock genericInterestsWLock = new ReentrantLock();
 
-	// things this pipe is interested in (either providing or sinking)
-	private TreeSet<ItemIdentifier> interests = new TreeSet<>();
-	private final Lock interestsRWLock = new ReentrantLock();
+    // things this pipe is interested in (either providing or sinking)
+    private TreeSet<ItemIdentifier> interests = new TreeSet<>();
+    private final Lock interestsRWLock = new ReentrantLock();
 
-	static int iterated = 0;// used pseudp-random to spread items over the tick range
-	private static int maxLSAUpdateIndex = 0;
-	private static int firstFreeId = 1;
-	private static final BitSet simpleIdUsedSet = new BitSet();
+    static int iterated = 0;// used pseudp-random to spread items over the tick range
+    private static int maxLSAUpdateIndex = 0;
+    private static int firstFreeId = 1;
+    private static final BitSet simpleIdUsedSet = new BitSet();
 
-	public final UUID id;
-	protected final LSA myLsa;
-	protected final ReentrantReadWriteLock routingTableUpdateLock = new ReentrantReadWriteLock();
-	protected final Lock routingTableUpdateWriteLock = routingTableUpdateLock.writeLock();
-	protected final int simpleID;
+    public final UUID id;
+    protected final LSA myLsa;
+    protected final ReentrantReadWriteLock routingTableUpdateLock = new ReentrantReadWriteLock();
+    protected final Lock routingTableUpdateWriteLock = routingTableUpdateLock.writeLock();
+    protected final int simpleID;
     private final BlockPos pos;
-	// these are maps, not hashMaps because they are unmodifiable Collections to avoid concurrentModification exceptions.
-	public Map<CoreRoutedPipe, ExitRoute> adjacent = new HashMap<>();
-	public Map<ServerRouter, ExitRoute> adjacentRouter = new HashMap<>();
-	public Map<ServerRouter, ExitRoute> adjacentRouterOld = new HashMap<>();
-	public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> powerAdjacent = new ArrayList<>();
-	public @Nullable List<FilteredRoute<ISubSystemPowerProvider>> subSystemPowerAdjacent = new ArrayList<>();
-	public boolean[] sideDisconnected = new boolean[6];
-	/**
-	 * Map of router -> orientation for all known destinations
-	 **/
-	public List<@Nullable List<ExitRoute>> routeTable = Collections.unmodifiableList(new ArrayList<>());
-	public List<ExitRoute> routeCosts = Collections.unmodifiableList(new ArrayList<>());
-	public List<FilteredRoute<ILogisticsPowerProvider>> lpPowerTable = Collections.unmodifiableList(new ArrayList<>());
-	public List<FilteredRoute<ISubSystemPowerProvider>> subSystemPowerTable = Collections.unmodifiableList(new ArrayList<>());
-	protected int lsaVersion = 0;
-	int ticksUntillNextInventoryCheck = 0;
-	private EnumSet<Direction> routedExits = EnumSet.noneOf(Direction.class);
-	private EnumMap<Direction, Integer> subPowerExits = new EnumMap<>(Direction.class);
-	private final Identifier dimension;
-	private @Nullable WeakReference<CoreRoutedPipe> myPipeCache = null;
-	private final PriorityQueue<QueuedTask> queue = new PriorityQueue<>(Comparator.comparingInt(QueuedTask::dueTick));
-	int connectionNeedsChecking = 0;
-	private final List<BlockPos> causedBy = new LinkedList<>();
-	private boolean isDestroyed = false;
-	/**
-	 * Set by a routing thread once it has written this router's new LSA. The network was flagged
-	 * for an update when the LSA was queued, and another routing thread may have rebuilt a table
-	 * from the old LSA in between and marked that version done; the server thread flags the network
-	 * again when it sees this, so those tables are built once more.
-	 */
-	private volatile boolean lsaWrittenAsync = false;
-	private final IBlockEntityChangeListener localChangeListener = new IBlockEntityChangeListener() {
+    // these are maps, not hashMaps because they are unmodifiable Collections to avoid concurrentModification exceptions.
+    public Map<CoreRoutedPipe, ExitRoute> adjacent = new HashMap<>();
+    public Map<ServerRouter, ExitRoute> adjacentRouter = new HashMap<>();
+    public Map<ServerRouter, ExitRoute> adjacentRouterOld = new HashMap<>();
+    public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> powerAdjacent = new ArrayList<>();
+    public @Nullable List<FilteredRoute<ISubSystemPowerProvider>> subSystemPowerAdjacent = new ArrayList<>();
+    public boolean[] sideDisconnected = new boolean[6];
+    /**
+     * Map of router -> orientation for all known destinations
+     **/
+    public List<@Nullable List<ExitRoute>> routeTable = Collections.unmodifiableList(new ArrayList<>());
+    public List<ExitRoute> routeCosts = Collections.unmodifiableList(new ArrayList<>());
+    public List<FilteredRoute<ILogisticsPowerProvider>> lpPowerTable = Collections.unmodifiableList(new ArrayList<>());
+    public List<FilteredRoute<ISubSystemPowerProvider>> subSystemPowerTable = Collections.unmodifiableList(
+        new ArrayList<>());
+    protected int lsaVersion = 0;
+    int ticksUntillNextInventoryCheck = 0;
+    private EnumSet<Direction> routedExits = EnumSet.noneOf(Direction.class);
+    private EnumMap<Direction, Integer> subPowerExits = new EnumMap<>(Direction.class);
+    private final Identifier dimension;
+    private @Nullable WeakReference<CoreRoutedPipe> myPipeCache = null;
+    private final PriorityQueue<QueuedTask> queue = new PriorityQueue<>(Comparator.comparingInt(QueuedTask::dueTick));
+    int connectionNeedsChecking = 0;
+    private final List<BlockPos> causedBy = new LinkedList<>();
+    private boolean isDestroyed = false;
+    /**
+     * Set by a routing thread once it has written this router's new LSA. The network was flagged
+     * for an update when the LSA was queued, and another routing thread may have rebuilt a table
+     * from the old LSA in between and marked that version done; the server thread flags the network
+     * again when it sees this, so those tables are built once more.
+     */
+    private volatile boolean lsaWrittenAsync = false;
+    private final IBlockEntityChangeListener localChangeListener = new IBlockEntityChangeListener() {
 
-		@Override
-		public void pipeRemoved(BlockPos pos) {
-			if (connectionNeedsChecking == 0) {
-				connectionNeedsChecking = 1;
-			}
-			if (LogisticsPipes.isDEBUG()) {
-				causedBy.add(pos);
-			}
-		}
+        @Override
+        public void pipeRemoved(BlockPos pos) {
+            if (connectionNeedsChecking == 0) {
+                connectionNeedsChecking = 1;
+            }
+            if (LogisticsPipes.isDEBUG()) {
+                causedBy.add(pos);
+            }
+        }
 
-		@Override
-		public void pipeAdded(BlockPos pos, Direction side) {
-			if (connectionNeedsChecking == 0) {
-				connectionNeedsChecking = 1;
-			}
-			if (LogisticsPipes.isDEBUG()) {
-				causedBy.add(pos);
-			}
-		}
+        @Override
+        public void pipeAdded(BlockPos pos, Direction side) {
+            if (connectionNeedsChecking == 0) {
+                connectionNeedsChecking = 1;
+            }
+            if (LogisticsPipes.isDEBUG()) {
+                causedBy.add(pos);
+            }
+        }
 
-	};
-	private Set<List<IBlockEntityChangeListener>> listenedPipes = new HashSet<>();
-	private Set<LogisticsGenericPipeBlockEntity> oldTouchedPipes = new HashSet<>();
+    };
+    private Set<List<IBlockEntityChangeListener>> listenedPipes = new HashSet<>();
+    private Set<LogisticsGenericPipeBlockEntity> oldTouchedPipes = new HashSet<>();
 
-	public ServerRouter(@Nullable UUID globalID, Identifier dimension, BlockPos pos) {
-		if (globalID != null) {
-			id = globalID;
-		} else {
-			id = UUID.randomUUID();
-		}
-		this.dimension = dimension;
+    public ServerRouter(@Nullable UUID globalID, Identifier dimension, BlockPos pos) {
+        if (globalID != null) {
+            id = globalID;
+        } else {
+            id = UUID.randomUUID();
+        }
+        this.dimension = dimension;
         this.pos = pos;
-		clearPipeCache();
-		myLsa = new LSA();
-		ServerRouter.SharedLSADatabasewriteLock.lock(); // any time after we claim the SimpleID, the database could be accessed at that index
-		try {
-			simpleID = ServerRouter.claimSimpleID();
-			if (ServerRouter.SharedLSADatabase.length <= simpleID) {
-				int newLength = ((int) (simpleID * 1.5)) + 1;
-				@Nullable LSA[] new_SharedLSADatabase = new LSA[newLength];
-				System.arraycopy(ServerRouter.SharedLSADatabase, 0, new_SharedLSADatabase, 0, ServerRouter.SharedLSADatabase.length);
-				ServerRouter.SharedLSADatabase = new_SharedLSADatabase;
-				int[] new_lastLSAVersion = new int[newLength];
-				System.arraycopy(ServerRouter.lastLsaVersion, 0, new_lastLSAVersion, 0, ServerRouter.lastLsaVersion.length);
-				ServerRouter.lastLsaVersion = new_lastLSAVersion;
-			}
-			ServerRouter.lastLsaVersion[simpleID] = 0;
-			ServerRouter.SharedLSADatabase[simpleID] = myLsa; // make non-structural change (threadsafe)
-		} finally {
-			ServerRouter.SharedLSADatabasewriteLock.unlock();
-		}
-	}
+        clearPipeCache();
+        myLsa = new LSA();
+        ServerRouter.SharedLSADatabasewriteLock.lock(); // any time after we claim the SimpleID, the database could be accessed at that index
+        try {
+            simpleID = ServerRouter.claimSimpleID();
+            if (ServerRouter.SharedLSADatabase.length <= simpleID) {
+                int newLength = ((int) (simpleID * 1.5)) + 1;
+                @Nullable LSA[] new_SharedLSADatabase = new LSA[newLength];
+                System.arraycopy(ServerRouter.SharedLSADatabase, 0, new_SharedLSADatabase, 0,
+                    ServerRouter.SharedLSADatabase.length);
+                ServerRouter.SharedLSADatabase = new_SharedLSADatabase;
+                int[] new_lastLSAVersion = new int[newLength];
+                System.arraycopy(ServerRouter.lastLsaVersion, 0, new_lastLSAVersion, 0,
+                    ServerRouter.lastLsaVersion.length);
+                ServerRouter.lastLsaVersion = new_lastLSAVersion;
+            }
+            ServerRouter.lastLsaVersion[simpleID] = 0;
+            ServerRouter.SharedLSADatabase[simpleID] = myLsa; // make non-structural change (threadsafe)
+        } finally {
+            ServerRouter.SharedLSADatabasewriteLock.unlock();
+        }
+    }
 
-	// called on server shutdown only
-	public static void cleanup() {
-		ServerRouter.globalSpecificInterests.clear();
-		ServerRouter.genericInterests.clear();
-		ServerRouter.SharedLSADatabasewriteLock.lock();
-		try {
-			ServerRouter.SharedLSADatabase = new @Nullable LSA[0];
-			ServerRouter.lastLsaVersion = new int[0];
-		} finally {
-			ServerRouter.SharedLSADatabasewriteLock.unlock();
-		}
-		ServerRouter.simpleIdUsedSet.clear();
-		ServerRouter.firstFreeId = 1;
-	}
+    // called on server shutdown only
+    public static void cleanup() {
+        ServerRouter.globalSpecificInterests.clear();
+        ServerRouter.genericInterests.clear();
+        ServerRouter.SharedLSADatabasewriteLock.lock();
+        try {
+            ServerRouter.SharedLSADatabase = new @Nullable LSA[0];
+            ServerRouter.lastLsaVersion = new int[0];
+        } finally {
+            ServerRouter.SharedLSADatabasewriteLock.unlock();
+        }
+        ServerRouter.simpleIdUsedSet.clear();
+        ServerRouter.firstFreeId = 1;
+    }
 
-	private static int claimSimpleID() {
-		int idx = ServerRouter.simpleIdUsedSet.nextClearBit(ServerRouter.firstFreeId);
-		ServerRouter.firstFreeId = idx + 1;
-		ServerRouter.simpleIdUsedSet.set(idx);
-		return idx;
-	}
+    private static int claimSimpleID() {
+        int idx = ServerRouter.simpleIdUsedSet.nextClearBit(ServerRouter.firstFreeId);
+        ServerRouter.firstFreeId = idx + 1;
+        ServerRouter.simpleIdUsedSet.set(idx);
+        return idx;
+    }
 
-	private static void releaseSimpleID(int idx) {
-		ServerRouter.simpleIdUsedSet.clear(idx);
-		if (idx < ServerRouter.firstFreeId) {
-			ServerRouter.firstFreeId = idx;
-		}
-	}
+    private static void releaseSimpleID(int idx) {
+        ServerRouter.simpleIdUsedSet.clear(idx);
+        if (idx < ServerRouter.firstFreeId) {
+            ServerRouter.firstFreeId = idx;
+        }
+    }
 
-	public static int getBiggestSimpleID() {
-		return ServerRouter.simpleIdUsedSet.size();
-	}
+    public static int getBiggestSimpleID() {
+        return ServerRouter.simpleIdUsedSet.size();
+    }
 
-	private static void setBitsForItemInterests(final BitSet bitset, final ItemIdentifier itemid) {
-		TreeSet<ServerRouter> specifics = ServerRouter.globalSpecificInterests.get(itemid);
-		if (specifics != null) {
-			for (IRouter r : specifics) {
-				bitset.set(r.getSimpleID());
-			}
-		}
-	}
+    private static void setBitsForItemInterests(final BitSet bitset, final ItemIdentifier itemid) {
+        TreeSet<ServerRouter> specifics = ServerRouter.globalSpecificInterests.get(itemid);
+        if (specifics != null) {
+            for (IRouter r : specifics) {
+                bitset.set(r.getSimpleID());
+            }
+        }
+    }
 
-	public static BitSet getRoutersInterestedIn(ItemIdentifier item) {
-		final BitSet s = new BitSet(ServerRouter.getBiggestSimpleID() + 1);
-		for (IRouter r : ServerRouter.genericInterests) {
-			s.set(r.getSimpleID());
-		}
-		if (item != null) {
-			Stream.of(item, item.getUndamaged(), item.getIgnoringNBT(), item.getUndamaged().getIgnoringNBT(), item.getIgnoringData(), item.getIgnoringData().getIgnoringNBT())
-					.forEach(itemid -> setBitsForItemInterests(s, itemid));
-		}
-		return s;
-	}
+    public static BitSet getRoutersInterestedIn(ItemIdentifier item) {
+        final BitSet s = new BitSet(ServerRouter.getBiggestSimpleID() + 1);
+        for (IRouter r : ServerRouter.genericInterests) {
+            s.set(r.getSimpleID());
+        }
+        if (item != null) {
+            Stream.of(item, item.getUndamaged(), item.getIgnoringNBT(), item.getUndamaged().getIgnoringNBT(),
+                    item.getIgnoringData(), item.getIgnoringData().getIgnoringNBT())
+                .forEach(itemid -> setBitsForItemInterests(s, itemid));
+        }
+        return s;
+    }
 
-	public static BitSet getRoutersInterestedIn(IResource item) {
-		if (item instanceof ItemResource) {
-			return ServerRouter.getRoutersInterestedIn(((ItemResource) item).getItem());
-		} else if (item instanceof FluidResource) {
-			return ServerRouter.getRoutersInterestedIn(((FluidResource) item).getFluid().getItemIdentifier());
-		} else if (item instanceof DictResource) {
-			DictResource dict = (DictResource) item;
-			BitSet s = new BitSet(ServerRouter.getBiggestSimpleID() + 1);
-			for (IRouter r : ServerRouter.genericInterests) {
-				s.set(r.getSimpleID());
-			}
-			ServerRouter.globalSpecificInterests.entrySet().stream()
-					.filter(entry -> dict.matches(entry.getKey(), IResource.MatchSettings.NORMAL))
-					.flatMap(entry -> entry.getValue().stream())
-					.forEach(router -> s.set(router.simpleID));
-			return s;
-		}
-		return new BitSet(ServerRouter.getBiggestSimpleID() + 1);
-	}
+    public static BitSet getRoutersInterestedIn(IResource item) {
+        if (item instanceof ItemResource) {
+            return ServerRouter.getRoutersInterestedIn(((ItemResource) item).getItem());
+        } else if (item instanceof FluidResource) {
+            return ServerRouter.getRoutersInterestedIn(((FluidResource) item).getFluid().getItemIdentifier());
+        } else if (item instanceof DictResource dict) {
+            BitSet s = new BitSet(ServerRouter.getBiggestSimpleID() + 1);
+            for (IRouter r : ServerRouter.genericInterests) {
+                s.set(r.getSimpleID());
+            }
+            ServerRouter.globalSpecificInterests.entrySet().stream()
+                .filter(entry -> dict.matches(entry.getKey(), IResource.MatchSettings.NORMAL))
+                .flatMap(entry -> entry.getValue().stream())
+                .forEach(router -> s.set(router.simpleID));
+            return s;
+        }
+        return new BitSet(ServerRouter.getBiggestSimpleID() + 1);
+    }
 
-	public static void forEachGlobalSpecificInterest(BiConsumer<ItemIdentifier, NavigableSet<ServerRouter>> consumer) {
-		ServerRouter.globalSpecificInterests.forEach((itemIdentifier, serverRouters) -> consumer.accept(itemIdentifier, Collections.unmodifiableNavigableSet(serverRouters)));
-	}
+    public static void forEachGlobalSpecificInterest(BiConsumer<ItemIdentifier, NavigableSet<ServerRouter>> consumer) {
+        ServerRouter.globalSpecificInterests.forEach((itemIdentifier, serverRouters) -> consumer.accept(itemIdentifier,
+            Collections.unmodifiableNavigableSet(serverRouters)));
+    }
 
-	public static NavigableSet<ServerRouter> getInterestedInGeneral() {
-		return Collections.unmodifiableNavigableSet(ServerRouter.genericInterests);
-	}
+    public static NavigableSet<ServerRouter> getInterestedInGeneral() {
+        return Collections.unmodifiableNavigableSet(ServerRouter.genericInterests);
+    }
 
-	@Override
-	public int hashCode() {
-		return simpleID; // guaranteed to be unique, and uniform distribution over a range.
-	}
+    @Override
+    public int hashCode() {
+        return simpleID; // guaranteed to be unique, and uniform distribution over a range.
+    }
 
-	@Override
-	public void clearPipeCache() {
-		myPipeCache = null;
-	}
+    @Override
+    public void clearPipeCache() {
+        myPipeCache = null;
+    }
 
-	@Override
-	public int getSimpleID() {
-		return simpleID;
-	}
+    @Override
+    public int getSimpleID() {
+        return simpleID;
+    }
 
-	@Override
-	public boolean isInDim(Identifier dimension) {
-		return this.dimension.equals(dimension);
-	}
+    @Override
+    public boolean isInDim(Identifier dimension) {
+        return this.dimension.equals(dimension);
+    }
 
-	@Override
-	public boolean isAt(Identifier dimension, BlockPos pos) {
-		return this.dimension.equals(dimension) && this.pos.equals(pos);
-	}
+    @Override
+    public boolean isAt(Identifier dimension, BlockPos pos) {
+        return this.dimension.equals(dimension) && this.pos.equals(pos);
+    }
 
-	@Override
-	public BlockPos getPos() {
-		return this.pos;
-	}
+    @Override
+    public BlockPos getPos() {
+        return this.pos;
+    }
 
-	@Override
-	public @Nullable CoreRoutedPipe getPipe() {
-		CoreRoutedPipe crp = getCachedPipe();
-		if (crp != null) {
-			return crp;
-		}
-		Level level = null;
-		var server = ServerLifecycleHooks.getCurrentServer();
-		if (server != null) {
-			level = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
-		}
-		if (level == null) {
-			return null;
-		}
-		// Deliberately not level.getBlockEntity(pos)
-		LevelChunk chunk = level.getChunkSource().getChunkNow(
-				SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
-		if (chunk == null) {
-			return null;
-		}
+    @Override
+    public @Nullable CoreRoutedPipe getPipe() {
+        CoreRoutedPipe crp = getCachedPipe();
+        if (crp != null) {
+            return crp;
+        }
+        Level level = null;
+        var server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) {
+            level = server.getLevel(ResourceKey.create(Registries.DIMENSION, dimension));
+        }
+        if (level == null) {
+            return null;
+        }
+        // Deliberately not level.getBlockEntity(pos)
+        LevelChunk chunk = level.getChunkSource().getChunkNow(
+            SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getZ()));
+        if (chunk == null) {
+            return null;
+        }
 
         if (chunk.getBlockEntity(pos) instanceof LogisticsGenericPipeBlockEntity pipe) {
             if (pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
@@ -334,68 +338,68 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
         return null;
     }
 
-	@Override
-	public @Nullable CoreRoutedPipe getCachedPipe() {
-		if (myPipeCache != null) {
-			return myPipeCache.get();
-		}
-		return null;
-	}
+    @Override
+    public @Nullable CoreRoutedPipe getCachedPipe() {
+        if (myPipeCache != null) {
+            return myPipeCache.get();
+        }
+        return null;
+    }
 
-	@Override
-	public boolean isCacheInvalid() {
-		return getPipe() == null;
-	}
+    @Override
+    public boolean isCacheInvalid() {
+        return getPipe() == null;
+    }
 
-	private void lazyUpdateRoutingTable() {
-		if (lsaVersion > ServerRouter.lastLsaVersion[simpleID]) {
-			if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
-				RoutingTableUpdateThread.add(new UpdateRouterRunnable(this));
-			} else {
-				CreateRouteTable(lsaVersion);
-			}
-		}
-	}
+    private void lazyUpdateRoutingTable() {
+        if (lsaVersion > ServerRouter.lastLsaVersion[simpleID]) {
+            if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+                RoutingTableUpdateThread.add(new UpdateRouterRunnable(this));
+            } else {
+                CreateRouteTable(lsaVersion);
+            }
+        }
+    }
 
-	public void ensureLatestRoutingTable() {
-		if (connectionNeedsChecking != 0) {
-			boolean blockNeedsUpdate = checkAdjacentUpdate();
-			if (blockNeedsUpdate) {
-				updateLsa();
-			}
-		}
-		if (lsaVersion > ServerRouter.lastLsaVersion[simpleID]) {
-			CreateRouteTable(lsaVersion);
-		}
-	}
+    public void ensureLatestRoutingTable() {
+        if (connectionNeedsChecking != 0) {
+            boolean blockNeedsUpdate = checkAdjacentUpdate();
+            if (blockNeedsUpdate) {
+                updateLsa();
+            }
+        }
+        if (lsaVersion > ServerRouter.lastLsaVersion[simpleID]) {
+            CreateRouteTable(lsaVersion);
+        }
+    }
 
-	@Override
-	public List<@Nullable List<ExitRoute>> getRouteTable() {
-		ensureLatestRoutingTable();
-		return routeTable;
-	}
+    @Override
+    public List<@Nullable List<ExitRoute>> getRouteTable() {
+        ensureLatestRoutingTable();
+        return routeTable;
+    }
 
-	@Override
-	public List<ExitRoute> getIRoutersByCost() {
-		ensureLatestRoutingTable();
-		return routeCosts;
-	}
+    @Override
+    public List<ExitRoute> getIRoutersByCost() {
+        ensureLatestRoutingTable();
+        return routeCosts;
+    }
 
-	@Override
-	public UUID getId() {
-		return id;
-	}
+    @Override
+    public UUID getId() {
+        return id;
+    }
 
-	/**
-	 * Rechecks the piped connection to all adjacent routers as well as discover
-	 * new ones.
-	 */
-	private boolean recheckAdjacent() {
-		connectionNeedsChecking = 0;
-		if (LogisticsPipes.isDEBUG()) {
-			causedBy.clear();
-		}
-		if (getPipe() != null) {
+    /**
+     * Rechecks the piped connection to all adjacent routers as well as discover
+     * new ones.
+     */
+    private boolean recheckAdjacent() {
+        connectionNeedsChecking = 0;
+        if (LogisticsPipes.isDEBUG()) {
+            causedBy.clear();
+        }
+        if (getPipe() != null) {
 			/*
 			if (getPipe().getDebug() != null && getPipe().getDebug().debugThisPipe) {
 				Info info = StackTraceUtil.addTraceInformation("(" + getPipe().getX() + ", " + getPipe().getY() + ", " + getPipe().getZ() + ")");
@@ -403,1099 +407,1138 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 				info.end();
 			}
 			*/
-			getPipe().spawnParticle(Particles.LIGHT_RED_SPARKLE, 5);
-		}
-
-		LPTickHandler.adjChecksDone++;
-		boolean adjacentChanged = false;
-		CoreRoutedPipe thisPipe = getPipe();
-		if (thisPipe == null) {
-			return false;
-		}
-		HashMap<CoreRoutedPipe, ExitRoute> adjacent;
-		List<FilteredRoute<ILogisticsPowerProvider>> power;
-		List<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
-		PathFinder finder = new PathFinder(thisPipe.getContainer(), LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(), LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
-		power = finder.powerNodes;
-		subSystemPower = finder.subPowerProvider;
-		adjacent = finder.result;
-
-		Map<Direction, List<CoreRoutedPipe>> pipeDirections = new HashMap<>();
-
-		for (Entry<CoreRoutedPipe, ExitRoute> entry : adjacent.entrySet()) {
-			List<CoreRoutedPipe> list = pipeDirections.computeIfAbsent(entry.getValue().exitOrientation, k -> new ArrayList<>());
-			list.add(entry.getKey());
-		}
-
-		pipeDirections.entrySet().stream()
-				.filter(entry -> entry.getValue().size() > LPConfigs.COMMON.MAX_UNROUTED_CONNECTIONS.getAsInt())
-				.forEach(entry -> entry.getValue().forEach(adjacent::remove));
-
-		listenedPipes.stream().filter(list -> !finder.listenedPipes.contains(list)).forEach(list -> list.remove(localChangeListener));
-		listenedPipes = finder.listenedPipes;
-
-		for (CoreRoutedPipe pipe : adjacent.keySet()) {
-			if (pipe.stillNeedReplace()) {
-				// A neighbour that has not had its first tick yet, as after a chunk load: look again
-				// once it has, or it stays out of this router's adjacency until the next full refresh.
-				connectionNeedsChecking = 1;
-				return false;
-			}
-		}
-
-		boolean[] oldSideDisconnected = sideDisconnected;
-		sideDisconnected = new boolean[6];
-		checkSecurity(adjacent);
-
-		boolean changed = false;
-
-		for (int i = 0; i < 6; i++) {
-			changed |= sideDisconnected[i] != oldSideDisconnected[i];
-		}
-		if (changed) {
-			CoreRoutedPipe pipe = getPipe();
-			if (pipe != null) {
-				pipe.getLevel().sendBlockUpdated(pipe.getPos(), pipe.getLevel().getBlockState(pipe.getPos()), pipe.getLevel().getBlockState(pipe.getPos()), 3);
-				pipe.refreshConnectionAndRender(false);
-			}
-			adjacentChanged = true;
-		}
-
-		if (this.adjacent.size() != adjacent.size()) {
-			adjacentChanged = true;
-		}
-
-		for (CoreRoutedPipe pipe : this.adjacent.keySet()) {
-			if (!adjacent.containsKey(pipe)) {
-				adjacentChanged = true;
-				break;
-			}
-		}
-		if (powerAdjacent != null) {
-			if (power == null) {
-				adjacentChanged = true;
-			} else {
-				for (FilteredRoute<ILogisticsPowerProvider> provider : powerAdjacent) {
-					if (!power.contains(provider)) {
-						adjacentChanged = true;
-						break;
-					}
-				}
-			}
-		}
-		if (power != null) {
-			if (powerAdjacent == null) {
-				adjacentChanged = true;
-			} else {
-				for (FilteredRoute<ILogisticsPowerProvider> provider : power) {
-					if (!powerAdjacent.contains(provider)) {
-						adjacentChanged = true;
-						break;
-					}
-				}
-			}
-		}
-		if (subSystemPowerAdjacent != null) {
-			if (subSystemPower == null) {
-				adjacentChanged = true;
-			} else {
-				for (FilteredRoute<ISubSystemPowerProvider> provider : subSystemPowerAdjacent) {
-					if (!subSystemPower.contains(provider)) {
-						adjacentChanged = true;
-						break;
-					}
-				}
-			}
-		}
-		if (subSystemPower != null) {
-			if (subSystemPowerAdjacent == null) {
-				adjacentChanged = true;
-			} else {
-				for (FilteredRoute<ISubSystemPowerProvider> provider : subSystemPower) {
-					if (!subSystemPowerAdjacent.contains(provider)) {
-						adjacentChanged = true;
-						break;
-					}
-				}
-			}
-		}
-		for (Entry<CoreRoutedPipe, ExitRoute> pipe : adjacent.entrySet()) {
-			ExitRoute oldExit = this.adjacent.get(pipe.getKey());
-			if (oldExit == null) {
-				adjacentChanged = true;
-				break;
-			}
-			ExitRoute newExit = pipe.getValue();
-
-			if (!newExit.equals(oldExit)) {
-				adjacentChanged = true;
-				break;
-			}
-		}
-
-		if (!oldTouchedPipes.equals(finder.touchedPipes)) {
-			clearRoutingCache(oldTouchedPipes);
-			clearRoutingCache(finder.touchedPipes);
-			oldTouchedPipes = finder.touchedPipes;
-			BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
-			visited.set(getSimpleID());
-			act(visited, new floodClearCache());
-		}
-
-		if (adjacentChanged) {
-			HashMap<ServerRouter, ExitRoute> adjacentRouter = new HashMap<>();
-			EnumSet<Direction> routedexits = EnumSet.noneOf(Direction.class);
-			EnumMap<Direction, Integer> subpowerexits = new EnumMap<>(Direction.class);
-			for (Entry<CoreRoutedPipe, ExitRoute> pipe : adjacent.entrySet()) {
-				adjacentRouter.put((ServerRouter) pipe.getKey().getRouter(), pipe.getValue());
-				if ((pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO) || pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_REQUEST_FROM) && !routedexits.contains(pipe.getValue().exitOrientation))) {
-					routedexits.add(pipe.getValue().exitOrientation);
-				}
-				if (!subpowerexits.containsKey(pipe.getValue().exitOrientation) && pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
-					subpowerexits.put(pipe.getValue().exitOrientation, PathFinder.measureDistanceToNextRoutedPipe(getPos(), pipe.getValue().exitOrientation, pipe.getKey().getLevel()));
-				}
-			}
-			this.adjacent = Collections.unmodifiableMap(adjacent);
-			adjacentRouterOld = this.adjacentRouter;
-			this.adjacentRouter = Collections.unmodifiableMap(adjacentRouter);
-			if (power != null) {
-				powerAdjacent = Collections.unmodifiableList(power);
-			} else {
-				powerAdjacent = null;
-			}
-			if (subSystemPower != null) {
-				subSystemPowerAdjacent = Collections.unmodifiableList(subSystemPower);
-			} else {
-				subSystemPowerAdjacent = null;
-			}
-			routedExits = routedexits;
-			subPowerExits = subpowerexits;
-			SendNewLSA();
-		}
-		return adjacentChanged;
-	}
-
-	private void checkSecurity(HashMap<CoreRoutedPipe, ExitRoute> adjacent) {
-		CoreRoutedPipe pipe = getPipe();
-		if (pipe == null) {
-			return;
-		}
-		UUID id = pipe.getSecurityID();
-		if (id != null) {
-			for (Entry<CoreRoutedPipe, ExitRoute> entry : adjacent.entrySet()) {
-				if (!entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO) && !entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
-					continue;
-				}
-				UUID thatId = entry.getKey().getSecurityID();
-				if (!(pipe instanceof PipeItemsFirewall)) {
-					if (thatId == null) {
-						entry.getKey().insetSecurityID(id);
-					} else if (!id.equals(thatId)) {
-						sideDisconnected[entry.getValue().exitOrientation.ordinal()] = true;
-					}
-				} else {
-					if (!(entry.getKey() instanceof PipeItemsFirewall)) {
-						if (thatId != null && !id.equals(thatId)) {
-							sideDisconnected[entry.getValue().exitOrientation.ordinal()] = true;
-						}
-					}
-				}
-			}
-			List<CoreRoutedPipe> toRemove = adjacent.entrySet().stream()
-					.filter(entry -> sideDisconnected[entry.getValue().exitOrientation.ordinal()])
-					.map(Entry::getKey)
-					.collect(Collectors.toList());
-			toRemove.forEach(adjacent::remove);
-		}
-	}
-
-	private void SendNewLSA() {
-		HashMap<IRouter, NeighborLink> neighboursWithMetric = new HashMap<>();
-		for (Entry<ServerRouter, ExitRoute> adjacent : adjacentRouter.entrySet()) {
-			neighboursWithMetric.put(adjacent.getKey(), new NeighborLink(adjacent
-					.getValue().distanceToDestination, adjacent.getValue().connectionDetails, adjacent
-					.getValue().filters, adjacent.getValue().blockDistance));
-		}
-		ArrayList<FilteredRoute<ILogisticsPowerProvider>> power = null;
-		if (powerAdjacent != null) {
-			power = new ArrayList<>(powerAdjacent);
-		}
-		ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower = null;
-		if (subSystemPowerAdjacent != null) {
-			subSystemPower = new ArrayList<>(subSystemPowerAdjacent);
-		}
-		if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
-			RoutingTableUpdateThread.add(new LSARouterRunnable(neighboursWithMetric, power, subSystemPower));
-		} else {
-			lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
-		}
-	}
-
-	private void lockAndUpdateLSA(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power, @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower) {
-		ServerRouter.SharedLSADatabasewriteLock.lock();
-		try {
-			myLsa.neighboursWithMetric = neighboursWithMetric;
-			myLsa.power = power;
-			myLsa.subSystemPower = subSystemPower;
-		} finally {
-			ServerRouter.SharedLSADatabasewriteLock.unlock();
-		}
-	}
-
-	public void CreateRouteTable(int version_to_update_to) {
-		CreateRouteTable(version_to_update_to, new NoOpRoutingDebugAdapter());
-	}
-
-	/**
-	 * Create a route table from the link state database
-	 */
-	public void CreateRouteTable(int version_to_update_to, IRoutingDebugAdapter debug) {
-
-		if (ServerRouter.lastLsaVersion[simpleID] >= version_to_update_to && !debug.independent()) {
-			return; // this update is already done.
-		}
-
-		//Dijkstra!
-
-		debug.init();
-
-		int routingTableSize = ServerRouter.getBiggestSimpleID();
-		if (routingTableSize == 0) {
-			routingTableSize = ServerRouter.SharedLSADatabase.length; // deliberatly ignoring concurrent access, either the old or the version of the size will work, this is just an approximate number.
-		}
-
-		/**
-		 * same info as above, but sorted by distance -- sorting is implicit,
-		 * because Dijkstra finds the closest routes first.
-		 **/
-		List<ExitRoute> routeCosts = new ArrayList<>(routingTableSize);
-
-		//Add the current Router
-		routeCosts.add(new ExitRoute(this, this, null, null, 0, EnumSet.allOf(PipeRoutingConnectionType.class), 0));
-
-		ArrayList<FilteredRoute<ILogisticsPowerProvider>> powerTable;
-		if (powerAdjacent != null) {
-			powerTable = new ArrayList<>(powerAdjacent);
-		} else {
-			powerTable = new ArrayList<>(5);
-		}
-		ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
-		if (subSystemPowerAdjacent != null) {
-			subSystemPower = new ArrayList<>(subSystemPowerAdjacent);
-		} else {
-			subSystemPower = new ArrayList<>(5);
-		}
-
-		//space and time inefficient, a bitset with 3 bits per node would save a lot but makes the main iteration look like a complete mess
-		ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet = new ArrayList<>(ServerRouter.getBiggestSimpleID());
-		for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {
-			closedSet.add(null);
-		}
-
-		ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList = new ArrayList<>(ServerRouter
-				.getBiggestSimpleID());
-		for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {
-			filterList.add(null);
-		}
-
-		/** The total cost for the candidate route **/
-		PriorityQueue<ExitRoute> candidatesCost = new PriorityQueue<>((int) Math.sqrt(routingTableSize)); // sqrt nodes is a good guess for the total number of candidate nodes at once.
-
-		//Init candidates
-		// the shortest way to go to an adjacent item is the adjacent item.
-		for (Entry<ServerRouter, ExitRoute> pipe : adjacentRouter.entrySet()) {
-			ExitRoute currentE = pipe.getValue();
-			IRouter newRouter = pipe.getKey();
-			if (newRouter != null) {
-				ExitRoute newER = new ExitRoute(newRouter, newRouter, currentE.distanceToDestination, currentE.connectionDetails, currentE.filters, new ArrayList<>(0), currentE.blockDistance);
-				candidatesCost.add(newER);
-				debug.newCandidate(newER);
-			}
-		}
-
-		debug.start(candidatesCost, closedSet, filterList);
-
-		ServerRouter.SharedLSADatabasereadLock.lock(); // readlock, not inside the while - too costly to aquire, then release.
-		try {
-			ExitRoute lowestCostNode;
-			while ((lowestCostNode = candidatesCost.poll()) != null) {
-				if (!lowestCostNode.hasActivePipe()) {
-					continue;
-				}
-
-				if (debug.isDebug()) {
-					ServerRouter.SharedLSADatabasereadLock.unlock();
-				}
-				debug.nextPipe(lowestCostNode);
-				if (debug.isDebug()) {
-					ServerRouter.SharedLSADatabasereadLock.lock();
-				}
-
-				for (ExitRoute e : candidatesCost) {
-					e.debug.isNewlyAddedCanidate = false;
-				}
-
-				//if the node does not have any flags not in the closed set, check it
-				EnumSet<PipeRoutingConnectionType> lowestCostClosedFlags = closedSet.get(lowestCostNode.destination.getSimpleID());
-				if (lowestCostClosedFlags == null) {
-					lowestCostClosedFlags = EnumSet.noneOf(PipeRoutingConnectionType.class);
-				}
-				if (lowestCostClosedFlags.containsAll(lowestCostNode.getFlagsNoCopy())) {
-					continue;
-				}
-
-				if (debug.isDebug()) {
-					EnumSet<PipeRoutingConnectionType> newFlags = lowestCostNode.getFlags();
-					newFlags.removeAll(lowestCostClosedFlags);
-
-					debug.newFlagsForPipe(newFlags);
-				}
-
-				EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters = filterList.get(lowestCostNode.destination.getSimpleID());
-
-				debug.filterList(filters);
-
-				if (filters != null) {
-					boolean containsNewInfo = false;
-					for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
-						if (lowestCostClosedFlags.contains(type)) {
-							continue;
-						}
-						if (!filters.containsKey(type)) {
-							containsNewInfo = true;
-							break;
-						}
-						boolean matches = false;
-						List<List<IFilter>> list = filters.get(type);
-						for (List<IFilter> filter : list) {
-							if (lowestCostNode.filters.containsAll(filter)) {
-								matches = true;
-								break;
-							}
-						}
-						if (!matches) {
-							containsNewInfo = true;
-							break;
-						}
-					}
-					if (!containsNewInfo) {
-						continue;
-					}
-				}
-
-				//Add new candidates from the newly approved route
-				LSA lsa = null;
-				if (lowestCostNode.destination.getSimpleID() < ServerRouter.SharedLSADatabase.length) {
-					lsa = ServerRouter.SharedLSADatabase[lowestCostNode.destination.getSimpleID()];
-				}
-				if (lsa == null) {
-					lowestCostNode.removeFlags(lowestCostClosedFlags);
-					lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
-					if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) || lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
-						routeCosts.add(lowestCostNode);
-					}
-					closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
-					continue;
-				}
-				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_FROM)) {
-					if (lsa.power != null && !lsa.power.isEmpty()) {
-						for (FilteredRoute<ILogisticsPowerProvider> p : lsa.power) {
-							List<IFilter> list = new ArrayList<>();
-							list.addAll(p.filters());
-							list.addAll(lowestCostNode.filters);
-							FilteredRoute<ILogisticsPowerProvider> entry = new FilteredRoute<>(p.target(), Collections.unmodifiableList(list));
-							if (!powerTable.contains(entry)) {
-								powerTable.add(entry);
-							}
-						}
-					}
-				}
-				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
-					if (lsa.subSystemPower != null && !lsa.subSystemPower.isEmpty()) {
-						for (FilteredRoute<ISubSystemPowerProvider> p : lsa.subSystemPower) {
-							List<IFilter> list = new ArrayList<>();
-							list.addAll(p.filters());
-							list.addAll(lowestCostNode.filters);
-							FilteredRoute<ISubSystemPowerProvider> entry = new FilteredRoute<>(p.target(), Collections.unmodifiableList(list));
-							if (!subSystemPower.contains(entry)) {
-								subSystemPower.add(entry);
-							}
-						}
-					}
-				}
-				for (Entry<IRouter, NeighborLink> newCandidate : lsa.neighboursWithMetric.entrySet()) {
-					double candidateCost = lowestCostNode.distanceToDestination + newCandidate.getValue().distance();
-					int blockDistance = lowestCostNode.blockDistance + newCandidate.getValue().blockDistance();
-					EnumSet<PipeRoutingConnectionType> newCT = lowestCostNode.getFlags();
-					newCT.retainAll(newCandidate.getValue().connectionDetails());
-					if (!newCT.isEmpty()) {
-						ExitRoute next = new ExitRoute(lowestCostNode.root, newCandidate.getKey(), candidateCost, newCT, lowestCostNode.filters, newCandidate.getValue().filters(), blockDistance);
-						next.debug.isTraced = lowestCostNode.debug.isTraced;
-						candidatesCost.add(next);
-						debug.newCandidate(next);
-					}
-				}
-
-				lowestCostClosedFlags = lowestCostClosedFlags.clone();
-
-				lowestCostNode.removeFlags(lowestCostClosedFlags);
-				lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
-				if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) || lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM) || lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
-					routeCosts.add(lowestCostNode);
-				}
-				EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> map = filterList.get(lowestCostNode.destination.getSimpleID());
-				if (map == null) {
-					map = new EnumMap<>(PipeRoutingConnectionType.class);
-					filterList.set(lowestCostNode.destination.getSimpleID(), map);
-				}
-				for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
-					if (!map.containsKey(type)) {
-						map.put(type, new ArrayList<>());
-					}
-					map.get(type).add(Collections.unmodifiableList(new ArrayList<>(lowestCostNode.filters)));
-				}
-				if (lowestCostNode.filters.isEmpty()) {
-					closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
-				}
-
-				if (debug.isDebug()) {
-					ServerRouter.SharedLSADatabasereadLock.unlock();
-				}
-				debug.handledPipe();
-				if (debug.isDebug()) {
-					ServerRouter.SharedLSADatabasereadLock.lock();
-				}
-			}
-		} finally {
-			// The debug adapter drops and retakes the read lock inside the loop, so the hold
-			// count is the only reliable measure of what is still ours to release on the way out.
-			while (ServerRouter.SharedLSADatabaseLock.getReadHoldCount() > 0) {
-				ServerRouter.SharedLSADatabasereadLock.unlock();
-			}
-		}
-
-		debug.stepOneDone();
-
-		//Build route table
-		ArrayList<@Nullable List<ExitRoute>> routeTable = new ArrayList<>(ServerRouter.getBiggestSimpleID() + 1);
-		while (simpleID >= routeTable.size()) {
-			routeTable.add(null);
-		}
-		routeTable.set(simpleID, new OneList<>(new ExitRoute(this, this, null, null, 0, EnumSet
-				.allOf(PipeRoutingConnectionType.class), 0)));
-
-		for (ExitRoute node : routeCosts) {
-			IRouter firstHop = node.root;
-			ExitRoute hop = adjacentRouter.get(firstHop);
-			if (hop == null) {
-				continue;
-			}
-			node.root = this; // replace the root with this, rather than the first hop.
-			node.exitOrientation = hop.exitOrientation;
-			while (node.destination.getSimpleID() >= routeTable
-					.size()) { // the array will not expand, as it is init'd to contain enough elements
-				routeTable.add(null);
-			}
-
-			List<ExitRoute> current = routeTable.get(node.destination.getSimpleID());
-			if (current != null && !current.isEmpty()) {
-				List<ExitRoute> list = new ArrayList<>(current);
-				list.add(node);
-				routeTable.set(node.destination.getSimpleID(), Collections.unmodifiableList(list));
-			} else {
-				routeTable.set(node.destination.getSimpleID(), new OneList<>(node));
-			}
-		}
-		debug.stepTwoDone();
-		if (!debug.independent()) {
-			routingTableUpdateWriteLock.lock();
-			try {
-				if (version_to_update_to == lsaVersion) {
-					ServerRouter.SharedLSADatabasereadLock.lock();
-					try {
-						// Bounds-checked: cleanup() resets _lastLSAVersion to a zero-length array
-						// on server stop, and this runs on the routing thread, which can still be
-						// mid-update at that point.
-						if (simpleID < ServerRouter.lastLsaVersion.length
-								&& ServerRouter.lastLsaVersion[simpleID] < version_to_update_to) {
-							ServerRouter.lastLsaVersion[simpleID] = version_to_update_to;
-							lpPowerTable = Collections.unmodifiableList(powerTable);
-							subSystemPowerTable = Collections.unmodifiableList(subSystemPower);
-							this.routeTable = Collections.unmodifiableList(routeTable);
-							this.routeCosts = Collections.unmodifiableList(routeCosts);
-						}
-					} finally {
-						ServerRouter.SharedLSADatabasereadLock.unlock();
-					}
-				}
-			} finally {
-				routingTableUpdateWriteLock.unlock();
-			}
-		}
-		if (getCachedPipe() != null) {
-			getCachedPipe().spawnParticle(Particles.LIGHT_GREEN_SPARKLE, 5);
-		}
-
-		debug.done();
-	}
-
-	/**
-	 * @param hasBeenProcessed a BitSet flagging which nodes have already been acted on. The router should set the bit for its own id.
-	 */
-	public void act(BitSet hasBeenProcessed, Action actor) {
-		if (hasBeenProcessed.get(simpleID)) {
-			return;
-		}
-		hasBeenProcessed.set(simpleID);
-		if (!actor.isInteresting(this)) {
-			return;
-		}
-
-		actor.doTo(this);
-		for (ServerRouter r : adjacentRouter.keySet()) {
-			r.act(hasBeenProcessed, actor);
-		}
-	}
-
-	/**
-	 * Flags the last sent LSA as expired. Each router will be responsible of
-	 * purging it from its database.
-	 */
-	@Override
-	public void destroy() {
-		ServerRouter.SharedLSADatabasewriteLock.lock(); // take a write lock so that we don't overlap with any ongoing route updates
-		try {
-			if (simpleID < ServerRouter.SharedLSADatabase.length) {
-				ServerRouter.SharedLSADatabase[simpleID] = null;
-			}
-		} finally {
-			ServerRouter.SharedLSADatabasewriteLock.unlock();
-		}
-		removeAllInterests();
-
-		clearPipeCache();
-		isDestroyed = true;
-		RouterManager.get().removeRouter(simpleID);
-		for (List<IBlockEntityChangeListener> list : listenedPipes) {
-			list.remove(localChangeListener);
-		}
-		updateAdjacentAndLsa();
-		ServerRouter.releaseSimpleID(simpleID);
-	}
-
-	private void removeAllInterests() {
-		removeGenericInterest();
-
-		interestsRWLock.lock();
-		try {
-			interests.forEach(this::removeGlobalInterest);
-			interests.clear();
-		} finally {
-			interestsRWLock.unlock();
-		}
-	}
-
-	public boolean checkAdjacentUpdate() {
-		boolean blockNeedsUpdate = recheckAdjacent();
-		if (!blockNeedsUpdate) {
-			return false;
-		}
-
-		CoreRoutedPipe pipe = getPipe();
-		if (pipe == null) {
-			return true;
-		}
-		pipe.refreshRender(true);
-		return true;
-	}
-
-	public void flagForRoutingUpdate() {
-		lsaVersion++;
-		//if(LogisticsPipes.DEBUG)
-		//System.out.println("[LogisticsPipes] targeted for routing update to "+_LSAVersion+" for Node" +  simpleID);
-	}
-
-	private void updateAdjacentAndLsa() {
-		//this already got a checkAdjacentUpdate, so start the recursion with neighbors
-		BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
-		Action flood = new floodCheckAdjacent();
-		visited.set(simpleID);
-		// for all connected updatecurrent and previous
-		for (ServerRouter r : adjacentRouterOld.keySet()) {
-			r.act(visited, flood);
-		}
-		for (ServerRouter r : adjacentRouter.keySet()) {
-			r.act(visited, flood);
-		}
-		updateLsa();
-	}
-
-	void updateLsa() {
-		//now increment LSA version in the network
-		BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
-		for (ServerRouter r : adjacentRouterOld.keySet()) {
-			r.act(visited, new flagForLSAUpdate());
-		}
-		adjacentRouterOld = new HashMap<>();
-		act(visited, new flagForLSAUpdate());
-	}
-
-	@Override
-	public void update(boolean doFullRefresh, CoreRoutedPipe pipe) {
-		if (lsaWrittenAsync) {
-			lsaWrittenAsync = false;
-			act(new BitSet(ServerRouter.getBiggestSimpleID()), new flagForLSAUpdate());
-		}
-		if (connectionNeedsChecking == 2) {
-			ensureChangeListenerAttachedToPipe(pipe);
-
-			final Info info = StackTraceUtil.addTraceInformation(causedBy::toString);
-			boolean blockNeedsUpdate = checkAdjacentUpdate();
-			if (blockNeedsUpdate) {
-				updateLsa();
-			}
-			info.end();
-
-			ensureChangeListenerAttachedToPipe(pipe);
-		}
-		if (connectionNeedsChecking == 1) {
-			connectionNeedsChecking = 2;
-		}
-		handleQueuedTasks(pipe);
-		updateInterests();
-		if (doFullRefresh) {
-			ensureChangeListenerAttachedToPipe(pipe);
-
-			boolean blockNeedsUpdate = checkAdjacentUpdate();
-			if (blockNeedsUpdate) {
-				//updateAdjacentAndLsa();
-				updateLsa();
-			}
-
-			ensureChangeListenerAttachedToPipe(pipe);
-			lazyUpdateRoutingTable();
-		} else if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
-			lazyUpdateRoutingTable();
-		}
-	}
-
-	private void ensureChangeListenerAttachedToPipe(CoreRoutedPipe pipe) {
-		if (pipe.getContainer() != null && pipe.getContainer().isChangeDetectionActive()) {
-			if (!pipe.getContainer().changeListeners.contains(localChangeListener)) {
-				pipe.getContainer().changeListeners.add(localChangeListener);
-			}
-		}
-	}
-
-	private static void clearRoutingCache(Set<LogisticsGenericPipeBlockEntity> pipes) {
-		for (LogisticsGenericPipeBlockEntity pipe : pipes) {
-			pipe.getCacheHolder().trigger(CacheTypes.Routing);
-		}
-	}
-
-	private void handleQueuedTasks(CoreRoutedPipe pipe) {
-		while (!queue.isEmpty() && queue.peek().dueTick() <= LPTickHandler.getGlobalTick()) {
-			queue.poll().task().call(pipe, this);
-		}
-	}
-
-	/************* IROUTER *******************/
-
-	@Override
-	public boolean isRoutedExit(Direction o) {
-		return routedExits.contains(o);
-	}
-
-	@Override
-	public boolean isSubPoweredExit(Direction o) {
-		return subPowerExits.containsKey(o);
-	}
-
-	@Override
-	public int getDistanceToNextPowerPipe(Direction dir) {
-		return subPowerExits.get(dir);
-	}
-
-	@Override
-	public @Nullable ExitRoute getExitFor(int id, boolean active, ItemIdentifier type) {
-		ensureLatestRoutingTable();
-		// Read the table once: RoutingTableUpdateThread replaces it wholesale, so two reads can
-		// disagree and the null check would then be guarding a different list than the loop walks.
-		final List<@Nullable List<ExitRoute>> table = getRouteTable();
-		if (table.size() <= id) {
-			return null;
-		}
-		final List<ExitRoute> routes = table.get(id);
-		if (routes == null) {
-			return null;
-		}
-		outer:
-		for (ExitRoute exit : routes) {
-			if (exit.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
-				for (IFilter filter : exit.filters) {
-					if (!active) {
-						if (filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(type)) {
-							continue outer;
-						}
-					} else {
-						if ((filter.blockProvider() && filter.blockCrafting()) || filter.isBlocked() == filter.isFilteredItem(type)) {
-							continue outer;
-						}
-					}
-				}
-				return exit;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public boolean hasRoute(int id, boolean active, ItemIdentifier type) {
-		if (!RouterManager.get().isRouterUnsafe(id)) {
-			return false;
-		}
-		ensureLatestRoutingTable();
-		if (getRouteTable().size() <= id) {
-			return false;
-		}
-		List<ExitRoute> source = getRouteTable().get(id);
-		if (source == null) {
-			return false;
-		}
-		outer:
-		for (ExitRoute exit : source) {
-			if (exit.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
-				for (IFilter filter : exit.filters) {
-					if (!active) {
-						if (filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(type)) {
-							continue outer;
-						}
-					} else {
-						if ((filter.blockProvider() && filter.blockCrafting()) || filter.isBlocked() == filter.isFilteredItem(type)) {
-							continue outer;
-						}
-					}
-				}
-				return true;
-			}
-		}
-		return false;
-	}
-
-	@Override
-	public @Nullable LogisticsModule getLogisticsModule() {
-		CoreRoutedPipe pipe = getPipe();
-		if (pipe == null) {
-			return null;
-		}
-		return pipe.getLogisticsModule();
-	}
-
-	@Override
-	public List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider() {
-		return lpPowerTable;
-	}
-
-	@Override
-	public List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider() {
-		return subSystemPowerTable;
-	}
-
-	@Override
-	public boolean isSideDisconnected(Direction dir) {
-		return null != dir && sideDisconnected[dir.ordinal()];
-	}
-
-	public void updateInterests() {
-		if (--ticksUntillNextInventoryCheck > 0) {
-			return;
-		}
-		ticksUntillNextInventoryCheck = ServerRouter.REFRESH_TIME;
-		if (ServerRouter.iterated++ % simpleID == 0) {
-			ticksUntillNextInventoryCheck++; // randomly wait 1 extra tick - just so that every router doesn't tick at the same time
-		}
-		if (ServerRouter.iterated >= ServerRouter.getBiggestSimpleID()) {
-			ServerRouter.iterated = 0;
-		}
-		CoreRoutedPipe pipe = getPipe();
-		if (pipe == null) {
-			return;
-		}
-		if (pipe.hasGenericInterests()) {
-			declareGenericInterest();
-		} else {
-			removeGenericInterest();
-		}
-		TreeSet<ItemIdentifier> newInterests = new TreeSet<>();
-		pipe.collectSpecificInterests(newInterests);
-
-		interestsRWLock.lock();
-		try {
-			if (newInterests.size() == interests.size() && newInterests.containsAll(interests)) {
-				// interests are up-to-date
-				return;
-			}
-
-			interests.stream().filter(itemid -> !newInterests.contains(itemid)).forEach(this::removeGlobalInterest);
-			newInterests.stream().filter(itemid -> !interests.contains(itemid)).forEach(this::addGlobalInterest);
-			interests = newInterests;
-		} finally {
-			interestsRWLock.unlock();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void removeGenericInterest() {
-		genericInterestsWLock.lock();
-		try {
-			final TreeSet<ServerRouter> newGenericInterests = (TreeSet<ServerRouter>) ServerRouter.genericInterests.clone();
-			if (newGenericInterests.remove(this)) {
-				ServerRouter.genericInterests = newGenericInterests;
-			}
-		} finally {
-			genericInterestsWLock.unlock();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void declareGenericInterest() {
-		genericInterestsWLock.lock();
-		try {
-			final TreeSet<ServerRouter> newGenericInterests = (TreeSet<ServerRouter>) ServerRouter.genericInterests.clone();
-			if (newGenericInterests.add(this)) {
-				ServerRouter.genericInterests = newGenericInterests;
-			}
-		} finally {
-			genericInterestsWLock.unlock();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void addGlobalInterest(ItemIdentifier itemid) {
-		ServerRouter.globalSpecificInterests.compute(itemid, (unused, serverRouters) -> {
-			final TreeSet<ServerRouter> newServerRouters = serverRouters == null ? new TreeSet<>() : (TreeSet<ServerRouter>) serverRouters.clone();
-			newServerRouters.add(this);
-			return newServerRouters;
-		});
-	}
-
-	@SuppressWarnings("unchecked")
-	private void removeGlobalInterest(ItemIdentifier itemid) {
-		ServerRouter.globalSpecificInterests.computeIfPresent(itemid, (unused, serverRouters) -> {
-			if (serverRouters.equals(ObjectSets.singleton(this))) {
-				return null;
-			} else {
-				final TreeSet<ServerRouter> newServerRouters = (TreeSet<ServerRouter>) serverRouters.clone();
-				newServerRouters.remove(this);
-				return newServerRouters;
-			}
-		});
-	}
-
-	@Override
-	public int compareTo(ServerRouter o) {
-		return simpleID - o.simpleID;
-	}
-
-	@Override
-	public List<ExitRoute> getDistanceTo(IRouter r) {
-		ensureLatestRoutingTable();
-		int id = r.getSimpleID();
-		if (routeTable.size() <= id) {
-			return new ArrayList<>(0);
-		}
-		List<ExitRoute> result = routeTable.get(id);
-		return result != null ? result : new ArrayList<>(0);
-	}
-
-	@Override
-	public void clearInterests() {
-		removeAllInterests();
-	}
-
-	@Override
-	public String toString() {
-		return String.format("ServerRouter: {ID: %d, UUID: %s, AT: (%s, %s), Version: %d), Destroyed: %s}", simpleID, getId(), dimension, pos, lsaVersion, isDestroyed);
-	}
-
-	@Override
-	public void forceLsaUpdate() {
-		BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
-		act(visited, new flagForLSAUpdate());
-	}
-
-	@Override
-	public List<ExitRoute> getRoutersOnSide(Direction direction) {
-		return adjacentRouter.values().stream()
-				.filter(exit -> exit.exitOrientation == direction)
-				.collect(Collectors.toList());
-	}
-
-	@Override
-	public void queueTask(int i, IRouterQueuedTask callable) {
-		queue.add(new QueuedTask(i + LPTickHandler.getGlobalTick(), callable));
-	}
-
-	/** One link of a router's link state: what reaching that neighbor costs, and what it allows. */
-	protected record NeighborLink(double distance, EnumSet<PipeRoutingConnectionType> connectionDetails,
-			List<IFilter> filters, int blockDistance) {}
-
-	private record QueuedTask(int dueTick, IRouterQueuedTask task) {}
-
-	protected static class LSA {
-
-		public HashMap<IRouter, NeighborLink> neighboursWithMetric = new HashMap<>();
-		public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> power;
-		public @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
-	}
-
-	private abstract static class RouterRunnable implements Comparable<RouterRunnable>, Runnable {
-
-		public abstract int getPriority();
-
-		public abstract int localCompare(RouterRunnable o);
-
-		@Override
-		public int compareTo(RouterRunnable o) {
-			if (o.getPriority() == getPriority()) {
-				return localCompare(o);
-			}
-			return o.getPriority() - getPriority();
-		}
-	}
-
-	interface Action {
-		boolean isInteresting(ServerRouter router);
-
-		void doTo(ServerRouter router);
-	}
-
-	/**
-	 * Floodfill recheckAdjacent, leave _prevAdjacentRouter around for LSA
-	 * updating
-	 */
-	static class floodCheckAdjacent implements Action {
-
-		public boolean isInteresting(ServerRouter router) {
-			return router.checkAdjacentUpdate();
-		}
-
-		public void doTo(ServerRouter router) {}
-	}
-
-	/**
-	 * Floodfill LSA increment and clean up the _prevAdjacentRouter list left by
-	 * floodCheckAdjacent
-	 */
-	static class flagForLSAUpdate implements Action {
-
-		public boolean isInteresting(ServerRouter router) {
-			return true;
-		}
-
-		public void doTo(ServerRouter router) {
-			router.flagForRoutingUpdate();
-		}
-	}
-
-	static class floodClearCache implements Action {
-
-		public boolean isInteresting(ServerRouter router) {
-			return true;
-		}
-
-		public void doTo(ServerRouter router) {
-			clearRoutingCache(router.oldTouchedPipes);
-		}
-	}
-
-	private class UpdateRouterRunnable extends RouterRunnable {
-
-		int newVersion;
-		boolean run;
-		IRouter target;
-
-		UpdateRouterRunnable(IRouter target) {
-			run = true;
-			newVersion = lsaVersion;
-			this.target = target;
-		}
-
-		@Override
-		public void run() {
-			if (!run) {
-				return;
-			}
-			try {
-				CoreRoutedPipe p = target.getCachedPipe();
-				if (p == null) {
-					run = false;
-					return;
-				}
-				//spinlock during the first tick, we can't touch the routing table, untill Update() has been called on every pipe.
-				for (int i = 0; i < 10 && p.stillNeedReplace(); i++) {
-					Thread.sleep(10);
-				}
-				if (p.stillNeedReplace()) {
-					return; // drop the pipe update if it still needs replace after 5 ticks.
-				}
-				CreateRouteTable(newVersion);
-			} catch (Exception e) {
-				LogisticsPipes.LOG.error("Exception during route table update", e);
-			}
-			run = false;
-		}
-
-		@Override
-		public int getPriority() {
-			return 0;
-		}
-
-		@Override
-		public int localCompare(RouterRunnable o) {
-			int c = 0;
-			if (((UpdateRouterRunnable) o).newVersion <= 0) {
-				c = newVersion - ((UpdateRouterRunnable) o).newVersion; // negative numbers have priority, more negative first
-			}
-			if (c != 0) {
-				return 0;
-			}
-			c = target.getSimpleID() - ((UpdateRouterRunnable) o).target.getSimpleID(); // do things in order of router id, to minimize router recursion
-			if (c != 0) {
-				return 0;
-			}
-			c = ((UpdateRouterRunnable) o).newVersion - newVersion; // higher version first
-			return c;
-		}
-	}
-
-	private class LSARouterRunnable extends RouterRunnable {
-
-		private final int index = ServerRouter.maxLSAUpdateIndex++;
-		HashMap<IRouter, NeighborLink> neighboursWithMetric;
-		@Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power;
-		@Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
-
-		LSARouterRunnable(HashMap<IRouter, NeighborLink> neighboursWithMetric, @Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power, @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower) {
-			this.neighboursWithMetric = neighboursWithMetric;
-			this.power = power;
-			this.subSystemPower = subSystemPower;
-		}
-
-		@Override
-		public void run() {
-			lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
-			lsaWrittenAsync = true;
-		}
-
-		@Override
-		public int getPriority() {
-			return 1;
-		}
-
-		@Override
-		public int localCompare(RouterRunnable o) {
-			return index - ((LSARouterRunnable) o).index;
-		}
-	}
+            getPipe().spawnParticle(Particles.LIGHT_RED_SPARKLE, 5);
+        }
+
+        LPTickHandler.adjChecksDone++;
+        boolean adjacentChanged = false;
+        CoreRoutedPipe thisPipe = getPipe();
+        if (thisPipe == null) {
+            return false;
+        }
+        HashMap<CoreRoutedPipe, ExitRoute> adjacent;
+        List<FilteredRoute<ILogisticsPowerProvider>> power;
+        List<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
+        PathFinder finder = new PathFinder(thisPipe.getContainer(),
+            LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(),
+            LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(), localChangeListener);
+        power = finder.powerNodes;
+        subSystemPower = finder.subPowerProvider;
+        adjacent = finder.result;
+
+        Map<Direction, List<CoreRoutedPipe>> pipeDirections = new HashMap<>();
+
+        for (Entry<CoreRoutedPipe, ExitRoute> entry : adjacent.entrySet()) {
+            List<CoreRoutedPipe> list = pipeDirections.computeIfAbsent(entry.getValue().exitOrientation,
+                k -> new ArrayList<>());
+            list.add(entry.getKey());
+        }
+
+        pipeDirections.entrySet().stream()
+            .filter(entry -> entry.getValue().size() > LPConfigs.COMMON.MAX_UNROUTED_CONNECTIONS.getAsInt())
+            .forEach(entry -> entry.getValue().forEach(adjacent::remove));
+
+        listenedPipes.stream().filter(list -> !finder.listenedPipes.contains(list))
+            .forEach(list -> list.remove(localChangeListener));
+        listenedPipes = finder.listenedPipes;
+
+        for (CoreRoutedPipe pipe : adjacent.keySet()) {
+            if (pipe.stillNeedReplace()) {
+                // A neighbour that has not had its first tick yet, as after a chunk load: look again
+                // once it has, or it stays out of this router's adjacency until the next full refresh.
+                connectionNeedsChecking = 1;
+                return false;
+            }
+        }
+
+        boolean[] oldSideDisconnected = sideDisconnected;
+        sideDisconnected = new boolean[6];
+        checkSecurity(adjacent);
+
+        boolean changed = false;
+
+        for (int i = 0; i < 6; i++) {
+            changed |= sideDisconnected[i] != oldSideDisconnected[i];
+        }
+        if (changed) {
+            CoreRoutedPipe pipe = getPipe();
+            if (pipe != null) {
+                pipe.getLevel().sendBlockUpdated(pipe.getPos(), pipe.getLevel().getBlockState(pipe.getPos()),
+                    pipe.getLevel().getBlockState(pipe.getPos()), 3);
+                pipe.refreshConnectionAndRender(false);
+            }
+            adjacentChanged = true;
+        }
+
+        if (this.adjacent.size() != adjacent.size()) {
+            adjacentChanged = true;
+        }
+
+        for (CoreRoutedPipe pipe : this.adjacent.keySet()) {
+            if (!adjacent.containsKey(pipe)) {
+                adjacentChanged = true;
+                break;
+            }
+        }
+        if (powerAdjacent != null) {
+            if (power == null) {
+                adjacentChanged = true;
+            } else {
+                for (FilteredRoute<ILogisticsPowerProvider> provider : powerAdjacent) {
+                    if (!power.contains(provider)) {
+                        adjacentChanged = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (power != null) {
+            if (powerAdjacent == null) {
+                adjacentChanged = true;
+            } else {
+                for (FilteredRoute<ILogisticsPowerProvider> provider : power) {
+                    if (!powerAdjacent.contains(provider)) {
+                        adjacentChanged = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (subSystemPowerAdjacent != null) {
+            if (subSystemPower == null) {
+                adjacentChanged = true;
+            } else {
+                for (FilteredRoute<ISubSystemPowerProvider> provider : subSystemPowerAdjacent) {
+                    if (!subSystemPower.contains(provider)) {
+                        adjacentChanged = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (subSystemPower != null) {
+            if (subSystemPowerAdjacent == null) {
+                adjacentChanged = true;
+            } else {
+                for (FilteredRoute<ISubSystemPowerProvider> provider : subSystemPower) {
+                    if (!subSystemPowerAdjacent.contains(provider)) {
+                        adjacentChanged = true;
+                        break;
+                    }
+                }
+            }
+        }
+        for (Entry<CoreRoutedPipe, ExitRoute> pipe : adjacent.entrySet()) {
+            ExitRoute oldExit = this.adjacent.get(pipe.getKey());
+            if (oldExit == null) {
+                adjacentChanged = true;
+                break;
+            }
+            ExitRoute newExit = pipe.getValue();
+
+            if (!newExit.equals(oldExit)) {
+                adjacentChanged = true;
+                break;
+            }
+        }
+
+        if (!oldTouchedPipes.equals(finder.touchedPipes)) {
+            clearRoutingCache(oldTouchedPipes);
+            clearRoutingCache(finder.touchedPipes);
+            oldTouchedPipes = finder.touchedPipes;
+            BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
+            visited.set(getSimpleID());
+            act(visited, new floodClearCache());
+        }
+
+        if (adjacentChanged) {
+            HashMap<ServerRouter, ExitRoute> adjacentRouter = new HashMap<>();
+            EnumSet<Direction> routedexits = EnumSet.noneOf(Direction.class);
+            EnumMap<Direction, Integer> subpowerexits = new EnumMap<>(Direction.class);
+            for (Entry<CoreRoutedPipe, ExitRoute> pipe : adjacent.entrySet()) {
+                adjacentRouter.put((ServerRouter) pipe.getKey().getRouter(), pipe.getValue());
+                if ((pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO)
+                    || pipe.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_REQUEST_FROM)
+                    && !routedexits.contains(pipe.getValue().exitOrientation))) {
+                    routedexits.add(pipe.getValue().exitOrientation);
+                }
+                if (!subpowerexits.containsKey(pipe.getValue().exitOrientation)
+                    && pipe.getValue().connectionDetails.contains(
+                    PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
+                    subpowerexits.put(pipe.getValue().exitOrientation,
+                        PathFinder.measureDistanceToNextRoutedPipe(getPos(), pipe.getValue().exitOrientation,
+                            pipe.getKey().getLevel()));
+                }
+            }
+            this.adjacent = Collections.unmodifiableMap(adjacent);
+            adjacentRouterOld = this.adjacentRouter;
+            this.adjacentRouter = Collections.unmodifiableMap(adjacentRouter);
+            if (power != null) {
+                powerAdjacent = Collections.unmodifiableList(power);
+            } else {
+                powerAdjacent = null;
+            }
+            if (subSystemPower != null) {
+                subSystemPowerAdjacent = Collections.unmodifiableList(subSystemPower);
+            } else {
+                subSystemPowerAdjacent = null;
+            }
+            routedExits = routedexits;
+            subPowerExits = subpowerexits;
+            SendNewLSA();
+        }
+        return adjacentChanged;
+    }
+
+    private void checkSecurity(HashMap<CoreRoutedPipe, ExitRoute> adjacent) {
+        CoreRoutedPipe pipe = getPipe();
+        if (pipe == null) {
+            return;
+        }
+        UUID id = pipe.getSecurityID();
+        if (id != null) {
+            for (Entry<CoreRoutedPipe, ExitRoute> entry : adjacent.entrySet()) {
+                if (!entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_ROUTE_TO)
+                    && !entry.getValue().connectionDetails.contains(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
+                    continue;
+                }
+                UUID thatId = entry.getKey().getSecurityID();
+                if (!(pipe instanceof PipeItemsFirewall)) {
+                    if (thatId == null) {
+                        entry.getKey().insetSecurityID(id);
+                    } else if (!id.equals(thatId)) {
+                        sideDisconnected[entry.getValue().exitOrientation.ordinal()] = true;
+                    }
+                } else {
+                    if (!(entry.getKey() instanceof PipeItemsFirewall)) {
+                        if (thatId != null && !id.equals(thatId)) {
+                            sideDisconnected[entry.getValue().exitOrientation.ordinal()] = true;
+                        }
+                    }
+                }
+            }
+            List<CoreRoutedPipe> toRemove = adjacent.entrySet().stream()
+                .filter(entry -> sideDisconnected[entry.getValue().exitOrientation.ordinal()])
+                .map(Entry::getKey)
+                .collect(Collectors.toList());
+            toRemove.forEach(adjacent::remove);
+        }
+    }
+
+    private void SendNewLSA() {
+        HashMap<IRouter, NeighborLink> neighboursWithMetric = new HashMap<>();
+        for (Entry<ServerRouter, ExitRoute> adjacent : adjacentRouter.entrySet()) {
+            neighboursWithMetric.put(adjacent.getKey(), new NeighborLink(adjacent
+                .getValue().distanceToDestination, adjacent.getValue().connectionDetails, adjacent
+                .getValue().filters, adjacent.getValue().blockDistance));
+        }
+        ArrayList<FilteredRoute<ILogisticsPowerProvider>> power = null;
+        if (powerAdjacent != null) {
+            power = new ArrayList<>(powerAdjacent);
+        }
+        ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower = null;
+        if (subSystemPowerAdjacent != null) {
+            subSystemPower = new ArrayList<>(subSystemPowerAdjacent);
+        }
+        if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+            RoutingTableUpdateThread.add(new LSARouterRunnable(neighboursWithMetric, power, subSystemPower));
+        } else {
+            lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
+        }
+    }
+
+    private void lockAndUpdateLSA(HashMap<IRouter, NeighborLink> neighboursWithMetric,
+        @Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power,
+        @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower) {
+        ServerRouter.SharedLSADatabasewriteLock.lock();
+        try {
+            myLsa.neighboursWithMetric = neighboursWithMetric;
+            myLsa.power = power;
+            myLsa.subSystemPower = subSystemPower;
+        } finally {
+            ServerRouter.SharedLSADatabasewriteLock.unlock();
+        }
+    }
+
+    public void CreateRouteTable(int version_to_update_to) {
+        CreateRouteTable(version_to_update_to, new NoOpRoutingDebugAdapter());
+    }
+
+    /**
+     * Create a route table from the link state database
+     */
+    public void CreateRouteTable(int version_to_update_to, IRoutingDebugAdapter debug) {
+
+        if (ServerRouter.lastLsaVersion[simpleID] >= version_to_update_to && !debug.independent()) {
+            return; // this update is already done.
+        }
+
+        //Dijkstra!
+
+        debug.init();
+
+        int routingTableSize = ServerRouter.getBiggestSimpleID();
+        if (routingTableSize == 0) {
+            routingTableSize = ServerRouter.SharedLSADatabase.length; // deliberatly ignoring concurrent access, either the old or the version of the size will work, this is just an approximate number.
+        }
+
+        /**
+         * same info as above, but sorted by distance -- sorting is implicit,
+         * because Dijkstra finds the closest routes first.
+         **/
+        List<ExitRoute> routeCosts = new ArrayList<>(routingTableSize);
+
+        //Add the current Router
+        routeCosts.add(new ExitRoute(this, this, null, null, 0, EnumSet.allOf(PipeRoutingConnectionType.class), 0));
+
+        ArrayList<FilteredRoute<ILogisticsPowerProvider>> powerTable;
+        if (powerAdjacent != null) {
+            powerTable = new ArrayList<>(powerAdjacent);
+        } else {
+            powerTable = new ArrayList<>(5);
+        }
+        ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
+        if (subSystemPowerAdjacent != null) {
+            subSystemPower = new ArrayList<>(subSystemPowerAdjacent);
+        } else {
+            subSystemPower = new ArrayList<>(5);
+        }
+
+        //space and time inefficient, a bitset with 3 bits per node would save a lot but makes the main iteration look like a complete mess
+        ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet = new ArrayList<>(
+            ServerRouter.getBiggestSimpleID());
+        for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {
+            closedSet.add(null);
+        }
+
+        ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList = new ArrayList<>(
+            ServerRouter
+                .getBiggestSimpleID());
+        for (int i = 0; i < ServerRouter.getBiggestSimpleID(); i++) {
+            filterList.add(null);
+        }
+
+        /** The total cost for the candidate route **/
+        PriorityQueue<ExitRoute> candidatesCost = new PriorityQueue<>((int) Math.sqrt(
+            routingTableSize)); // sqrt nodes is a good guess for the total number of candidate nodes at once.
+
+        //Init candidates
+        // the shortest way to go to an adjacent item is the adjacent item.
+        for (Entry<ServerRouter, ExitRoute> pipe : adjacentRouter.entrySet()) {
+            ExitRoute currentE = pipe.getValue();
+            IRouter newRouter = pipe.getKey();
+            if (newRouter != null) {
+                ExitRoute newER = new ExitRoute(newRouter, newRouter, currentE.distanceToDestination,
+                    currentE.connectionDetails, currentE.filters, new ArrayList<>(0), currentE.blockDistance);
+                candidatesCost.add(newER);
+                debug.newCandidate(newER);
+            }
+        }
+
+        debug.start(candidatesCost, closedSet, filterList);
+
+        ServerRouter.SharedLSADatabasereadLock.lock(); // readlock, not inside the while - too costly to aquire, then release.
+        try {
+            ExitRoute lowestCostNode;
+            while ((lowestCostNode = candidatesCost.poll()) != null) {
+                if (!lowestCostNode.hasActivePipe()) {
+                    continue;
+                }
+
+                if (debug.isDebug()) {
+                    ServerRouter.SharedLSADatabasereadLock.unlock();
+                }
+                debug.nextPipe(lowestCostNode);
+                if (debug.isDebug()) {
+                    ServerRouter.SharedLSADatabasereadLock.lock();
+                }
+
+                for (ExitRoute e : candidatesCost) {
+                    e.debug.isNewlyAddedCanidate = false;
+                }
+
+                //if the node does not have any flags not in the closed set, check it
+                EnumSet<PipeRoutingConnectionType> lowestCostClosedFlags = closedSet.get(
+                    lowestCostNode.destination.getSimpleID());
+                if (lowestCostClosedFlags == null) {
+                    lowestCostClosedFlags = EnumSet.noneOf(PipeRoutingConnectionType.class);
+                }
+                if (lowestCostClosedFlags.containsAll(lowestCostNode.getFlagsNoCopy())) {
+                    continue;
+                }
+
+                if (debug.isDebug()) {
+                    EnumSet<PipeRoutingConnectionType> newFlags = lowestCostNode.getFlags();
+                    newFlags.removeAll(lowestCostClosedFlags);
+
+                    debug.newFlagsForPipe(newFlags);
+                }
+
+                EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters = filterList.get(
+                    lowestCostNode.destination.getSimpleID());
+
+                debug.filterList(filters);
+
+                if (filters != null) {
+                    boolean containsNewInfo = false;
+                    for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
+                        if (lowestCostClosedFlags.contains(type)) {
+                            continue;
+                        }
+                        if (!filters.containsKey(type)) {
+                            containsNewInfo = true;
+                            break;
+                        }
+                        boolean matches = false;
+                        List<List<IFilter>> list = filters.get(type);
+                        for (List<IFilter> filter : list) {
+                            if (lowestCostNode.filters.containsAll(filter)) {
+                                matches = true;
+                                break;
+                            }
+                        }
+                        if (!matches) {
+                            containsNewInfo = true;
+                            break;
+                        }
+                    }
+                    if (!containsNewInfo) {
+                        continue;
+                    }
+                }
+
+                //Add new candidates from the newly approved route
+                LSA lsa = null;
+                if (lowestCostNode.destination.getSimpleID() < ServerRouter.SharedLSADatabase.length) {
+                    lsa = ServerRouter.SharedLSADatabase[lowestCostNode.destination.getSimpleID()];
+                }
+                if (lsa == null) {
+                    lowestCostNode.removeFlags(lowestCostClosedFlags);
+                    lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
+                    if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)
+                        || lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
+                        routeCosts.add(lowestCostNode);
+                    }
+                    closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
+                    continue;
+                }
+                if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_FROM)) {
+                    if (lsa.power != null && !lsa.power.isEmpty()) {
+                        for (FilteredRoute<ILogisticsPowerProvider> p : lsa.power) {
+                            List<IFilter> list = new ArrayList<>();
+                            list.addAll(p.filters());
+                            list.addAll(lowestCostNode.filters);
+                            FilteredRoute<ILogisticsPowerProvider> entry = new FilteredRoute<>(p.target(),
+                                Collections.unmodifiableList(list));
+                            if (!powerTable.contains(entry)) {
+                                powerTable.add(entry);
+                            }
+                        }
+                    }
+                }
+                if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
+                    if (lsa.subSystemPower != null && !lsa.subSystemPower.isEmpty()) {
+                        for (FilteredRoute<ISubSystemPowerProvider> p : lsa.subSystemPower) {
+                            List<IFilter> list = new ArrayList<>();
+                            list.addAll(p.filters());
+                            list.addAll(lowestCostNode.filters);
+                            FilteredRoute<ISubSystemPowerProvider> entry = new FilteredRoute<>(p.target(),
+                                Collections.unmodifiableList(list));
+                            if (!subSystemPower.contains(entry)) {
+                                subSystemPower.add(entry);
+                            }
+                        }
+                    }
+                }
+                for (Entry<IRouter, NeighborLink> newCandidate : lsa.neighboursWithMetric.entrySet()) {
+                    double candidateCost = lowestCostNode.distanceToDestination + newCandidate.getValue().distance();
+                    int blockDistance = lowestCostNode.blockDistance + newCandidate.getValue().blockDistance();
+                    EnumSet<PipeRoutingConnectionType> newCT = lowestCostNode.getFlags();
+                    newCT.retainAll(newCandidate.getValue().connectionDetails());
+                    if (!newCT.isEmpty()) {
+                        ExitRoute next = new ExitRoute(lowestCostNode.root, newCandidate.getKey(), candidateCost, newCT,
+                            lowestCostNode.filters, newCandidate.getValue().filters(), blockDistance);
+                        next.debug.isTraced = lowestCostNode.debug.isTraced;
+                        candidatesCost.add(next);
+                        debug.newCandidate(next);
+                    }
+                }
+
+                lowestCostClosedFlags = lowestCostClosedFlags.clone();
+
+                lowestCostNode.removeFlags(lowestCostClosedFlags);
+                lowestCostClosedFlags.addAll(lowestCostNode.getFlagsNoCopy());
+                if (lowestCostNode.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO) || lowestCostNode.containsFlag(
+                    PipeRoutingConnectionType.CAN_REQUEST_FROM) || lowestCostNode.containsFlag(
+                    PipeRoutingConnectionType.CAN_POWER_SUB_SYSTEM_FROM)) {
+                    routeCosts.add(lowestCostNode);
+                }
+                EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> map = filterList.get(
+                    lowestCostNode.destination.getSimpleID());
+                if (map == null) {
+                    map = new EnumMap<>(PipeRoutingConnectionType.class);
+                    filterList.set(lowestCostNode.destination.getSimpleID(), map);
+                }
+                for (PipeRoutingConnectionType type : lowestCostNode.getFlagsNoCopy()) {
+                    if (!map.containsKey(type)) {
+                        map.put(type, new ArrayList<>());
+                    }
+                    map.get(type).add(Collections.unmodifiableList(new ArrayList<>(lowestCostNode.filters)));
+                }
+                if (lowestCostNode.filters.isEmpty()) {
+                    closedSet.set(lowestCostNode.destination.getSimpleID(), lowestCostClosedFlags);
+                }
+
+                if (debug.isDebug()) {
+                    ServerRouter.SharedLSADatabasereadLock.unlock();
+                }
+                debug.handledPipe();
+                if (debug.isDebug()) {
+                    ServerRouter.SharedLSADatabasereadLock.lock();
+                }
+            }
+        } finally {
+            // The debug adapter drops and retakes the read lock inside the loop, so the hold
+            // count is the only reliable measure of what is still ours to release on the way out.
+            while (ServerRouter.SharedLSADatabaseLock.getReadHoldCount() > 0) {
+                ServerRouter.SharedLSADatabasereadLock.unlock();
+            }
+        }
+
+        debug.stepOneDone();
+
+        //Build route table
+        ArrayList<@Nullable List<ExitRoute>> routeTable = new ArrayList<>(ServerRouter.getBiggestSimpleID() + 1);
+        while (simpleID >= routeTable.size()) {
+            routeTable.add(null);
+        }
+        routeTable.set(simpleID, new OneList<>(new ExitRoute(this, this, null, null, 0, EnumSet
+            .allOf(PipeRoutingConnectionType.class), 0)));
+
+        for (ExitRoute node : routeCosts) {
+            IRouter firstHop = node.root;
+            ExitRoute hop = adjacentRouter.get(firstHop);
+            if (hop == null) {
+                continue;
+            }
+            node.root = this; // replace the root with this, rather than the first hop.
+            node.exitOrientation = hop.exitOrientation;
+            while (node.destination.getSimpleID() >= routeTable
+                .size()) { // the array will not expand, as it is init'd to contain enough elements
+                routeTable.add(null);
+            }
+
+            List<ExitRoute> current = routeTable.get(node.destination.getSimpleID());
+            if (current != null && !current.isEmpty()) {
+                List<ExitRoute> list = new ArrayList<>(current);
+                list.add(node);
+                routeTable.set(node.destination.getSimpleID(), Collections.unmodifiableList(list));
+            } else {
+                routeTable.set(node.destination.getSimpleID(), new OneList<>(node));
+            }
+        }
+        debug.stepTwoDone();
+        if (!debug.independent()) {
+            routingTableUpdateWriteLock.lock();
+            try {
+                if (version_to_update_to == lsaVersion) {
+                    ServerRouter.SharedLSADatabasereadLock.lock();
+                    try {
+                        // Bounds-checked: cleanup() resets _lastLSAVersion to a zero-length array
+                        // on server stop, and this runs on the routing thread, which can still be
+                        // mid-update at that point.
+                        if (simpleID < ServerRouter.lastLsaVersion.length
+                            && ServerRouter.lastLsaVersion[simpleID] < version_to_update_to) {
+                            ServerRouter.lastLsaVersion[simpleID] = version_to_update_to;
+                            lpPowerTable = Collections.unmodifiableList(powerTable);
+                            subSystemPowerTable = Collections.unmodifiableList(subSystemPower);
+                            this.routeTable = Collections.unmodifiableList(routeTable);
+                            this.routeCosts = Collections.unmodifiableList(routeCosts);
+                        }
+                    } finally {
+                        ServerRouter.SharedLSADatabasereadLock.unlock();
+                    }
+                }
+            } finally {
+                routingTableUpdateWriteLock.unlock();
+            }
+        }
+        if (getCachedPipe() != null) {
+            getCachedPipe().spawnParticle(Particles.LIGHT_GREEN_SPARKLE, 5);
+        }
+
+        debug.done();
+    }
+
+    /**
+     * @param hasBeenProcessed a BitSet flagging which nodes have already been acted on. The router should set the bit for its own id.
+     */
+    public void act(BitSet hasBeenProcessed, Action actor) {
+        if (hasBeenProcessed.get(simpleID)) {
+            return;
+        }
+        hasBeenProcessed.set(simpleID);
+        if (!actor.isInteresting(this)) {
+            return;
+        }
+
+        actor.doTo(this);
+        for (ServerRouter r : adjacentRouter.keySet()) {
+            r.act(hasBeenProcessed, actor);
+        }
+    }
+
+    /**
+     * Flags the last sent LSA as expired. Each router will be responsible of
+     * purging it from its database.
+     */
+    @Override
+    public void destroy() {
+        ServerRouter.SharedLSADatabasewriteLock.lock(); // take a write lock so that we don't overlap with any ongoing route updates
+        try {
+            if (simpleID < ServerRouter.SharedLSADatabase.length) {
+                ServerRouter.SharedLSADatabase[simpleID] = null;
+            }
+        } finally {
+            ServerRouter.SharedLSADatabasewriteLock.unlock();
+        }
+        removeAllInterests();
+
+        clearPipeCache();
+        isDestroyed = true;
+        RouterManager.get().removeRouter(simpleID);
+        for (List<IBlockEntityChangeListener> list : listenedPipes) {
+            list.remove(localChangeListener);
+        }
+        updateAdjacentAndLsa();
+        ServerRouter.releaseSimpleID(simpleID);
+    }
+
+    private void removeAllInterests() {
+        removeGenericInterest();
+
+        interestsRWLock.lock();
+        try {
+            interests.forEach(this::removeGlobalInterest);
+            interests.clear();
+        } finally {
+            interestsRWLock.unlock();
+        }
+    }
+
+    public boolean checkAdjacentUpdate() {
+        boolean blockNeedsUpdate = recheckAdjacent();
+        if (!blockNeedsUpdate) {
+            return false;
+        }
+
+        CoreRoutedPipe pipe = getPipe();
+        if (pipe == null) {
+            return true;
+        }
+        pipe.refreshRender(true);
+        return true;
+    }
+
+    public void flagForRoutingUpdate() {
+        lsaVersion++;
+        //if(LogisticsPipes.DEBUG)
+        //System.out.println("[LogisticsPipes] targeted for routing update to "+_LSAVersion+" for Node" +  simpleID);
+    }
+
+    private void updateAdjacentAndLsa() {
+        //this already got a checkAdjacentUpdate, so start the recursion with neighbors
+        BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
+        Action flood = new floodCheckAdjacent();
+        visited.set(simpleID);
+        // for all connected updatecurrent and previous
+        for (ServerRouter r : adjacentRouterOld.keySet()) {
+            r.act(visited, flood);
+        }
+        for (ServerRouter r : adjacentRouter.keySet()) {
+            r.act(visited, flood);
+        }
+        updateLsa();
+    }
+
+    void updateLsa() {
+        //now increment LSA version in the network
+        BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
+        for (ServerRouter r : adjacentRouterOld.keySet()) {
+            r.act(visited, new flagForLSAUpdate());
+        }
+        adjacentRouterOld = new HashMap<>();
+        act(visited, new flagForLSAUpdate());
+    }
+
+    @Override
+    public void update(boolean doFullRefresh, CoreRoutedPipe pipe) {
+        if (lsaWrittenAsync) {
+            lsaWrittenAsync = false;
+            act(new BitSet(ServerRouter.getBiggestSimpleID()), new flagForLSAUpdate());
+        }
+        if (connectionNeedsChecking == 2) {
+            ensureChangeListenerAttachedToPipe(pipe);
+
+            final Info info = StackTraceUtil.addTraceInformation(causedBy::toString);
+            boolean blockNeedsUpdate = checkAdjacentUpdate();
+            if (blockNeedsUpdate) {
+                updateLsa();
+            }
+            info.end();
+
+            ensureChangeListenerAttachedToPipe(pipe);
+        }
+        if (connectionNeedsChecking == 1) {
+            connectionNeedsChecking = 2;
+        }
+        handleQueuedTasks(pipe);
+        updateInterests();
+        if (doFullRefresh) {
+            ensureChangeListenerAttachedToPipe(pipe);
+
+            boolean blockNeedsUpdate = checkAdjacentUpdate();
+            if (blockNeedsUpdate) {
+                //updateAdjacentAndLsa();
+                updateLsa();
+            }
+
+            ensureChangeListenerAttachedToPipe(pipe);
+            lazyUpdateRoutingTable();
+        } else if (LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt() > 0) {
+            lazyUpdateRoutingTable();
+        }
+    }
+
+    private void ensureChangeListenerAttachedToPipe(CoreRoutedPipe pipe) {
+        if (pipe.getContainer() != null && pipe.getContainer().isChangeDetectionActive()) {
+            if (!pipe.getContainer().changeListeners.contains(localChangeListener)) {
+                pipe.getContainer().changeListeners.add(localChangeListener);
+            }
+        }
+    }
+
+    private static void clearRoutingCache(Set<LogisticsGenericPipeBlockEntity> pipes) {
+        for (LogisticsGenericPipeBlockEntity pipe : pipes) {
+            pipe.getCacheHolder().trigger(CacheTypes.Routing);
+        }
+    }
+
+    private void handleQueuedTasks(CoreRoutedPipe pipe) {
+        while (!queue.isEmpty() && queue.peek().dueTick() <= LPTickHandler.getGlobalTick()) {
+            queue.poll().task().call(pipe, this);
+        }
+    }
+
+    /************* IROUTER *******************/
+
+    @Override
+    public boolean isRoutedExit(Direction o) {
+        return routedExits.contains(o);
+    }
+
+    @Override
+    public boolean isSubPoweredExit(Direction o) {
+        return subPowerExits.containsKey(o);
+    }
+
+    @Override
+    public int getDistanceToNextPowerPipe(Direction dir) {
+        return subPowerExits.get(dir);
+    }
+
+    @Override
+    public @Nullable ExitRoute getExitFor(int id, boolean active, ItemIdentifier type) {
+        ensureLatestRoutingTable();
+        // Read the table once: RoutingTableUpdateThread replaces it wholesale, so two reads can
+        // disagree and the null check would then be guarding a different list than the loop walks.
+        final List<@Nullable List<ExitRoute>> table = getRouteTable();
+        if (table.size() <= id) {
+            return null;
+        }
+        final List<ExitRoute> routes = table.get(id);
+        if (routes == null) {
+            return null;
+        }
+        outer:
+        for (ExitRoute exit : routes) {
+            if (exit.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
+                for (IFilter filter : exit.filters) {
+                    if (!active) {
+                        if (filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(type)) {
+                            continue outer;
+                        }
+                    } else {
+                        if ((filter.blockProvider() && filter.blockCrafting())
+                            || filter.isBlocked() == filter.isFilteredItem(type)) {
+                            continue outer;
+                        }
+                    }
+                }
+                return exit;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean hasRoute(int id, boolean active, ItemIdentifier type) {
+        if (!RouterManager.get().isRouterUnsafe(id)) {
+            return false;
+        }
+        ensureLatestRoutingTable();
+        if (getRouteTable().size() <= id) {
+            return false;
+        }
+        List<ExitRoute> source = getRouteTable().get(id);
+        if (source == null) {
+            return false;
+        }
+        outer:
+        for (ExitRoute exit : source) {
+            if (exit.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
+                for (IFilter filter : exit.filters) {
+                    if (!active) {
+                        if (filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(type)) {
+                            continue outer;
+                        }
+                    } else {
+                        if ((filter.blockProvider() && filter.blockCrafting())
+                            || filter.isBlocked() == filter.isFilteredItem(type)) {
+                            continue outer;
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public @Nullable LogisticsModule getLogisticsModule() {
+        CoreRoutedPipe pipe = getPipe();
+        if (pipe == null) {
+            return null;
+        }
+        return pipe.getLogisticsModule();
+    }
+
+    @Override
+    public List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider() {
+        return lpPowerTable;
+    }
+
+    @Override
+    public List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider() {
+        return subSystemPowerTable;
+    }
+
+    @Override
+    public boolean isSideDisconnected(Direction dir) {
+        return null != dir && sideDisconnected[dir.ordinal()];
+    }
+
+    public void updateInterests() {
+        if (--ticksUntillNextInventoryCheck > 0) {
+            return;
+        }
+        ticksUntillNextInventoryCheck = ServerRouter.REFRESH_TIME;
+        if (ServerRouter.iterated++ % simpleID == 0) {
+            ticksUntillNextInventoryCheck++; // randomly wait 1 extra tick - just so that every router doesn't tick at the same time
+        }
+        if (ServerRouter.iterated >= ServerRouter.getBiggestSimpleID()) {
+            ServerRouter.iterated = 0;
+        }
+        CoreRoutedPipe pipe = getPipe();
+        if (pipe == null) {
+            return;
+        }
+        if (pipe.hasGenericInterests()) {
+            declareGenericInterest();
+        } else {
+            removeGenericInterest();
+        }
+        TreeSet<ItemIdentifier> newInterests = new TreeSet<>();
+        pipe.collectSpecificInterests(newInterests);
+
+        interestsRWLock.lock();
+        try {
+            if (newInterests.size() == interests.size() && newInterests.containsAll(interests)) {
+                // interests are up-to-date
+                return;
+            }
+
+            interests.stream().filter(itemid -> !newInterests.contains(itemid)).forEach(this::removeGlobalInterest);
+            newInterests.stream().filter(itemid -> !interests.contains(itemid)).forEach(this::addGlobalInterest);
+            interests = newInterests;
+        } finally {
+            interestsRWLock.unlock();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeGenericInterest() {
+        genericInterestsWLock.lock();
+        try {
+            final TreeSet<ServerRouter> newGenericInterests = (TreeSet<ServerRouter>) ServerRouter.genericInterests.clone();
+            if (newGenericInterests.remove(this)) {
+                ServerRouter.genericInterests = newGenericInterests;
+            }
+        } finally {
+            genericInterestsWLock.unlock();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void declareGenericInterest() {
+        genericInterestsWLock.lock();
+        try {
+            final TreeSet<ServerRouter> newGenericInterests = (TreeSet<ServerRouter>) ServerRouter.genericInterests.clone();
+            if (newGenericInterests.add(this)) {
+                ServerRouter.genericInterests = newGenericInterests;
+            }
+        } finally {
+            genericInterestsWLock.unlock();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addGlobalInterest(ItemIdentifier itemid) {
+        ServerRouter.globalSpecificInterests.compute(itemid, (unused, serverRouters) -> {
+            final TreeSet<ServerRouter> newServerRouters =
+                serverRouters == null ? new TreeSet<>() : (TreeSet<ServerRouter>) serverRouters.clone();
+            newServerRouters.add(this);
+            return newServerRouters;
+        });
+    }
+
+    @SuppressWarnings("unchecked")
+    private void removeGlobalInterest(ItemIdentifier itemid) {
+        ServerRouter.globalSpecificInterests.computeIfPresent(itemid, (unused, serverRouters) -> {
+            if (serverRouters.equals(ObjectSets.singleton(this))) {
+                return null;
+            } else {
+                final TreeSet<ServerRouter> newServerRouters = (TreeSet<ServerRouter>) serverRouters.clone();
+                newServerRouters.remove(this);
+                return newServerRouters;
+            }
+        });
+    }
+
+    @Override
+    public int compareTo(ServerRouter o) {
+        return simpleID - o.simpleID;
+    }
+
+    @Override
+    public List<ExitRoute> getDistanceTo(IRouter r) {
+        ensureLatestRoutingTable();
+        int id = r.getSimpleID();
+        if (routeTable.size() <= id) {
+            return new ArrayList<>(0);
+        }
+        List<ExitRoute> result = routeTable.get(id);
+        return result != null ? result : new ArrayList<>(0);
+    }
+
+    @Override
+    public void clearInterests() {
+        removeAllInterests();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ServerRouter: {ID: %d, UUID: %s, AT: (%s, %s), Version: %d), Destroyed: %s}", simpleID,
+            getId(), dimension, pos, lsaVersion, isDestroyed);
+    }
+
+    @Override
+    public void forceLsaUpdate() {
+        BitSet visited = new BitSet(ServerRouter.getBiggestSimpleID());
+        act(visited, new flagForLSAUpdate());
+    }
+
+    @Override
+    public List<ExitRoute> getRoutersOnSide(Direction direction) {
+        return adjacentRouter.values().stream()
+            .filter(exit -> exit.exitOrientation == direction)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public void queueTask(int i, IRouterQueuedTask callable) {
+        queue.add(new QueuedTask(i + LPTickHandler.getGlobalTick(), callable));
+    }
+
+    /**
+     * One link of a router's link state: what reaching that neighbor costs, and what it allows.
+     */
+    protected record NeighborLink(double distance, EnumSet<PipeRoutingConnectionType> connectionDetails,
+                                  List<IFilter> filters, int blockDistance) {}
+
+    private record QueuedTask(int dueTick, IRouterQueuedTask task) {}
+
+    protected static class LSA {
+
+        public HashMap<IRouter, NeighborLink> neighboursWithMetric = new HashMap<>();
+        public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> power;
+        public @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
+    }
+
+    private abstract static class RouterRunnable implements Comparable<RouterRunnable>, Runnable {
+
+        public abstract int getPriority();
+
+        public abstract int localCompare(RouterRunnable o);
+
+        @Override
+        public int compareTo(RouterRunnable o) {
+            if (o.getPriority() == getPriority()) {
+                return localCompare(o);
+            }
+            return o.getPriority() - getPriority();
+        }
+    }
+
+    interface Action {
+
+        boolean isInteresting(ServerRouter router);
+
+        void doTo(ServerRouter router);
+    }
+
+    /**
+     * Floodfill recheckAdjacent, leave _prevAdjacentRouter around for LSA
+     * updating
+     */
+    static class floodCheckAdjacent implements Action {
+
+        public boolean isInteresting(ServerRouter router) {
+            return router.checkAdjacentUpdate();
+        }
+
+        public void doTo(ServerRouter router) {
+        }
+    }
+
+    /**
+     * Floodfill LSA increment and clean up the _prevAdjacentRouter list left by
+     * floodCheckAdjacent
+     */
+    static class flagForLSAUpdate implements Action {
+
+        public boolean isInteresting(ServerRouter router) {
+            return true;
+        }
+
+        public void doTo(ServerRouter router) {
+            router.flagForRoutingUpdate();
+        }
+    }
+
+    static class floodClearCache implements Action {
+
+        public boolean isInteresting(ServerRouter router) {
+            return true;
+        }
+
+        public void doTo(ServerRouter router) {
+            clearRoutingCache(router.oldTouchedPipes);
+        }
+    }
+
+    private class UpdateRouterRunnable extends RouterRunnable {
+
+        int newVersion;
+        boolean run;
+        IRouter target;
+
+        UpdateRouterRunnable(IRouter target) {
+            run = true;
+            newVersion = lsaVersion;
+            this.target = target;
+        }
+
+        @Override
+        public void run() {
+            if (!run) {
+                return;
+            }
+            try {
+                CoreRoutedPipe p = target.getCachedPipe();
+                if (p == null) {
+                    run = false;
+                    return;
+                }
+                //spinlock during the first tick, we can't touch the routing table, untill Update() has been called on every pipe.
+                for (int i = 0; i < 10 && p.stillNeedReplace(); i++) {
+                    Thread.sleep(10);
+                }
+                if (p.stillNeedReplace()) {
+                    return; // drop the pipe update if it still needs replace after 5 ticks.
+                }
+                CreateRouteTable(newVersion);
+            } catch (Exception e) {
+                LogisticsPipes.LOG.error("Exception during route table update", e);
+            }
+            run = false;
+        }
+
+        @Override
+        public int getPriority() {
+            return 0;
+        }
+
+        @Override
+        public int localCompare(RouterRunnable o) {
+            int c = 0;
+            if (((UpdateRouterRunnable) o).newVersion <= 0) {
+                c = newVersion
+                    - ((UpdateRouterRunnable) o).newVersion; // negative numbers have priority, more negative first
+            }
+            if (c != 0) {
+                return 0;
+            }
+            c = target.getSimpleID()
+                - ((UpdateRouterRunnable) o).target.getSimpleID(); // do things in order of router id, to minimize router recursion
+            if (c != 0) {
+                return 0;
+            }
+            c = ((UpdateRouterRunnable) o).newVersion - newVersion; // higher version first
+            return c;
+        }
+    }
+
+    private class LSARouterRunnable extends RouterRunnable {
+
+        private final int index = ServerRouter.maxLSAUpdateIndex++;
+        HashMap<IRouter, NeighborLink> neighboursWithMetric;
+        @Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power;
+        @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower;
+
+        LSARouterRunnable(HashMap<IRouter, NeighborLink> neighboursWithMetric,
+            @Nullable ArrayList<FilteredRoute<ILogisticsPowerProvider>> power,
+            @Nullable ArrayList<FilteredRoute<ISubSystemPowerProvider>> subSystemPower) {
+            this.neighboursWithMetric = neighboursWithMetric;
+            this.power = power;
+            this.subSystemPower = subSystemPower;
+        }
+
+        @Override
+        public void run() {
+            lockAndUpdateLSA(neighboursWithMetric, power, subSystemPower);
+            lsaWrittenAsync = true;
+        }
+
+        @Override
+        public int getPriority() {
+            return 1;
+        }
+
+        @Override
+        public int localCompare(RouterRunnable o) {
+            return index - ((LSARouterRunnable) o).index;
+        }
+    }
 }

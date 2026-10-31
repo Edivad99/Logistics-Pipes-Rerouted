@@ -14,43 +14,55 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 
 public class NoOpRoutingDebugAdapter implements IRoutingDebugAdapter {
 
-	@Override
-	public void start(PriorityQueue<ExitRoute> candidatesCost, ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet, ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList) {}
+    @Override
+    public void start(PriorityQueue<ExitRoute> candidatesCost,
+        ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet,
+        ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList) {
+    }
 
-	@Override
-	public void nextPipe(ExitRoute lowestCostNode) {}
+    @Override
+    public void nextPipe(ExitRoute lowestCostNode) {
+    }
 
-	@Override
-	public void handledPipe() {}
+    @Override
+    public void handledPipe() {
+    }
 
-	@Override
-	public void newCandidate(ExitRoute next) {}
+    @Override
+    public void newCandidate(ExitRoute next) {
+    }
 
-	@Override
-	public void stepOneDone() {}
+    @Override
+    public void stepOneDone() {
+    }
 
-	@Override
-	public void stepTwoDone() {}
+    @Override
+    public void stepTwoDone() {
+    }
 
-	@Override
-	public void done() {}
+    @Override
+    public void done() {
+    }
 
-	@Override
-	public void init() {}
+    @Override
+    public void init() {
+    }
 
-	@Override
-	public void newFlagsForPipe(EnumSet<PipeRoutingConnectionType> newFlags) {}
+    @Override
+    public void newFlagsForPipe(EnumSet<PipeRoutingConnectionType> newFlags) {
+    }
 
-	@Override
-	public void filterList(@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters) {}
+    @Override
+    public void filterList(@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters) {
+    }
 
-	@Override
-	public boolean independent() {
-		return false;
-	}
+    @Override
+    public boolean independent() {
+        return false;
+    }
 
-	@Override
-	public boolean isDebug() {
-		return false;
-	}
+    @Override
+    public boolean isDebug() {
+        return false;
+    }
 }

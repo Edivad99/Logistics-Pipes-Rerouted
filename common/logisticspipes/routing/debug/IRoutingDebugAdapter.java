@@ -14,30 +14,32 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 
 public interface IRoutingDebugAdapter {
 
-	// closedSet and filterList are sparse: ServerRouter pre-fills them with nulls and only
-	// populates the slots Dijkstra actually reaches, hence the nullable element types.
-	void start(PriorityQueue<ExitRoute> candidatesCost, ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet, ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList);
+    // closedSet and filterList are sparse: ServerRouter pre-fills them with nulls and only
+    // populates the slots Dijkstra actually reaches, hence the nullable element types.
+    void start(PriorityQueue<ExitRoute> candidatesCost,
+        ArrayList<@Nullable EnumSet<PipeRoutingConnectionType>> closedSet,
+        ArrayList<@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>>> filterList);
 
-	void nextPipe(ExitRoute lowestCostNode);
+    void nextPipe(ExitRoute lowestCostNode);
 
-	void handledPipe();
+    void handledPipe();
 
-	void newCandidate(ExitRoute next);
+    void newCandidate(ExitRoute next);
 
-	void stepOneDone();
+    void stepOneDone();
 
-	void stepTwoDone();
+    void stepTwoDone();
 
-	void done();
+    void done();
 
-	void init();
+    void init();
 
-	void newFlagsForPipe(EnumSet<PipeRoutingConnectionType> newFlags);
+    void newFlagsForPipe(EnumSet<PipeRoutingConnectionType> newFlags);
 
-	void filterList(@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters);
+    void filterList(@Nullable EnumMap<PipeRoutingConnectionType, List<List<IFilter>>> filters);
 
-	boolean independent();
+    boolean independent();
 
-	boolean isDebug();
+    boolean isDebug();
 
 }

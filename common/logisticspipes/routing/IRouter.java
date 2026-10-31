@@ -25,69 +25,69 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public interface IRouter {
 
-	void destroy();
+    void destroy();
 
-	void update(boolean doFullRefresh, CoreRoutedPipe pipe);
+    void update(boolean doFullRefresh, CoreRoutedPipe pipe);
 
-	boolean isRoutedExit(Direction connection);
+    boolean isRoutedExit(Direction connection);
 
-	boolean isSubPoweredExit(Direction connection);
+    boolean isSubPoweredExit(Direction connection);
 
-	int getDistanceToNextPowerPipe(Direction dir);
+    int getDistanceToNextPowerPipe(Direction dir);
 
-	boolean hasRoute(int id, boolean active, ItemIdentifier type);
+    boolean hasRoute(int id, boolean active, ItemIdentifier type);
 
-	@Nullable ExitRoute getExitFor(int id, boolean active, ItemIdentifier type);
+    @Nullable ExitRoute getExitFor(int id, boolean active, ItemIdentifier type);
 
-	/**
-	 * The route table, indexed by router id, with a null entry for every id this router has no route
-	 * to -- the list is sized by the largest id in the network, not by how many are reachable.
-	 */
-	List<@Nullable List<ExitRoute>> getRouteTable();
+    /**
+     * The route table, indexed by router id, with a null entry for every id this router has no route
+     * to -- the list is sized by the largest id in the network, not by how many are reachable.
+     */
+    List<@Nullable List<ExitRoute>> getRouteTable();
 
-	List<ExitRoute> getIRoutersByCost();
+    List<ExitRoute> getIRoutersByCost();
 
-	@Nullable CoreRoutedPipe getPipe();
+    @Nullable CoreRoutedPipe getPipe();
 
-	@Nullable CoreRoutedPipe getCachedPipe();
+    @Nullable CoreRoutedPipe getCachedPipe();
 
-	boolean isInDim(Identifier dimension);
+    boolean isInDim(Identifier dimension);
 
-	boolean isAt(Identifier dimension, BlockPos pos);
+    boolean isAt(Identifier dimension, BlockPos pos);
 
-	UUID getId();
+    UUID getId();
 
-	@Nullable LogisticsModule getLogisticsModule();
+    @Nullable LogisticsModule getLogisticsModule();
 
-	void clearPipeCache();
+    void clearPipeCache();
 
-	int getSimpleID();
+    int getSimpleID();
 
-	BlockPos getPos();
+    BlockPos getPos();
 
-	/* Automated Disconnection */
-	boolean isSideDisconnected(Direction dir);
+    /* Automated Disconnection */
+    boolean isSideDisconnected(Direction dir);
 
-	/**
-	 * The routes to {@code r}, empty when there are none. Never null: a client router has no
-	 * routing table at all and answers with an empty list like any other router with nothing to
-	 * offer, so callers can iterate without checking.
-	 */
-	List<ExitRoute> getDistanceTo(IRouter r);
+    /**
+     * The routes to {@code r}, empty when there are none. Never null: a client router has no
+     * routing table at all and answers with an empty list like any other router with nothing to
+     * offer, so callers can iterate without checking.
+     */
+    List<ExitRoute> getDistanceTo(IRouter r);
 
-	void clearInterests();
+    void clearInterests();
 
-	List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider();
+    List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider();
 
-	List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider();
+    List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider();
 
-	boolean isCacheInvalid();
+    boolean isCacheInvalid();
 
-	//force-update LSA version in the network
-	void forceLsaUpdate();
+    //force-update LSA version in the network
+    void forceLsaUpdate();
 
-	List<ExitRoute> getRoutersOnSide(Direction direction);
+    List<ExitRoute> getRoutersOnSide(Direction direction);
 
-	void queueTask(int i, IRouterQueuedTask callable);
+    void queueTask(int i, IRouterQueuedTask callable);
 
 }

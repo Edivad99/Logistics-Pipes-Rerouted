@@ -24,74 +24,76 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 public class ClientRouter implements IRouter {
 
-	private final UUID id;
-	private final Identifier dimension;
+    private final UUID id;
+    private final Identifier dimension;
     private final BlockPos pos;
 
-	public ClientRouter(@Nullable UUID id, Identifier dimension, BlockPos pos) {
-		this.id = id != null ? id : UUID.randomUUID();
-		this.dimension = dimension;
-		this.pos = pos;
-	}
+    public ClientRouter(@Nullable UUID id, Identifier dimension, BlockPos pos) {
+        this.id = id != null ? id : UUID.randomUUID();
+        this.dimension = dimension;
+        this.pos = pos;
+    }
 
-	@Override
-	public void destroy() {}
+    @Override
+    public void destroy() {
+    }
 
-	@Override
-	public int getSimpleID() {
-		return -420;
-	}
+    @Override
+    public int getSimpleID() {
+        return -420;
+    }
 
-	@Override
-	public void update(boolean doFullRefresh, CoreRoutedPipe pipe) {}
+    @Override
+    public void update(boolean doFullRefresh, CoreRoutedPipe pipe) {
+    }
 
-	@Override
-	public boolean isRoutedExit(Direction connection) {
-		if (LogisticsPipes.isDEBUG()) {
-			throw new UnsupportedOperationException("noClientRouting");
-		}
-		return false;
-	}
+    @Override
+    public boolean isRoutedExit(Direction connection) {
+        if (LogisticsPipes.isDEBUG()) {
+            throw new UnsupportedOperationException("noClientRouting");
+        }
+        return false;
+    }
 
-	@Override
-	public boolean hasRoute(int id, boolean flag, ItemIdentifier item) {
-		if (LogisticsPipes.isDEBUG()) {
-			throw new UnsupportedOperationException("noClientRouting");
-		}
-		return false;
-	}
+    @Override
+    public boolean hasRoute(int id, boolean flag, ItemIdentifier item) {
+        if (LogisticsPipes.isDEBUG()) {
+            throw new UnsupportedOperationException("noClientRouting");
+        }
+        return false;
+    }
 
-	@Override
-	public @Nullable ExitRoute getExitFor(int id, boolean flag, ItemIdentifier item) {
-		if (LogisticsPipes.isDEBUG()) {
-			throw new UnsupportedOperationException("noClientRouting");
-		}
-		return null;
-	}
+    @Override
+    public @Nullable ExitRoute getExitFor(int id, boolean flag, ItemIdentifier item) {
+        if (LogisticsPipes.isDEBUG()) {
+            throw new UnsupportedOperationException("noClientRouting");
+        }
+        return null;
+    }
 
-	@Override
-	public List<@Nullable List<ExitRoute>> getRouteTable() {
-		if (LogisticsPipes.isDEBUG()) {
-			throw new UnsupportedOperationException("noClientRouting");
-		}
-		return new ArrayList<>();
-	}
+    @Override
+    public List<@Nullable List<ExitRoute>> getRouteTable() {
+        if (LogisticsPipes.isDEBUG()) {
+            throw new UnsupportedOperationException("noClientRouting");
+        }
+        return new ArrayList<>();
+    }
 
-	@Override
-	public List<ExitRoute> getIRoutersByCost() {
-		if (LogisticsPipes.isDEBUG()) {
-			throw new UnsupportedOperationException("noClientRouting");
-		}
-		return new LinkedList<>();
-	}
+    @Override
+    public List<ExitRoute> getIRoutersByCost() {
+        if (LogisticsPipes.isDEBUG()) {
+            throw new UnsupportedOperationException("noClientRouting");
+        }
+        return new LinkedList<>();
+    }
 
-	@Override
+    @Override
     @Nullable
-	public CoreRoutedPipe getPipe() {
-		Level level = Minecraft.getInstance().level;
-		if (level == null) {
-			return null;
-		}
+    public CoreRoutedPipe getPipe() {
+        Level level = Minecraft.getInstance().level;
+        if (level == null) {
+            return null;
+        }
         if (level.getBlockEntity(this.pos) instanceof LogisticsGenericPipeBlockEntity pipe) {
             if (pipe.pipe instanceof CoreRoutedPipe coreRoutedPipe) {
                 return coreRoutedPipe;
@@ -100,94 +102,98 @@ public class ClientRouter implements IRouter {
         return null;
     }
 
-	@Override
-	public @Nullable CoreRoutedPipe getCachedPipe() {
-		return getPipe();
-	}
+    @Override
+    public @Nullable CoreRoutedPipe getCachedPipe() {
+        return getPipe();
+    }
 
-	@Override
-	public boolean isInDim(Identifier dimension) {
-		return this.dimension.equals(dimension);
-	}
+    @Override
+    public boolean isInDim(Identifier dimension) {
+        return this.dimension.equals(dimension);
+    }
 
-	@Override
-	public boolean isAt(Identifier dimension, BlockPos pos) {
-		return this.dimension.equals(dimension) && this.pos.equals(pos);
-	}
+    @Override
+    public boolean isAt(Identifier dimension, BlockPos pos) {
+        return this.dimension.equals(dimension) && this.pos.equals(pos);
+    }
 
-	@Override
-	public BlockPos getPos() {
-		return this.pos;
-	}
+    @Override
+    public BlockPos getPos() {
+        return this.pos;
+    }
 
-	@Override
-	public UUID getId() {
-		return id;
-	}
+    @Override
+    public UUID getId() {
+        return id;
+    }
 
-	@Override
-	public @Nullable LogisticsModule getLogisticsModule() {
-		CoreRoutedPipe pipe = getPipe();
-		if (pipe == null) {
-			return null;
-		}
-		return pipe.getLogisticsModule();
-	}
+    @Override
+    public @Nullable LogisticsModule getLogisticsModule() {
+        CoreRoutedPipe pipe = getPipe();
+        if (pipe == null) {
+            return null;
+        }
+        return pipe.getLogisticsModule();
+    }
 
-	@Override
-	public void clearPipeCache() {}
+    @Override
+    public void clearPipeCache() {
+    }
 
-	@Override
-	public List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider() {
-		return List.of();
-	}
+    @Override
+    public List<FilteredRoute<ILogisticsPowerProvider>> getPowerProvider() {
+        return List.of();
+    }
 
-	@Override
-	public boolean isSideDisconnected(Direction dir) {
-		return false;
-	}
+    @Override
+    public boolean isSideDisconnected(Direction dir) {
+        return false;
+    }
 
-	@Override
-	public List<ExitRoute> getDistanceTo(IRouter r) {
-		return List.of();
-	}
+    @Override
+    public List<ExitRoute> getDistanceTo(IRouter r) {
+        return List.of();
+    }
 
-	@Override
-	public void clearInterests() {}
+    @Override
+    public void clearInterests() {
+    }
 
-	@Override
-	public boolean isCacheInvalid() {
-		return false;
-	}
+    @Override
+    public boolean isCacheInvalid() {
+        return false;
+    }
 
-	@Override
-	public void forceLsaUpdate() {}
+    @Override
+    public void forceLsaUpdate() {
+    }
 
-	@Override
-	public boolean isSubPoweredExit(Direction connection) {
-		return false;
-	}
+    @Override
+    public boolean isSubPoweredExit(Direction connection) {
+        return false;
+    }
 
-	@Override
-	public List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider() {
-		return List.of();
-	}
+    @Override
+    public List<FilteredRoute<ISubSystemPowerProvider>> getSubSystemPowerProvider() {
+        return List.of();
+    }
 
-	@Override
-	public String toString() {
-		return String.format("ClientRouter: {UUID: %s, AT: (%s)}", getId(), pos);
-	}
+    @Override
+    public String toString() {
+        return String.format("ClientRouter: {UUID: %s, AT: (%s)}", getId(), pos);
+    }
 
-	@Override
-	public List<ExitRoute> getRoutersOnSide(Direction exitOrientation) {
-		return List.of();
-	}
+    @Override
+    public List<ExitRoute> getRoutersOnSide(Direction exitOrientation) {
+        return List.of();
+    }
 
-	@Override
-	public int getDistanceToNextPowerPipe(Direction dir) {
-		return 0;
-	}
+    @Override
+    public int getDistanceToNextPowerPipe(Direction dir) {
+        return 0;
+    }
 
-	@Override
-	public void queueTask(int i, IRouterQueuedTask callable) {}
+    @Override
+    public void queueTask(int i, IRouterQueuedTask callable) {
+    }
 }

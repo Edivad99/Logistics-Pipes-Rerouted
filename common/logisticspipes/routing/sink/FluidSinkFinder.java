@@ -34,9 +34,9 @@ public final class FluidSinkFinder {
             .sorted()
             .map(it -> new BestReply(it.destination.getSimpleID(),
                 ((IFluidSink) it.destination.getPipe()).sinkAmount(stack)))
-            .filter(best -> best.reply() != null && best.reply().sinkAmount != 0L)
+            .filter(best -> best.reply() != null && best.reply().sinkAmount() != 0L)
             .reduce((left, right) ->
-                left.reply().fixedPriority.compareTo(right.reply().fixedPriority) < 0 ? right : left);
+                left.reply().fixedPriority().compareTo(right.reply().fixedPriority()) < 0 ? right : left);
         bestReply.ifPresent(best -> {
             ServerRouter serverRouter = RouterManager.get().getServerRouter(best.routerId());
             if (serverRouter == null) {

@@ -16,7 +16,7 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 /**
  * Listens for block-place and block-break events so LP pipes can refresh their
  * tile cache when a non-LP neighbour appears or disappears.
- *
+ * <p>
  * Previously handled globally via ASM injection into all TileEntities; now done
  * via NeoForge block events registered on {@code MinecraftForge.EVENT_BUS}.
  *
@@ -32,8 +32,12 @@ public class BlockChangeListener {
      */
     @SubscribeEvent
     public void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getLevel() instanceof Level level)) return;
-        if (level.isClientSide()) return;
+        if (!(event.getLevel() instanceof Level level)) {
+            return;
+        }
+        if (level.isClientSide()) {
+            return;
+        }
         final BlockPos pos = event.getPos();
         QueuedTasks.queueTask(() -> {
             notifyAdjacentPipes(level, pos);
@@ -47,8 +51,12 @@ public class BlockChangeListener {
      */
     @SubscribeEvent
     public void onBlockBroken(BreakBlockEvent event) {
-        if (!(event.getLevel() instanceof Level level)) return;
-        if (level.isClientSide()) return;
+        if (!(event.getLevel() instanceof Level level)) {
+            return;
+        }
+        if (level.isClientSide()) {
+            return;
+        }
         final BlockPos pos = event.getPos();
         QueuedTasks.queueTask(() -> {
             notifyAdjacentPipes(level, pos);
@@ -63,19 +71,27 @@ public class BlockChangeListener {
     private static void notifyAdjacentPipes(Level level, BlockPos changedPos) {
         for (Direction dir : Direction.values()) {
             BlockPos adjacent = changedPos.relative(dir);
-            if (level.isEmptyBlock(adjacent)) continue;
+            if (level.isEmptyBlock(adjacent)) {
+                continue;
+            }
 
             BlockEntity adjacentTE = level.getBlockEntity(adjacent);
-            if (adjacentTE == null) continue;
+            if (adjacentTE == null) {
+                continue;
+            }
 
-            if (!(adjacentTE instanceof LogisticsGenericPipeBlockEntity lpTile)) continue;
-            if (!lpTile.isChangeDetectionActive()) continue;
+            if (!(adjacentTE instanceof LogisticsGenericPipeBlockEntity lpTile)) {
+                continue;
+            }
+            if (!lpTile.isChangeDetectionActive()) {
+                continue;
+            }
 
             if (PipeInformationManager.isPipe(adjacentTE)) {
                 // dir goes from changed → adjacent; from adjacent's perspective
                 // the changed block is in direction dir.getOpposite().
                 PipeInformationManager.getInformationProviderFor(adjacentTE)
-                        .refreshTileCacheOnSide(dir.getOpposite());
+                    .refreshTileCacheOnSide(dir.getOpposite());
             }
         }
     }

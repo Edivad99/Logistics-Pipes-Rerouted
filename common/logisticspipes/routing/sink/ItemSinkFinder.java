@@ -39,15 +39,12 @@ public final class ItemSinkFinder {
      * Will assign a destination for a IRoutedItem based on the best sink reply
      * received from other pipes.
      *
-     * @param item
-     *            The item that needs to be routed.
-     * @param sourceRouterID
-     *            The SimpleID of the pipe that is sending the item. (the
-     *            routedItem will cache the UUID, and that the SimpleID belongs
-     *            to the UUID will be checked when appropriate)
-     * @param excludeSource
-     *            Boolean, true means that it won't set the source as the
-     *            destination.
+     * @param item           The item that needs to be routed.
+     * @param sourceRouterID The SimpleID of the pipe that is sending the item. (the
+     *                       routedItem will cache the UUID, and that the SimpleID belongs
+     *                       to the UUID will be checked when appropriate)
+     * @param excludeSource  Boolean, true means that it won't set the source as the
+     *                       destination.
      * @return IRoutedItem with a newly assigned destination
      */
     public static IRoutedItem assignDestinationFor(IRoutedItem item, int sourceRouterID, boolean excludeSource) {

@@ -32,7 +32,9 @@ public final class ClientRouterManager {
         return INSTANCE;
     }
 
-    /** The router for the pipe at these coordinates, created on first sight. */
+    /**
+     * The router for the pipe at these coordinates, created on first sight.
+     */
     public IRouter getOrCreateRouter(UUID id, Level level, BlockPos pos) {
         final Identifier dimension = level.dimension().identifier();
         synchronized (routers) {

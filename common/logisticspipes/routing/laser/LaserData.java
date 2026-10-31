@@ -22,17 +22,17 @@ import logisticspipes.routing.PipeRoutingConnectionType;
 public class LaserData {
 
     public static final StreamCodec<RegistryFriendlyByteBuf, LaserData> STREAM_CODEC =
-            StreamCodec.composite(
-                    BlockPos.STREAM_CODEC, LaserData::getPos,
-                    Direction.STREAM_CODEC, LaserData::getDir,
-                    ByteBufCodecs.collection(
-                            size -> EnumSet.noneOf(PipeRoutingConnectionType.class),
-                            NeoForgeStreamCodecs.enumCodec(PipeRoutingConnectionType.class)),
-                    LaserData::getConnectionType,
-                    ByteBufCodecs.BOOL, LaserData::isFinalPipe,
-                    ByteBufCodecs.BOOL, LaserData::isStartPipe,
-                    ByteBufCodecs.VAR_INT, LaserData::getLength,
-                    LaserData::new);
+        StreamCodec.composite(
+            BlockPos.STREAM_CODEC, LaserData::getPos,
+            Direction.STREAM_CODEC, LaserData::getDir,
+            ByteBufCodecs.collection(
+                size -> EnumSet.noneOf(PipeRoutingConnectionType.class),
+                NeoForgeStreamCodecs.enumCodec(PipeRoutingConnectionType.class)),
+            LaserData::getConnectionType,
+            ByteBufCodecs.BOOL, LaserData::isFinalPipe,
+            ByteBufCodecs.BOOL, LaserData::isStartPipe,
+            ByteBufCodecs.VAR_INT, LaserData::getLength,
+            LaserData::new);
 
     private final BlockPos pos;
     private final Direction dir;
@@ -49,7 +49,7 @@ public class LaserData {
     }
 
     private LaserData(BlockPos pos, Direction dir, EnumSet<PipeRoutingConnectionType> connectionType,
-            boolean finalPipe, boolean startPipe, int length) {
+        boolean finalPipe, boolean startPipe, int length) {
         this(pos, dir, connectionType);
         this.finalPipe = finalPipe;
         this.startPipe = startPipe;
@@ -104,11 +104,11 @@ public class LaserData {
             return false;
         }
         return pos.equals(other.pos)
-                && dir == other.dir
-                && connectionType.equals(other.connectionType)
-                && finalPipe == other.finalPipe
-                && startPipe == other.startPipe
-                && length == other.length;
+            && dir == other.dir
+            && connectionType.equals(other.connectionType)
+            && finalPipe == other.finalPipe
+            && startPipe == other.startPipe
+            && length == other.length;
     }
 
     @Override
@@ -119,6 +119,6 @@ public class LaserData {
     @Override
     public String toString() {
         return "LaserData(pos=" + pos + ", dir=" + dir + ", connectionType=" + connectionType
-                + ", finalPipe=" + finalPipe + ", startPipe=" + startPipe + ", length=" + length + ")";
+            + ", finalPipe=" + finalPipe + ", startPipe=" + startPipe + ", length=" + length + ")";
     }
 }

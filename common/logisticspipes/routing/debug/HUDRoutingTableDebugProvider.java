@@ -10,32 +10,34 @@ import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 
 public class HUDRoutingTableDebugProvider implements IHeadUpDisplayRendererProvider {
 
-	private final IHeadUpDisplayRenderer hud;
-	private final BlockPos pos;
+    private final IHeadUpDisplayRenderer hud;
+    private final BlockPos pos;
 
-	HUDRoutingTableDebugProvider(IHeadUpDisplayRenderer hud, BlockPos pos) {
-		this.hud = hud;
-		this.pos = pos;
-	}
+    HUDRoutingTableDebugProvider(IHeadUpDisplayRenderer hud, BlockPos pos) {
+        this.hud = hud;
+        this.pos = pos;
+    }
 
-	@Override
-	public IHeadUpDisplayRenderer getRenderer() {
-		return hud;
-	}
+    @Override
+    public IHeadUpDisplayRenderer getRenderer() {
+        return hud;
+    }
 
     @Override
     public BlockPos getPos() {
         return pos;
     }
 
-	@Override
-	public @Nullable Level getLevelForHUD() {
-		return null;
-	}
+    @Override
+    public @Nullable Level getLevelForHUD() {
+        return null;
+    }
 
-	@Override
-	public void startWatching() {}
+    @Override
+    public void startWatching() {
+    }
 
-	@Override
-	public void stopWatching() {}
+    @Override
+    public void stopWatching() {
+    }
 }

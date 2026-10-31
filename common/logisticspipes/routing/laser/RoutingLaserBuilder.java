@@ -62,13 +62,13 @@ public class RoutingLaserBuilder {
                 continue;
             }
             walk(pipe.getContainer(), entry.getKey(), entry.getValue(),
-                    EnumSet.allOf(PipeRoutingConnectionType.class), entry.getKey().name());
+                EnumSet.allOf(PipeRoutingConnectionType.class), entry.getKey().name());
         }
         return compress();
     }
 
     private void walk(LogisticsGenericPipeBlockEntity startPipe, Direction startDir, List<ExitRoute> startRouters,
-            EnumSet<PipeRoutingConnectionType> startConnectionType, String startPrefix) {
+        EnumSet<PipeRoutingConnectionType> startConnectionType, String startPrefix) {
         final List<WorkItem> worklist = new LinkedList<>();
         worklist.add(new WorkItem(startPipe, startDir, startRouters, startConnectionType, startPrefix));
         while (!worklist.isEmpty()) {
@@ -82,15 +82,15 @@ public class RoutingLaserBuilder {
             firstPipe = false;
 
             final HashMap<CoreRoutedPipe, ExitRoute> reachable = PathFinder.findAndPaintConnectedRoutingPipes(
-                    pipe, item.dir,
-                    LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(),
-                    LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(),
-                    (world, laser) -> {
-                        if (pipe.getLevel() == world) {
-                            lasers.add(laser);
-                        }
-                    },
-                    item.connectionType);
+                pipe, item.dir,
+                LPConfigs.COMMON.LOGISTICS_DETECTION_COUNT.getAsInt(),
+                LPConfigs.COMMON.LOGISTICS_DETECTION_LENGTH.getAsInt(),
+                (world, laser) -> {
+                    if (pipe.getLevel() == world) {
+                        lasers.add(laser);
+                    }
+                },
+                item.connectionType);
 
             // Anything the painter already reached needs no beam of its own.
             for (CoreRoutedPipe reachedPipe : reachable.keySet()) {
@@ -108,8 +108,8 @@ public class RoutingLaserBuilder {
                         continue;
                     }
                     worklist.add(new WorkItem(hop.getKey().getContainer(), exit.getKey(), exit.getValue(),
-                            reachable.get(hop.getKey()).connectionDetails,
-                            item.logPrefix + ": " + exit.getKey().name()));
+                        reachable.get(hop.getKey()).connectionDetails,
+                        item.logPrefix + ": " + exit.getKey().name()));
                 }
             }
         }
@@ -120,7 +120,7 @@ public class RoutingLaserBuilder {
      * there -- so the walk continues from that pipe rather than from the one it started at.
      */
     private static Map<CoreRoutedPipe, List<ExitRoute>> nextHops(List<ExitRoute> connectedRouters,
-            Map<CoreRoutedPipe, ExitRoute> reachable) {
+        Map<CoreRoutedPipe, ExitRoute> reachable) {
         final Map<CoreRoutedPipe, List<ExitRoute>> hops = new HashMap<>();
         for (ExitRoute routeTo : connectedRouters) {
             ExitRoute closest = null;
@@ -128,7 +128,7 @@ public class RoutingLaserBuilder {
             for (Entry<CoreRoutedPipe, ExitRoute> candidate : reachable.entrySet()) {
                 for (ExitRoute distance : candidate.getValue().destination.getDistanceTo(routeTo.destination)) {
                     if (distance.isSameWay(routeTo)
-                            && (closest == null || closest.distanceToDestination > distance.distanceToDestination)) {
+                        && (closest == null || closest.distanceToDestination > distance.distanceToDestination)) {
                         closest = distance;
                         closestPipe = candidate.getKey();
                     }

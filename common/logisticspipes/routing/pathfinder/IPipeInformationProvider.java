@@ -18,54 +18,55 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public interface IPipeInformationProvider {
 
-	boolean isCorrect(ConnectionType type);
+    boolean isCorrect(ConnectionType type);
 
     BlockPos getPos();
 
-	@Nullable Level getLevel();
+    @Nullable Level getLevel();
 
-	boolean isRouterInitialized();
+    boolean isRouterInitialized();
 
-	boolean isRoutingPipe();
+    boolean isRoutingPipe();
 
-	CoreRoutedPipe getRoutingPipe();
+    CoreRoutedPipe getRoutingPipe();
 
-	@Nullable
-	BlockEntity getNextConnectedTile(Direction direction);
+    @Nullable
+    BlockEntity getNextConnectedTile(Direction direction);
 
-	boolean isFirewallPipe();
+    boolean isFirewallPipe();
 
-	IFilter getFirewallFilter();
+    IFilter getFirewallFilter();
 
-	BlockEntity getTile();
+    BlockEntity getTile();
 
-	boolean divideNetwork();
+    boolean divideNetwork();
 
-	boolean powerOnly();
+    boolean powerOnly();
 
-	boolean isOnewayPipe();
+    boolean isOnewayPipe();
 
-	boolean isOutputClosed(Direction direction);
+    boolean isOutputClosed(Direction direction);
 
-	boolean canConnect(BlockEntity to, Direction direction, boolean flag);
+    boolean canConnect(BlockEntity to, Direction direction, boolean flag);
 
-	double getDistance();
+    double getDistance();
 
-	double getDistanceWeight();
+    double getDistanceWeight();
 
-	boolean isItemPipe();
+    boolean isItemPipe();
 
-	boolean isFluidPipe();
+    boolean isFluidPipe();
 
-	boolean isPowerPipe();
+    boolean isPowerPipe();
 
-	double getDistanceTo(int destinationint, Direction ignore, ItemIdentifier ident, boolean isActive, double travled, double max, List<BlockPos> visited);
+    double getDistanceTo(int destinationint, Direction ignore, ItemIdentifier ident, boolean isActive, double travled,
+        double max, List<BlockPos> visited);
 
-	boolean acceptItem(LPTravelingItem item, BlockEntity from);
+    boolean acceptItem(LPTravelingItem item, BlockEntity from);
 
-	void refreshTileCacheOnSide(Direction side);
+    void refreshTileCacheOnSide(Direction side);
 
-	boolean isMultiBlock();
+    boolean isMultiBlock();
 
-	Stream<@Nullable BlockEntity> getPartsOfPipe();
+    Stream<@Nullable BlockEntity> getPartsOfPipe();
 }

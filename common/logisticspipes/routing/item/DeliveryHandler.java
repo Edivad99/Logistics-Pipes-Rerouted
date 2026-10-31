@@ -18,10 +18,11 @@ import org.jspecify.annotations.Nullable;
  */
 public abstract class DeliveryHandler {
 
-	public abstract boolean stillWantItem(IRoutedItem item);
+    public abstract boolean stillWantItem(IRoutedItem item);
 
-	public abstract @Nullable Direction itemArrived(IRoutedItem item, @Nullable Direction denied);
+    public abstract @Nullable Direction itemArrived(IRoutedItem item, @Nullable Direction denied);
 
-	public void handleItem(IRoutedItem item) {}
+    public void handleItem(IRoutedItem item) {
+    }
 
 }

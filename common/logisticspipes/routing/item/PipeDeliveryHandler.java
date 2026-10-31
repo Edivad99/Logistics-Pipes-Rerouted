@@ -21,66 +21,68 @@ import logisticspipes.routing.IRouter;
  */
 public class PipeDeliveryHandler extends DeliveryHandler {
 
-	private final CoreRoutedPipe routedPipe;
-	private final IRouter router;
+    private final CoreRoutedPipe routedPipe;
+    private final IRouter router;
 
-	public PipeDeliveryHandler(CoreRoutedPipe routedPipe, IRouter router) {
-		this.routedPipe = routedPipe;
-		this.router = router;
-	}
+    public PipeDeliveryHandler(CoreRoutedPipe routedPipe, IRouter router) {
+        this.routedPipe = routedPipe;
+        this.router = router;
+    }
 
-	@Override
-	public @Nullable Direction itemArrived(IRoutedItem item, @Nullable Direction denied) {
-		if (item.getItemIdentifierStack() != null) {
-			routedPipe.receivedItem(item.getItemIdentifierStack().getStackSize());
-		}
+    @Override
+    public @Nullable Direction itemArrived(IRoutedItem item, @Nullable Direction denied) {
+        if (item.getItemIdentifierStack() != null) {
+            routedPipe.receivedItem(item.getItemIdentifierStack().getStackSize());
+        }
 
-		// 1st priority, deliver to adjacent inventories
-		LinkedList<Direction> possibleDirection = new LinkedList<>();
-		for (NeighborBlockEntity<BlockEntity> adjacent : routedPipe.getAvailableAdjacent().inventories()) {
-			if (router.isRoutedExit(adjacent.getDirection())) {
-				continue;
-			}
-			if (denied != null && denied.equals(adjacent.getDirection())) {
-				continue;
-			}
+        // 1st priority, deliver to adjacent inventories
+        LinkedList<Direction> possibleDirection = new LinkedList<>();
+        for (NeighborBlockEntity<BlockEntity> adjacent : routedPipe.getAvailableAdjacent().inventories()) {
+            if (router.isRoutedExit(adjacent.getDirection())) {
+                continue;
+            }
+            if (denied != null && denied.equals(adjacent.getDirection())) {
+                continue;
+            }
 
-			CoreRoutedPipe pipe = router.getPipe();
-			if (pipe != null) {
-				if (pipe.isLockedExit(adjacent.getDirection())) {
-					continue;
-				}
-			}
+            CoreRoutedPipe pipe = router.getPipe();
+            if (pipe != null) {
+                if (pipe.isLockedExit(adjacent.getDirection())) {
+                    continue;
+                }
+            }
 
-			possibleDirection.add(adjacent.getDirection());
-		}
-		// An item only arrives at a pipe that is in a level.
-		final RandomSource random = Objects.requireNonNull(routedPipe.getLevel()).getRandom();
-		if (!possibleDirection.isEmpty()) {
-			return possibleDirection.get(random.nextInt(possibleDirection.size()));
-		}
+            possibleDirection.add(adjacent.getDirection());
+        }
+        // An item only arrives at a pipe that is in a level.
+        final RandomSource random = Objects.requireNonNull(routedPipe.getLevel()).getRandom();
+        if (!possibleDirection.isEmpty()) {
+            return possibleDirection.get(random.nextInt(possibleDirection.size()));
+        }
 
-		// 2nd priority, deliver to non-routed exit
-		LPNeighborBlockEntity.connectedTo(Objects.requireNonNull(routedPipe.getContainer())).stream()
-				.filter(neighbor -> {
-					if (router.isRoutedExit(neighbor.getDirection())) return false;
-					final CoreRoutedPipe routerPipe = router.getPipe();
-					return routerPipe == null || !routerPipe.isLockedExit(neighbor.getDirection());
-				})
-				.forEach(neighbor -> possibleDirection.add(neighbor.getDirection()));
+        // 2nd priority, deliver to non-routed exit
+        LPNeighborBlockEntity.connectedTo(Objects.requireNonNull(routedPipe.getContainer())).stream()
+            .filter(neighbor -> {
+                if (router.isRoutedExit(neighbor.getDirection())) {
+                    return false;
+                }
+                final CoreRoutedPipe routerPipe = router.getPipe();
+                return routerPipe == null || !routerPipe.isLockedExit(neighbor.getDirection());
+            })
+            .forEach(neighbor -> possibleDirection.add(neighbor.getDirection()));
 
-		if (possibleDirection.isEmpty()) {
-			// last resort, drop item
-			return null;
-		} else {
-			return possibleDirection.get(random.nextInt(possibleDirection.size()));
-		}
-	}
+        if (possibleDirection.isEmpty()) {
+            // last resort, drop item
+            return null;
+        } else {
+            return possibleDirection.get(random.nextInt(possibleDirection.size()));
+        }
+    }
 
-	@Override
-	public boolean stillWantItem(IRoutedItem item) {
-		// pipes are dumb and always want the item
-		return true;
-	}
+    @Override
+    public boolean stillWantItem(IRoutedItem item) {
+        // pipes are dumb and always want the item
+        return true;
+    }
 
 }

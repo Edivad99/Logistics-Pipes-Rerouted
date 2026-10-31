@@ -42,7 +42,8 @@ public class PipeChangeDetection {
                     continue;
                 }
                 BlockEntity nextTile = level.getBlockEntity(newPos);
-                if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe && nextPipe.isChangeDetectionActive()) {
+                if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe
+                    && nextPipe.isChangeDetectionActive()) {
                     if (PipeInformationManager.isPipe(nextTile)) {
                         PipeInformationManager.getInformationProviderFor(nextTile)
                             .refreshTileCacheOnSide(dir.getOpposite());
@@ -84,7 +85,8 @@ public class PipeChangeDetection {
                     continue;
                 }
                 BlockEntity nextTile = level.getBlockEntity(newPos);
-                if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe && nextPipe.isChangeDetectionActive()) {
+                if (nextTile instanceof LogisticsGenericPipeBlockEntity nextPipe
+                    && nextPipe.isChangeDetectionActive()) {
                     if (PipeInformationManager.isPipe(nextTile)) {
                         PipeInformationManager.getInformationProviderFor(nextTile)
                             .refreshTileCacheOnSide(dir.getOpposite());

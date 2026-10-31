@@ -27,61 +27,61 @@ import logisticspipes.utils.item.ItemIdentifierStack;
  */
 public interface IRoutedItem {
 
-	enum TransportMode {
-		Unknown,
-		Default,
-		Passive,
-		Active
-	}
+    enum TransportMode {
+        Unknown,
+        Default,
+        Passive,
+        Active
+    }
 
-	int getDestination();
+    int getDestination();
 
-	@Nullable
-	UUID getDestinationUUID();
+    @Nullable
+    UUID getDestinationUUID();
 
-	void setDestination(int destination);
+    void setDestination(int destination);
 
-	void clearDestination();
+    void clearDestination();
 
-	void setTransportMode(TransportMode transportMode);
+    void setTransportMode(TransportMode transportMode);
 
-	TransportMode getTransportMode();
+    TransportMode getTransportMode();
 
-	void setAdditionalTargetInformation(@Nullable IAdditionalTargetInformation info);
+    void setAdditionalTargetInformation(@Nullable IAdditionalTargetInformation info);
 
-	@Nullable
-	IAdditionalTargetInformation getAdditionalTargetInformation();
+    @Nullable
+    IAdditionalTargetInformation getAdditionalTargetInformation();
 
-	void setDoNotBuffer(boolean doNotBuffer);
+    void setDoNotBuffer(boolean doNotBuffer);
 
-	boolean getDoNotBuffer();
+    boolean getDoNotBuffer();
 
-	int getBufferCounter();
+    int getBufferCounter();
 
-	void setBufferCounter(int counter);
+    void setBufferCounter(int counter);
 
-	void setArrived(boolean flag);
+    void setArrived(boolean flag);
 
-	boolean getArrived();
+    boolean getArrived();
 
-	void addToJamList(IRouter router);
+    void addToJamList(IRouter router);
 
-	List<Integer> getJamList();
+    List<Integer> getJamList();
 
-	void checkIDFromUUID();
+    void checkIDFromUUID();
 
-	ItemIdentifierStack getItemIdentifierStack();
+    ItemIdentifierStack getItemIdentifierStack();
 
-	void deserialize(ValueInput input);
+    void deserialize(ValueInput input);
 
-	void serialize(ValueOutput output);
+    void serialize(ValueOutput output);
 
-	void setDistanceTracker(IDistanceTracker tracker);
+    void setDistanceTracker(IDistanceTracker tracker);
 
-	@Nullable
-	IDistanceTracker getDistanceTracker();
+    @Nullable
+    IDistanceTracker getDistanceTracker();
 
-	ItemRoutingInformation getInfo();
+    ItemRoutingInformation getInfo();
 
-	void split(int itemsToTake, Direction orientation);
+    void split(int itemsToTake, Direction orientation);
 }

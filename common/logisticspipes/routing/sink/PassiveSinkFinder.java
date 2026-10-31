@@ -37,7 +37,9 @@ public final class PassiveSinkFinder {
     private PassiveSinkFinder() {
     }
 
-    /** A router that accepts the item, and on what terms. */
+    /**
+     * A router that accepts the item, and on what terms.
+     */
     public record Destination(int routerId, SinkReply sinkReply) {}
 
     /**
@@ -90,8 +92,10 @@ public final class PassiveSinkFinder {
                 }
                 List<ExitRoute> routes = AsyncRouting.getDistance(sourceRouter, router);
                 return routes == null
-                    ? Stream.<ExitRoute>empty()
-                    : routes.stream().filter(exitRoute -> exitRoute.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO));
+                    ?
+                    Stream.empty()
+                    :
+                    routes.stream().filter(exitRoute -> exitRoute.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO));
             });
         return getBestReply(stack, itemid, sourceRouter, destinationStream, routersToExclude, canBeDefault);
     }
@@ -149,7 +153,7 @@ public final class PassiveSinkFinder {
             && !routersToExclude.contains(destination.getSimpleID())
             && exitRoute.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)
             && exitRoute.filters.stream().noneMatch(filter ->
-                filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(itemid))
+            filter.blockRouting() || filter.isBlocked() == filter.isFilteredItem(itemid))
             && module != null && module.receivePassive()
             && destinationPipe != null && destinationPipe.isEnabled()
             && (sourcePipe == null || !destinationPipe.isOnSameContainer(sourcePipe));

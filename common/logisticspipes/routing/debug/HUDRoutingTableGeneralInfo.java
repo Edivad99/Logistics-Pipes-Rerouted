@@ -16,144 +16,145 @@ import logisticspipes.world.item.component.HUDComponent;
 
 public class HUDRoutingTableGeneralInfo extends BasicHUDGui implements IHeadUpDisplayRenderer {
 
-	private final DebugInformation route;
-	private boolean isQuestion = false;
-	private boolean display = true;
-	private int line;
+    private final DebugInformation route;
+    private boolean isQuestion = false;
+    private boolean display = true;
+    private int line;
 
-	HUDRoutingTableGeneralInfo(DebugInformation route) {
-		this.route = route;
-		if (route.isNew) {
-			addUntraceButtons(route.newIndex);
-		}
+    HUDRoutingTableGeneralInfo(DebugInformation route) {
+        this.route = route;
+        if (route.isNew) {
+            addUntraceButtons(route.newIndex);
+        }
 
-	}
+    }
 
-	private void addUntraceButtons(final int index) {
-		addRenderableWidget(new BasicHUDButton("Untrack", -25, -75, 50, 10) {
+    private void addUntraceButtons(final int index) {
+        addRenderableWidget(new BasicHUDButton("Untrack", -25, -75, 50, 10) {
 
-			@Override
-			public boolean shouldRenderButton() {
-				return !isQuestion && display;
-			}
+            @Override
+            public boolean shouldRenderButton() {
+                return !isQuestion && display;
+            }
 
-			@Override
-			public void clicked() {
-				isQuestion = true;
-			}
+            @Override
+            public void clicked() {
+                isQuestion = true;
+            }
 
-			@Override
-			public boolean buttonEnabled() {
-				return !isQuestion && display;
-			}
-		});
+            @Override
+            public boolean buttonEnabled() {
+                return !isQuestion && display;
+            }
+        });
 
-		addRenderableWidget(new BasicHUDButton("Yes", -45, -75, 30, 10) {
+        addRenderableWidget(new BasicHUDButton("Yes", -45, -75, 30, 10) {
 
-			@Override
-			public boolean shouldRenderButton() {
-				return isQuestion && display;
-			}
+            @Override
+            public boolean shouldRenderButton() {
+                return isQuestion && display;
+            }
 
-			@Override
-			public void clicked() {
-				ClientPacketDistributor.sendToServer(new UntraceRoutingMessage(index));
-				display = false;
-			}
+            @Override
+            public void clicked() {
+                ClientPacketDistributor.sendToServer(new UntraceRoutingMessage(index));
+                display = false;
+            }
 
-			@Override
-			public boolean buttonEnabled() {
-				return isQuestion && display;
-			}
-		});
-		addRenderableWidget(new BasicHUDButton("No", 15, -75, 30, 10) {
+            @Override
+            public boolean buttonEnabled() {
+                return isQuestion && display;
+            }
+        });
+        addRenderableWidget(new BasicHUDButton("No", 15, -75, 30, 10) {
 
-			@Override
-			public boolean shouldRenderButton() {
-				return isQuestion && display;
-			}
+            @Override
+            public boolean shouldRenderButton() {
+                return isQuestion && display;
+            }
 
-			@Override
-			public void clicked() {
-				isQuestion = false;
-			}
+            @Override
+            public void clicked() {
+                isQuestion = false;
+            }
 
-			@Override
-			public boolean buttonEnabled() {
-				return isQuestion && display;
-			}
-		});
-	}
+            @Override
+            public boolean buttonEnabled() {
+                return isQuestion && display;
+            }
+        });
+    }
 
-	@Override
-	public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted, Minecraft mc, HUDComponent config) {
-		if (route.isNew) {
-			line = -65;
-		} else {
-			line = -75;
-		}
-		LPGuiGraphics.drawGuiBackGround(context, -70, -80, 70, 80, 0, false);
-		super.renderHeadUpDisplay(context, distance, day, shifted, mc, config);
-		write(context, "Routing Update in: ", mc);
-		write(context, route.positions.toString(), mc);
-		if (route.closedSet != null) {
-			int left = -55;
-			for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
-				if (route.closedSet.contains(flag)) {
-					context.drawString(mc.font, "+", left, line, getColorForFlag(flag));
-					left += mc.font.width("+");
-				} else {
-					context.drawString(mc.font, "-", left, line, getColorForFlag(flag));
-					left += mc.font.width("-");
-				}
-			}
-			line += 10;
-		}
-		if (route.routes != null) {
-			for (RouteDebugInfo exit : route.routes) {
-				context.drawString(mc.font, "Possible: ", -55, line, 0xFFffffff);
-				int left = -55 + mc.font.width("Possible: ");
-				for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
-					if (exit.flags().contains(flag)) {
-						context.drawString(mc.font, "+", left, line, getColorForFlag(flag));
-						left += mc.font.width("+");
-					} else {
-						context.drawString(mc.font, "-", left, line, getColorForFlag(flag));
-						left += mc.font.width("-");
-					}
-				}
-				line += 10;
-				write(context, "  " + exit.filterPositions(), mc);
-			}
-		}
-	}
+    @Override
+    public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted, Minecraft mc,
+        HUDComponent config) {
+        if (route.isNew) {
+            line = -65;
+        } else {
+            line = -75;
+        }
+        LPGuiGraphics.drawGuiBackGround(context, -70, -80, 70, 80, 0, false);
+        super.renderHeadUpDisplay(context, distance, day, shifted, mc, config);
+        write(context, "Routing Update in: ", mc);
+        write(context, route.positions.toString(), mc);
+        if (route.closedSet != null) {
+            int left = -55;
+            for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
+                if (route.closedSet.contains(flag)) {
+                    context.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+                    left += mc.font.width("+");
+                } else {
+                    context.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+                    left += mc.font.width("-");
+                }
+            }
+            line += 10;
+        }
+        if (route.routes != null) {
+            for (RouteDebugInfo exit : route.routes) {
+                context.drawString(mc.font, "Possible: ", -55, line, 0xFFffffff);
+                int left = -55 + mc.font.width("Possible: ");
+                for (PipeRoutingConnectionType flag : PipeRoutingConnectionType.values) {
+                    if (exit.flags().contains(flag)) {
+                        context.drawString(mc.font, "+", left, line, getColorForFlag(flag));
+                        left += mc.font.width("+");
+                    } else {
+                        context.drawString(mc.font, "-", left, line, getColorForFlag(flag));
+                        left += mc.font.width("-");
+                    }
+                }
+                line += 10;
+                write(context, "  " + exit.filterPositions(), mc);
+            }
+        }
+    }
 
-	private int getColorForFlag(PipeRoutingConnectionType type) {
-		switch (type) {
-			case CAN_ROUTE_TO:
-				return 0xff0000;
-			case CAN_REQUEST_FROM:
-				return 0x00ff00;
-			case CAN_POWER_FROM:
-				return 0x00ffff;
-			case CAN_POWER_SUB_SYSTEM_FROM:
-				return 0x0000ff;
-		}
-		return 0x000000;
-	}
+    private int getColorForFlag(PipeRoutingConnectionType type) {
+        switch (type) {
+            case CAN_ROUTE_TO:
+                return 0xff0000;
+            case CAN_REQUEST_FROM:
+                return 0x00ff00;
+            case CAN_POWER_FROM:
+                return 0x00ffff;
+            case CAN_POWER_SUB_SYSTEM_FROM:
+                return 0x0000ff;
+        }
+        return 0x000000;
+    }
 
-	private void write(HUDDrawContext guiGraphics, String data, Minecraft mc) {
-		guiGraphics.drawString(mc.font, data, -55, line, 0xFFffffff);
-		line += 10;
-	}
+    private void write(HUDDrawContext guiGraphics, String data, Minecraft mc) {
+        guiGraphics.drawString(mc.font, data, -55, line, 0xFFffffff);
+        line += 10;
+    }
 
-	@Override
-	public boolean display(HUDComponent config) {
-		return true;
-	}
+    @Override
+    public boolean display(HUDComponent config) {
+        return true;
+    }
 
-	@Override
-	public boolean cursorOnWindow(int x, int y) {
-		return -70 < x && x < 70 && -80 < y && y < 80;
-	}
+    @Override
+    public boolean cursorOnWindow(int x, int y) {
+        return -70 < x && x < 70 && -80 < y && y < 80;
+    }
 }
