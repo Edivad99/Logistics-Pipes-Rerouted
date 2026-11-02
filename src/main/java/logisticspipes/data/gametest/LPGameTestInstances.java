@@ -173,7 +173,10 @@ public class LPGameTestInstances {
                 info -> new FluidSinkTestInstance(scenario, info));
         }
         for (var scenario : FluidSupplierTestInstance.Scenario.values()) {
-            registerTestInstance(bootstrap, "fluid_supplier/" + scenario.getSerializedName(), 800,
+            // The supplier's first request comes up to 20 + 599 ticks in (CoreRoutedPipe spreads the first
+            // throttled update over the detection frequency), then the test idles 220 ticks after the water
+            // arrives: 800 ticks was not always enough.
+            registerTestInstance(bootstrap, "fluid_supplier/" + scenario.getSerializedName(), 1000,
                 info -> new FluidSupplierTestInstance(scenario, info));
         }
         for (var scenario : SatelliteCraftingTestInstance.Scenario.values()) {
