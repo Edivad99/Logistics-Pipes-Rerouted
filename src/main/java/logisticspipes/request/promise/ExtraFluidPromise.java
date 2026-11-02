@@ -9,13 +9,11 @@ import logisticspipes.utils.FluidIdentifier;
 public class ExtraFluidPromise extends FluidPromise implements IExtraPromise {
 
     @Getter
-    private boolean provided;
+    private final boolean provided;
 
     public ExtraFluidPromise(FluidIdentifier liquid, int amount, IProvideFluids sender, boolean provided) {
-        this.liquid = liquid;
-        this.amount = amount;
-        this.sender = sender;
-        this.type = null; // extra promises carry no ResourceType, consistent with ExtraItemPromise
+        // Extra promises carry no ResourceType, as for items.
+        super(liquid, amount, sender, null);
         this.provided = provided;
     }
 

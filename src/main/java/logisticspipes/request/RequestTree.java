@@ -48,27 +48,28 @@ public class RequestTree extends RequestTreeNode {
      */
     private record PromiseKey(IProvide provider, ItemIdentifier item) {}
 
-    private @Nullable HashMap<PromiseKey, Integer> promisetotals;
+    /**
+     * Created on first use, never by an initializer: the {@link RequestTreeNode} constructor runs the whole
+     * request, promises included, before this class's fields are initialized.
+     */
+    private @Nullable Map<PromiseKey, Integer> promisetotals;
 
     public RequestTree(IResource requestType, @Nullable RequestTree parent, EnumSet<ActiveRequestType> requestFlags,
         @Nullable IAdditionalTargetInformation info) {
         super(requestType, parent, requestFlags, info);
     }
 
-    private int getExistingPromisesFor(PromiseKey key) {
-        if (promisetotals == null) {
-            promisetotals = new HashMap<>();
+    private Map<PromiseKey, Integer> promiseTotals() {
+        Map<PromiseKey, Integer> totals = promisetotals;
+        if (totals == null) {
+            totals = new HashMap<>();
+            promisetotals = totals;
         }
-        Integer n = promisetotals.get(key);
-        if (n == null) {
-            return 0;
-        }
-        return n;
+        return totals;
     }
 
     public int getAllPromissesFor(IProvide provider, ItemIdentifier item) {
-        PromiseKey key = new PromiseKey(provider, item);
-        return getExistingPromisesFor(key);
+        return promiseTotals().getOrDefault(new PromiseKey(provider, item), 0);
     }
 
     public LinkedList<IExtraPromise> getExtrasFor(IResource item) {
@@ -99,28 +100,26 @@ public class RequestTree extends RequestTreeNode {
     }
 
     protected void promiseAdded(IPromise promise) {
-        PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
-        if (promisetotals == null) {
-            promisetotals = new HashMap<>();
-        }
-        promisetotals.put(key, getExistingPromisesFor(key) + promise.getAmount());
+        promiseTotals().merge(new PromiseKey(promise.getProvider(), promise.getItemType()), promise.getAmount(),
+            Integer::sum);
     }
 
     protected void promiseRemoved(IPromise promise) {
         PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
-        int r = getExistingPromisesFor(key) - promise.getAmount();
+        Map<PromiseKey, Integer> totals = promiseTotals();
+        int r = totals.getOrDefault(key, 0) - promise.getAmount();
         if (r == 0) {
-            promisetotals.remove(key);
+            totals.remove(key);
         } else {
-            promisetotals.put(key, r);
+            totals.put(key, r);
         }
     }
 
-    public static class workWeightedSorter implements Comparator<ExitRoute> {
+    public static class WorkWeightedSorter implements Comparator<ExitRoute> {
 
         public final double distanceWeight;
 
-        public workWeightedSorter(double distanceWeight) {
+        public WorkWeightedSorter(double distanceWeight) {
             this.distanceWeight = distanceWeight;
         }
 
@@ -167,12 +166,7 @@ public class RequestTree extends RequestTreeNode {
         boolean isDone = true;
         for (ItemIdentifierStack stack : items) {
             ItemResource req = new ItemResource(stack, requester);
-            Integer count = messages.get(req);
-            if (count == null) {
-                count = 0;
-            }
-            count += stack.getStackSize();
-            messages.put(req, count);
+            messages.merge(req, stack.getStackSize(), Integer::sum);
             RequestTree node = new RequestTree(req, tree, requestFlags, info);
             isDone = isDone && node.isDone();
         }
@@ -247,7 +241,7 @@ public class RequestTree extends RequestTreeNode {
         return RequestTree.requestFluid(liquid, amount, pipe, log, false) == amount;
     }
 
-    private static int requestFluid(FluidIdentifier liquid, int amount, IRequestFluid pipe, RequestLog log,
+    private static int requestFluid(FluidIdentifier liquid, int amount, IRequestFluid pipe, @Nullable RequestLog log,
         boolean acceptPartial) {
         FluidResource req = new FluidResource(liquid, amount, pipe);
         RequestTree request = new RequestTree(req, null, RequestTree.defaultRequestFlags, null);

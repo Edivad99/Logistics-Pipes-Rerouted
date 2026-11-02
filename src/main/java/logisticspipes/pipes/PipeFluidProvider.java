@@ -238,14 +238,10 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
                 }
             }
         }
-        FluidPromise promise = new FluidPromise();
-        promise.liquid = fluid;
-        promise.amount = Math.min(tree.getMissingAmount(),
+        int amount = Math.min(tree.getMissingAmount(),
             containedAmount.get() - root.getAllPromissesFor(this, fluid.getItemIdentifier()));
-        promise.sender = this;
-        promise.type = ResourceType.PROVIDER;
-        if (promise.amount > 0) {
-            tree.addPromise(promise);
+        if (amount > 0) {
+            tree.addPromise(new FluidPromise(fluid, amount, this, ResourceType.PROVIDER));
         }
     }
 

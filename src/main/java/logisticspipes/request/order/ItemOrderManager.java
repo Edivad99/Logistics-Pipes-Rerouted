@@ -21,9 +21,6 @@ public class ItemOrderManager extends OrderManager<ItemOrder, DictResource.Ident
 
         @Override
         public DictResource.Identifier getIdentity(ItemOrder o) {
-            if (o == null || o.getResource() == null) {
-                return null;
-            }
             return o.getResource().getIdentifier();
         }
 
@@ -71,11 +68,9 @@ public class ItemOrderManager extends OrderManager<ItemOrder, DictResource.Ident
         return order;
     }
 
-    public ExtraItemOrder addExtra(DictResource stack) {
-        ExtraItemOrder order = new ExtraItemOrder(stack, null, ResourceType.EXTRA, null);
-        orders.addLast(order);
+    public void addExtra(DictResource stack) {
+        orders.addLast(new ExtraItemOrder(stack, null, ResourceType.EXTRA, null));
         listen();
-        return order;
     }
 
     public void removeExtras(DictResource resource) {

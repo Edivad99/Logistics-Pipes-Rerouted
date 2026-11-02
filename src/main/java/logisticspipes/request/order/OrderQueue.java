@@ -10,9 +10,9 @@ import java.util.Map;
 public class OrderQueue<E extends Order, I> implements Iterable<E> {
 
     private final IIdentityProvider<E, I> identifyer;
-    private Map<I, Integer> extraSize = new HashMap<I, Integer>();
-    private LinkedList<E> list = new LinkedList<E>();
-    private List<E> unmodifiable = Collections.unmodifiableList(list);
+    private final Map<I, Integer> extraSize = new HashMap<>();
+    private final LinkedList<E> list = new LinkedList<>();
+    private final List<E> unmodifiable = Collections.unmodifiableList(list);
     private int globalExtraCount = 0;
 
     public OrderQueue(IIdentityProvider<E, I> identifyer) {
@@ -27,14 +27,10 @@ public class OrderQueue<E extends Order, I> implements Iterable<E> {
         list.addLast(order);
         I ident = identifyer.getIdentity(order);
         if (identifyer.isExtra(order)) {
-            int prev = 0;
-            if (extraSize.containsKey(ident)) {
-                prev = extraSize.get(ident);
-            }
-            extraSize.put(ident, prev + 1);
+            extraSize.merge(ident, 1, Integer::sum);
             globalExtraCount++;
-        } else if (extraSize.containsKey(ident) && extraSize.get(ident) > 0) {
-            List<E> toMove = new LinkedList<E>();
+        } else if (extraSize.getOrDefault(ident, 0) > 0) {
+            List<E> toMove = new LinkedList<>();
             for (E lElem : list) {
                 if (identifyer.isExtra(lElem) && ident.equals(identifyer.getIdentity(lElem))) {
                     toMove.add(lElem);
@@ -57,10 +53,7 @@ public class OrderQueue<E extends Order, I> implements Iterable<E> {
     private void elemRemove(E elem) {
         if (identifyer.isExtra(elem)) {
             I ident = identifyer.getIdentity(elem);
-            int prev = 0;
-            if (extraSize.containsKey(ident)) {
-                prev = extraSize.get(ident);
-            }
+            int prev = extraSize.getOrDefault(ident, 0);
             if (prev > 0) {
                 extraSize.put(ident, prev - 1);
             }

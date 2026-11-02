@@ -4,9 +4,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 public enum ResourceNetwork {
-    DictResource(DictResource.class, logisticspipes.request.resources.DictResource.STREAM_CODEC),
-    ItemResource(ItemResource.class, logisticspipes.request.resources.ItemResource.STREAM_CODEC),
-    FluidResource(FluidResource.class, logisticspipes.request.resources.FluidResource.STREAM_CODEC);
+    DICT(DictResource.class, DictResource.STREAM_CODEC),
+    ITEM(ItemResource.class, ItemResource.STREAM_CODEC),
+    FLUID(FluidResource.class, FluidResource.STREAM_CODEC);
 
     private final Class<? extends IResource> clazz;
     private final StreamCodec<RegistryFriendlyByteBuf, ? extends IResource> streamCodec;

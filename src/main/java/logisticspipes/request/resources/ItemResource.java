@@ -1,5 +1,7 @@
 package logisticspipes.request.resources;
 
+import java.util.Objects;
+
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -60,29 +62,25 @@ public class ItemResource implements IResource {
 
     @Override
     public IRouter getRouter() {
-        return requester.getRouter();
+        return Objects.requireNonNull(requester, "a client-side resource has no router").getRouter();
     }
 
     @Override
     public boolean matches(IResource resource, MatchSettings settings) {
         if (resource instanceof DictResource) {
             return resource.matches(this, settings);
-        } else if (resource instanceof ItemResource) {
-            return matches(((ItemResource) resource).getItem(), settings)
-                && resource.matches(getItem(), settings);
+        } else if (resource instanceof ItemResource item) {
+            return matches(item.getItem(), settings) && item.matches(getItem(), settings);
         }
         return false;
     }
 
     @Override
     public boolean matches(ItemIdentifier itemType, MatchSettings settings) {
-        switch (settings) {
-            case NORMAL:
-                return stack.getItem().equals(itemType);
-            case WITHOUT_NBT:
-                return stack.getItem().equalsWithoutNBT(itemType);
-        }
-        return stack.getItem().equals(itemType);
+        return switch (settings) {
+            case NORMAL -> stack.getItem().equals(itemType);
+            case WITHOUT_NBT -> stack.getItem().equalsWithoutNBT(itemType);
+        };
     }
 
     @Override
@@ -94,11 +92,9 @@ public class ItemResource implements IResource {
 
     @Override
     public boolean mergeForDisplay(IResource resource, int withAmount) {
-        if (resource instanceof ItemResource) {
-            if (((ItemResource) resource).stack.getItem().equals(stack.getItem())) {
-                stack.setStackSize(stack.getStackSize() + withAmount);
-                return true;
-            }
+        if (resource instanceof ItemResource item && item.stack.getItem().equals(stack.getItem())) {
+            stack.setStackSize(stack.getStackSize() + withAmount);
+            return true;
         }
         return false;
     }
@@ -129,9 +125,17 @@ public class ItemResource implements IResource {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@Nullable Object obj) {
         // only ItemResources can be equal specifically
-        return obj instanceof ItemResource && matches((IResource) obj, MatchSettings.NORMAL);
+        return obj instanceof ItemResource item && matches(item, MatchSettings.NORMAL);
+    }
+
+    /**
+     * Consistent with {@link #equals}, which compares the items alone.
+     */
+    @Override
+    public int hashCode() {
+        return stack.getItem().hashCode();
     }
 
     @Override

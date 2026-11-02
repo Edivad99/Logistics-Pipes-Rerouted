@@ -206,11 +206,7 @@ public abstract class OrderManager<T extends Order, I> implements Iterable<T> {
         if (watchingPlayers.isEmpty()) {
             return;
         }
-        //if(!oldOrders.equals(_orders)) {
-        //	oldOrders.clear();
-        //	oldOrders.addAll(_orders);
         watchingPlayers.send(contentMessage());
-        //}
     }
 
     /**

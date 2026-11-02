@@ -38,9 +38,6 @@ public final class NetworkItems {
         }
         outer:
         for (ExitRoute r : validDestinations) {
-            if (r == null) {
-                continue;
-            }
             if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
                 continue;
             }
@@ -73,9 +70,6 @@ public final class NetworkItems {
         BitSet used = new BitSet(ServerRouter.getBiggestSimpleID());
         outer:
         for (ExitRoute r : validDestinations) {
-            if (r == null) {
-                continue;
-            }
             if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
                 continue;
             }

@@ -1,6 +1,7 @@
 package logisticspipes.request.order;
 
-import logisticspipes.interfaces.IChangeListener;
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.ILPPositionProvider;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IRequestFluid;
@@ -27,10 +28,6 @@ public class FluidOrderManager extends OrderManager<FluidOrder, FluidIdentifier>
         super(new OrderQueue<>(new IC()), pos);
     }
 
-    public FluidOrderManager(IChangeListener listener, ILPPositionProvider pos) {
-        super(listener, pos, new OrderQueue<>(new IC()));
-    }
-
     @Override
     public void sendFailed() {
         orders.getFirst().sendFailed();
@@ -38,9 +35,9 @@ public class FluidOrderManager extends OrderManager<FluidOrder, FluidIdentifier>
     }
 
     public FluidOrder addOrder(FluidPromise promise, IRequestFluid destination, ResourceType type,
-        IAdditionalTargetInformation info) {
+        @Nullable IAdditionalTargetInformation info) {
         if (promise.amount < 0) {
-            throw new RuntimeException("The amount can't be less than zero");
+            throw new IllegalArgumentException("The amount can't be less than zero");
         }
         FluidOrder order = new FluidOrder(promise.liquid, promise.amount, destination, type, info);
         orders.addLast(order);
@@ -48,7 +45,7 @@ public class FluidOrderManager extends OrderManager<FluidOrder, FluidIdentifier>
         return order;
     }
 
-    public Integer totalFluidsCountInOrders(FluidIdentifier fluid) {
+    public int totalFluidsCountInOrders(FluidIdentifier fluid) {
         int itemCount = 0;
         for (FluidOrder request : orders) {
             if (!request.getFluid().equals(fluid)) {

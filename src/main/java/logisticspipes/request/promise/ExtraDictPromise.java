@@ -15,7 +15,7 @@ public class ExtraDictPromise extends DictPromise implements IExtraPromise {
     }
 
     @Getter
-    public boolean provided;
+    private final boolean provided;
 
     @Override
     public ExtraDictPromise copy() {
@@ -24,8 +24,8 @@ public class ExtraDictPromise extends DictPromise implements IExtraPromise {
 
     @Override
     public void registerExtras(IResource requestType) {
-        if (sender instanceof ICraftItems) {
-            ((ICraftItems) sender).registerExtras(this);
+        if (sender instanceof ICraftItems crafter) {
+            crafter.registerExtras(this);
         }
     }
 

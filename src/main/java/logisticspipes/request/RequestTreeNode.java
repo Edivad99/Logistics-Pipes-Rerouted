@@ -2,7 +2,6 @@ package logisticspipes.request;
 
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.SortedSet;
@@ -28,7 +28,7 @@ import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.ICraftingTemplate.Requirement;
 import logisticspipes.request.RequestTree.ActiveRequestType;
-import logisticspipes.request.RequestTree.workWeightedSorter;
+import logisticspipes.request.RequestTree.WorkWeightedSorter;
 import logisticspipes.request.order.IOrderInfoProvider;
 import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.request.order.OrderManager;
@@ -49,12 +49,12 @@ public class RequestTreeNode {
     private final IResource requestType;
     private final @Nullable IAdditionalTargetInformation info;
     private final @Nullable RequestTreeNode parentNode;
-    private List<RequestTreeNode> subRequests = new ArrayList<>();
-    private List<IPromise> promises = new ArrayList<>();
-    private List<IExtraPromise> extrapromises = new ArrayList<>();
-    private List<IExtraPromise> byproducts = new ArrayList<>();
-    private SortedSet<ICraftingTemplate> usedCrafters = new TreeSet<>();
-    private Set<OrderManager<?, ?>> usedExtrasFromManager = new HashSet<OrderManager<?, ?>>();
+    private final List<RequestTreeNode> subRequests = new ArrayList<>();
+    private final List<IPromise> promises = new ArrayList<>();
+    private final List<IExtraPromise> extrapromises = new ArrayList<>();
+    private final List<IExtraPromise> byproducts = new ArrayList<>();
+    private final SortedSet<ICraftingTemplate> usedCrafters = new TreeSet<>();
+    private final Set<OrderManager<?, ?>> usedExtrasFromManager = new HashSet<>();
     private @Nullable ICraftingTemplate lastCrafterTried = null;
     private int promiseAmount = 0;
 
@@ -95,22 +95,27 @@ public class RequestTreeNode {
         // crafting is not done!
     }
 
-    private static List<FilteredRoute<IProvide>> getProviders(IRouter destination, IResource item) {
-
-        // get all the routers
+    /**
+     * The routes from {@code destination} to every router interested in {@code item}, unsorted.
+     */
+    private static List<ExitRoute> getRoutesToInterested(IRouter destination, IResource item) {
         BitSet routersIndex = ServerRouter.getRoutersInterestedIn(item);
-        List<ExitRoute> validSources = new ArrayList<>(); // get the routing table
+        List<ExitRoute> validSources = new ArrayList<>();
         for (int i = routersIndex.nextSetBit(0); i >= 0; i = routersIndex.nextSetBit(i + 1)) {
             IRouter r = RouterManager.get().getServerRouter(i);
-
-            if (r.isCacheInvalid()) {
-                continue; //Skip Routers without a valid pipe
+            // Skip routers that are gone or have no valid pipe.
+            if (r == null || r.isCacheInvalid()) {
+                continue;
             }
-
             validSources.addAll(destination.getDistanceTo(r));
         }
+        return validSources;
+    }
+
+    private static List<FilteredRoute<IProvide>> getProviders(IRouter destination, IResource item) {
+        List<ExitRoute> validSources = getRoutesToInterested(destination, item);
         // closer providers are good
-        validSources.sort(new workWeightedSorter(1.0));
+        validSources.sort(new WorkWeightedSorter(1.0));
 
         List<FilteredRoute<IProvide>> providers = new LinkedList<>();
         validSources.stream().filter(r -> r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)).forEach(r -> {
@@ -174,13 +179,10 @@ public class RequestTreeNode {
         return parentNode.isCrafterUsed(test);
     }
 
-    // returns false if the crafter was already on the list.
-    private boolean declareCrafterUsed(ICraftingTemplate test) {
-        if (isCrafterUsed(test)) {
-            return false;
+    private void declareCrafterUsed(ICraftingTemplate test) {
+        if (!isCrafterUsed(test)) {
+            usedCrafters.add(test);
         }
-        usedCrafters.add(test);
-        return true;
     }
 
     public int getPromiseAmount() {
@@ -215,14 +217,6 @@ public class RequestTreeNode {
 
     public boolean isDone() {
         return getMissingAmount() <= 0;
-    }
-
-    public boolean isAllDone() {
-        boolean result = getMissingAmount() <= 0;
-        for (RequestTreeNode node : subRequests) {
-            result &= node.isAllDone();
-        }
-        return result;
     }
 
     protected void remove(RequestTreeNode subNode) {
@@ -377,16 +371,17 @@ public class RequestTreeNode {
                 continue;
             }
             boolean valid = false;
-            // Null when the provider's table has no entry for this requester at all -- it is sized by
-            // the largest router id in the network, not by how many are reachable.
-            List<ExitRoute> sources = extraPromise.getProvider().getRouter().getRouteTable()
-                .get(getRequestType().getRouter().getSimpleID());
+            // The table is sized by the largest router id when it was last built: an entry is null for a
+            // requester the provider cannot reach, and missing for one placed after that.
+            List<@Nullable List<ExitRoute>> table = extraPromise.getProvider().getRouter().getRouteTable();
+            int requesterId = getRequestType().getRouter().getSimpleID();
+            List<ExitRoute> sources = requesterId < table.size() ? table.get(requesterId) : null;
             if (sources == null) {
                 continue;
             }
             outer:
             for (ExitRoute source : sources) {
-                if (source != null && source.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
+                if (source.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
                     for (ExitRoute node : getRequestType().getRouter().getIRoutersByCost()) {
                         if (node.destination == extraPromise.getProvider().getRouter()) {
                             if (node.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
@@ -407,21 +402,10 @@ public class RequestTreeNode {
 
     private boolean checkCrafting() {
 
-        // get all the routers
-        BitSet routersIndex = ServerRouter.getRoutersInterestedIn(getRequestType());
-        List<ExitRoute> validSources = new ArrayList<>(); // get the routing table
-        for (int i = routersIndex.nextSetBit(0); i >= 0; i = routersIndex.nextSetBit(i + 1)) {
-            IRouter r = RouterManager.get().getServerRouter(i);
-
-            if (r.isCacheInvalid()) {
-                continue; //Skip Routers without a valid pipe
-            }
-
-            validSources.addAll(getRequestType().getRouter().getDistanceTo(r));
-        }
-        workWeightedSorter wSorter = new workWeightedSorter(
-            0); // distance doesn't matter, because ingredients have to be delivered to the crafter, and we can't tell how long that will take.
-        Collections.sort(validSources, wSorter);
+        List<ExitRoute> validSources = getRoutesToInterested(getRequestType().getRouter(), getRequestType());
+        // Distance doesn't matter: ingredients have to be delivered to the crafter, and there is no telling
+        // how long that will take.
+        validSources.sort(new WorkWeightedSorter(0));
 
         List<FilteredRoute<ICraftingTemplate>> allCraftersForItem = RequestTreeNode.getCrafters(getRequestType(),
             validSources);
@@ -468,12 +452,12 @@ public class RequestTreeNode {
                         continue outer;
                     }
                 }
-                CraftingSorterNode cn = new CraftingSorterNode(crafter, itemsNeeded, root, this);
+                CraftingSorterNode cn = new CraftingSorterNode(crafter, this);
                 //				if(cn.getWorkSetsAvailableForCrafting()>0)
                 craftersSamePriority.add(cn);
                 continue;
             }
-            if (craftersToBalance.isEmpty() && (craftersSamePriority == null || craftersSamePriority.isEmpty())) {
+            if (craftersToBalance.isEmpty() && craftersSamePriority.isEmpty()) {
                 continue; //nothing at this priority was available for crafting
             }
             /// end of crafter prioriy selection.
@@ -584,7 +568,7 @@ public class RequestTreeNode {
 
             return generateRequestTreeFor(workSetsAvailable, template);
         }
-        byproducts.addAll(new ArrayList<>(template.getByproducts(workSetsAvailable)));
+        byproducts.addAll(template.getByproducts(workSetsAvailable));
         return workSetsAvailable;
     }
 
@@ -608,7 +592,7 @@ public class RequestTreeNode {
                 return 0;
             }
         }
-        byproducts.addAll(new ArrayList<>(template.getByproducts(workSets)));
+        byproducts.addAll(template.getByproducts(workSets));
         return workSets;
     }
 
@@ -646,8 +630,13 @@ public class RequestTreeNode {
         log.handleMissingItems(RequestTreeNode.shrinkToList(missing));
     }
 
+    /**
+     * Drops this node, and every promise under it, from its parent.
+     *
+     * <p>Only sub-requests are ever destroyed, and those always have a parent.
+     */
     private void destroy() {
-        parentNode.remove(this);
+        Objects.requireNonNull(parentNode, "the root of a request tree cannot be destroyed").remove(this);
     }
 
     private class CraftingSorterNode implements Comparable<CraftingSorterNode> {
@@ -659,8 +648,7 @@ public class RequestTreeNode {
         private final RequestTreeNode treeNode; // current node we are calculating
         private int stacksOfWorkRequested;
 
-        CraftingSorterNode(FilteredRoute<ICraftingTemplate> crafter, int maxCount, RequestTree tree,
-            RequestTreeNode treeNode) {
+        CraftingSorterNode(FilteredRoute<ICraftingTemplate> crafter, RequestTreeNode treeNode) {
             this.crafter = crafter;
             this.treeNode = treeNode;
             originalToDo = crafter.target().getCrafter().getTodo();

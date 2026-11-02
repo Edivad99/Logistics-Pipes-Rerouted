@@ -71,8 +71,8 @@ public class RequestHandler {
             @Override
             public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {
                 sendToPlayer(player, new RequestAnswerMessage(List.of(item), false));
-                if (pipe instanceof IRequestWatcher) {
-                    ((IRequestWatcher) pipe).handleOrderList(item, parts);
+                if (pipe instanceof IRequestWatcher watcher) {
+                    watcher.handleOrderList(item, parts);
                 }
             }
 
@@ -140,7 +140,14 @@ public class RequestHandler {
             player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
             return;
         }
-        RequestTree.request(list, pipe, new RequestLog() {
+        RequestTree.request(list, pipe, listLog(player, pipe), RequestTree.defaultRequestFlags, null);
+    }
+
+    /**
+     * Answers a request for several items at once: one message for what is missing, one for what is coming.
+     */
+    private static RequestLog listLog(Player player, CoreRoutedPipe pipe) {
+        return new RequestLog() {
 
             @Override
             public void handleMissingItems(List<IResource> resources) {
@@ -154,11 +161,11 @@ public class RequestHandler {
             @Override
             public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {
                 sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), false));
-                if (pipe instanceof IRequestWatcher) {
-                    ((IRequestWatcher) pipe).handleOrderList(null, parts);
+                if (pipe instanceof IRequestWatcher watcher) {
+                    watcher.handleOrderList(null, parts);
                 }
             }
-        }, RequestTree.defaultRequestFlags, null);
+        };
     }
 
     public static void requestMacrolist(CompoundTag itemlist, final CoreRoutedPipe requester, final Player player) {
@@ -175,25 +182,7 @@ public class RequestHandler {
                 transaction.add(stack);
             }
         }
-        RequestTree.request(transaction, requester, new RequestLog() {
-
-            @Override
-            public void handleMissingItems(List<IResource> resources) {
-                sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), true));
-            }
-
-            @Override
-            public void handleSucessfullRequestOf(IResource item, @Nullable OrderTree parts) {
-            }
-
-            @Override
-            public void handleSucessfullRequestOfList(List<IResource> resources, OrderTree parts) {
-                sendToPlayer(player, new RequestAnswerMessage(List.copyOf(resources), false));
-                if (requester instanceof IRequestWatcher) {
-                    ((IRequestWatcher) requester).handleOrderList(null, parts);
-                }
-            }
-        }, RequestTree.defaultRequestFlags, null);
+        RequestTree.request(transaction, requester, listLog(player, requester), RequestTree.defaultRequestFlags, null);
     }
 
     public static Object[] computerRequest(final ItemIdentifierStack makeStack, final CoreRoutedPipe pipe,
@@ -245,9 +234,6 @@ public class RequestHandler {
     private static TreeSet<FluidIdentifierStack> getAvailableFluid(List<ExitRoute> validDestinations) {
         Map<FluidIdentifier, Integer> allAvailableItems = new HashMap<>();
         for (ExitRoute r : validDestinations) {
-            if (r == null) {
-                continue;
-            }
             if (!r.containsFlag(PipeRoutingConnectionType.CAN_REQUEST_FROM)) {
                 continue;
             }
@@ -258,16 +244,8 @@ public class RequestHandler {
             Map<FluidIdentifier, Integer> allItems = provider.getAvailableFluids();
 
             for (Entry<FluidIdentifier, Integer> liquid : allItems.entrySet()) {
-                Integer amount = allAvailableItems.get(liquid.getKey());
-                if (amount == null) {
-                    allAvailableItems.put(liquid.getKey(), liquid.getValue());
-                } else {
-                    long addition = ((long) amount) + liquid.getValue();
-                    if (addition > Integer.MAX_VALUE) {
-                        addition = Integer.MAX_VALUE;
-                    }
-                    allAvailableItems.put(liquid.getKey(), (int) addition);
-                }
+                allAvailableItems.merge(liquid.getKey(), liquid.getValue(),
+                    (a, b) -> (int) Math.min((long) a + b, Integer.MAX_VALUE));
             }
         }
         return allAvailableItems.entrySet().stream()
@@ -277,12 +255,17 @@ public class RequestHandler {
 
     public static void requestFluid(final Player player, final ItemIdentifierStack stack, CoreRoutedPipe pipe,
         IRequestFluid requester) {
+        // The stack comes from the client, which can send anything: a non-fluid has nothing to request.
+        FluidIdentifier fluid = FluidIdentifier.get(stack.getItem());
+        if (fluid == null) {
+            return;
+        }
         if (!pipe.useEnergy(10)) {
             player.sendOverlayMessage(Component.translatable(Translations.Chat.NO_ENERGY));
             return;
         }
 
-        RequestTree.requestFluid(FluidIdentifier.get(stack.getItem()), stack.getStackSize(), requester,
+        RequestTree.requestFluid(fluid, stack.getStackSize(), requester,
             new RequestLog() {
 
                 @Override

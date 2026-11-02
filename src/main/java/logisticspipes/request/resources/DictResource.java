@@ -1,12 +1,12 @@
 package logisticspipes.request.resources;
 
 import java.util.BitSet;
+import java.util.Objects;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-import com.google.common.base.Objects;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IRequestItems;
@@ -24,7 +24,7 @@ public class DictResource implements IResource {
      */
     private final @Nullable IRequestItems requester;
     public ItemIdentifierStack stack;
-    private BitSet fuzzyFlags = new BitSet(4);
+    private final BitSet fuzzyFlags = new BitSet(4);
 
     /**
      * The four fuzzy flags are named rather than sent as the {@link BitSet} that holds them.
@@ -79,12 +79,12 @@ public class DictResource implements IResource {
 
     @Override
     public boolean matches(IResource resource, MatchSettings settings) {
-        if (resource instanceof DictResource) {
-            return matches(((DictResource) resource).getItem(), MatchSettings.NORMAL)
-                && resource.matches(getItem(), MatchSettings.NORMAL)
-                && getBitSet().equals(((DictResource) resource).getBitSet());
-        } else if (resource instanceof ItemResource) {
-            return matches(((ItemResource) resource).getItem(), MatchSettings.NORMAL);
+        if (resource instanceof DictResource dict) {
+            return matches(dict.getItem(), MatchSettings.NORMAL)
+                && dict.matches(getItem(), MatchSettings.NORMAL)
+                && fuzzyFlags.equals(dict.fuzzyFlags);
+        } else if (resource instanceof ItemResource item) {
+            return matches(item.getItem(), MatchSettings.NORMAL);
         }
         return false;
     }
@@ -96,7 +96,7 @@ public class DictResource implements IResource {
 
     @Override
     public IRouter getRouter() {
-        return requester.getRouter();
+        return Objects.requireNonNull(requester, "a client-side resource has no router").getRouter();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class DictResource implements IResource {
         return clone;
     }
 
-    public DictResource clone() {
+    public DictResource copy() {
         DictResource clone = new DictResource(new ItemIdentifierStack(this.stack), requester);
         clone.fuzzyFlags.or(fuzzyFlags);
         return clone;
@@ -128,12 +128,10 @@ public class DictResource implements IResource {
 
     @Override
     public boolean mergeForDisplay(IResource resource, int withAmount) {
-        if (resource instanceof DictResource) {
-            if (((DictResource) resource).fuzzyFlags.equals(fuzzyFlags) && ((DictResource) resource).getItem()
-                .equals(getItem())) {
-                stack.setStackSize(stack.getStackSize() + withAmount);
-                return true;
-            }
+        if (resource instanceof DictResource dict && dict.fuzzyFlags.equals(fuzzyFlags)
+            && dict.getItem().equals(getItem())) {
+            stack.setStackSize(stack.getStackSize() + withAmount);
+            return true;
         }
         return false;
     }
@@ -189,8 +187,11 @@ public class DictResource implements IResource {
         return this;
     }
 
+    /**
+     * A copy of all four fuzzy flags.
+     */
     public BitSet getBitSet() {
-        return fuzzyFlags.get(0, 3);
+        return (BitSet) fuzzyFlags.clone();
     }
 
     public Identifier getIdentifier() {
@@ -219,22 +220,18 @@ public class DictResource implements IResource {
             return stack.getItem();
         }
 
-        private BitSet getBitSet() {
-            return DictResource.this.getBitSet();
+        private BitSet getFlags() {
+            return fuzzyFlags;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(getItem(), getBitSet());
+            return Objects.hash(getItem(), getFlags());
         }
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Identifier) {
-                Identifier id = (Identifier) obj;
-                return id.getItem().equals(getItem()) && id.getBitSet().equals(getBitSet());
-            }
-            return false;
+            return obj instanceof Identifier id && id.getItem().equals(getItem()) && id.getFlags().equals(getFlags());
         }
     }
 

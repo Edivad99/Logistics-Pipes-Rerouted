@@ -59,7 +59,7 @@ public class FluidResource implements IResource {
 
     @Override
     public IRouter getRouter() {
-        return target.getRouter();
+        return Objects.requireNonNull(target, "a client-side resource has no router").getRouter();
     }
 
     @Override
@@ -84,11 +84,9 @@ public class FluidResource implements IResource {
 
     @Override
     public boolean mergeForDisplay(IResource resource, int withAmount) {
-        if (resource instanceof FluidResource) {
-            if (((FluidResource) resource).liquid.equals(liquid)) {
-                amount += withAmount;
-                return true;
-            }
+        if (resource instanceof FluidResource fluid && fluid.liquid.equals(liquid)) {
+            amount += withAmount;
+            return true;
         }
         return false;
     }

@@ -7,11 +7,14 @@
 
 package logisticspipes.request.promise;
 
+import java.util.Objects;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IProvide;
 import logisticspipes.interfaces.routing.IProvideFluids;
+import logisticspipes.interfaces.routing.IRequestFluid;
 import logisticspipes.request.order.IOrderInfoProvider;
 import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.request.resources.FluidResource;
@@ -21,28 +24,26 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public class FluidPromise implements IPromise {
 
-    public FluidIdentifier liquid;
+    public final FluidIdentifier liquid;
     public int amount;
-    public IProvideFluids sender;
-    public ResourceType type;
+    public final IProvideFluids sender;
+    public final @Nullable ResourceType type;
+
+    public FluidPromise(FluidIdentifier liquid, int amount, IProvideFluids sender, @Nullable ResourceType type) {
+        this.liquid = liquid;
+        this.amount = amount;
+        this.sender = sender;
+        this.type = type;
+    }
 
     @Override
     public FluidPromise copy() {
-        FluidPromise result = new FluidPromise();
-        result.liquid = liquid;
-        result.amount = amount;
-        result.sender = sender;
-        result.type = type;
-        return result;
+        return new FluidPromise(liquid, amount, sender, type);
     }
 
     @Override
     public boolean matches(IResource requestType) {
-        if (requestType instanceof FluidResource) {
-            FluidResource fluid = (FluidResource) requestType;
-            return fluid.getFluid().equals(liquid);
-        }
-        return false;
+        return requestType instanceof FluidResource fluid && fluid.getFluid().equals(liquid);
     }
 
     @Override
@@ -73,6 +74,7 @@ public class FluidPromise implements IPromise {
 
     @Override
     public @Nullable IOrderInfoProvider fullFill(IResource requestType, @Nullable IAdditionalTargetInformation info) {
-        return sender.fullFill(this, ((FluidResource) requestType).getTarget(), type, info);
+        IRequestFluid destination = ((FluidResource) requestType).getTarget();
+        return sender.fullFill(this, Objects.requireNonNull(destination, "destination"), type, info);
     }
 }

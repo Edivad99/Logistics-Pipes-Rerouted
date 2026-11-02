@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
+import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifier;
 
@@ -48,10 +49,8 @@ public abstract class Order implements IOrderInfoProvider {
 
     @Override
     public int getRouterId() {
-        if (getRouter() == null) {
-            return -1;
-        }
-        return getRouter().getSimpleID();
+        IRouter router = getRouter();
+        return router == null ? -1 : router.getSimpleID();
     }
 
     public abstract @Nullable IRouter getRouter();
@@ -95,17 +94,14 @@ public abstract class Order implements IOrderInfoProvider {
 
     @Override
     public @Nullable ItemIdentifier getTargetType() {
-        if (getRouter() == null || getRouter().getPipe() == null) {
-            return null;
-        }
-        return ItemIdentifier.get(getRouter().getPipe().item);
+        IRouter router = getRouter();
+        CoreRoutedPipe pipe = router == null ? null : router.getPipe();
+        return pipe == null ? null : ItemIdentifier.get(pipe.item);
     }
 
     @Override
     public @Nullable BlockPos getTargetPosition() {
-        if (getRouter() == null) {
-            return null;
-        }
-        return getRouter().getPos();
+        IRouter router = getRouter();
+        return router == null ? null : router.getPos();
     }
 }
