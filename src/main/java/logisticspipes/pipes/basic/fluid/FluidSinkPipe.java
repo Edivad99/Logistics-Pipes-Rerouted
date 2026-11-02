@@ -56,7 +56,7 @@ public abstract class FluidSinkPipe extends FluidRoutedPipe implements IFluidSin
             return null; // don't sink when the gui is open
         }
 
-        for (int i = 0; i < sinkInv.getSize(); i++) {
+        for (int i = 0; i < sinkInv.getContainerSize(); i++) {
             ItemIdentifierStack identStack = sinkInv.getIDStackInSlot(i);
             if (identStack == null) {
                 continue;

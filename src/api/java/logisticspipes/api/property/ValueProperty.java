@@ -5,17 +5,20 @@ import org.jspecify.annotations.Nullable;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import lombok.Getter;
-
 public abstract class ValueProperty<V extends @Nullable Object> implements Property<V> {
 
     private final CopyOnWriteArraySet<ObserverCallback<V>> propertyObservers = new CopyOnWriteArraySet<>();
 
-    @Getter
     private V value;
 
     protected ValueProperty(V initialValue) {
         this.value = initialValue;
+    }
+
+    // Written out rather than a Lombok @Getter: IntelliJ reads the generated getter as returning the
+    // @Nullable bound of V, so every non-null subclass would warn on getValue().
+    public V getValue() {
+        return value;
     }
 
     @Override

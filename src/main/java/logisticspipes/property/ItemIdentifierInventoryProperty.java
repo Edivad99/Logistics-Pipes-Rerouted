@@ -1,43 +1,5 @@
-/*
- * Copyright (c) 2022  RS485
- *
- * "LogisticsPipes" is distributed under the terms of the Minecraft Mod Public
- * License 1.0.1, or MMPL. Please check the contents of the license located in
- * https://github.com/RS485/LogisticsPipes/blob/dev/LICENSE.md
- *
- * This file can instead be distributed under the license terms of the
- * MIT license:
- *
- * Copyright (c) 2022  RS485
- *
- * This MIT license was reworded to only match this file. If you use the regular
- * MIT license in your project, replace this copyright notice (this line and any
- * lines below and NOT the copyright line above) with the lines from the original
- * MIT license located here: http://opensource.org/licenses/MIT
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this file and associated documentation files (the "Source Code"), to deal in
- * the Source Code without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Source Code, and to permit persons to whom the Source Code is furnished
- * to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Source Code, which also can be
- * distributed under the MIT.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package logisticspipes.property;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -59,9 +21,6 @@ import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
-// Container became Iterable<ItemStack> in 1.21.5, so this can no longer also declare
-// Collection<ItemIdentifierStack>: the two Iterable parameterisations conflict. The collection-like
-// members below stay as ordinary members; iteration over the identifier stacks is idStacks().
 public class ItemIdentifierInventoryProperty
     implements InventoryProperty<ItemIdentifierInventory>, IItemIdentifierInventory {
 
@@ -98,10 +57,6 @@ public class ItemIdentifierInventoryProperty
         return propertyObservers;
     }
 
-    public int getSize() {
-        return getContainerSize();
-    }
-
     @Override
     public ItemStack removeItem(int index, int count) {
         ItemStack removed = inv.removeItem(index, count);
@@ -135,7 +90,12 @@ public class ItemIdentifierInventoryProperty
     }
 
     public void clear() {
-        inv.clear();
+        clearContent();
+    }
+
+    @Override
+    public void clearContent() {
+        inv.clearContent();
         iChanged();
     }
 
@@ -172,28 +132,9 @@ public class ItemIdentifierInventoryProperty
         return new ItemIdentifierInventoryProperty(copyValue(), tagKey);
     }
 
-    public boolean contains(ItemIdentifierStack element) {
-        return inv.itemCount(element.getItem()) >= element.getStackSize();
-    }
-
-    public boolean containsAll(Collection<ItemIdentifierStack> elements) {
-        Map<ItemIdentifier, Integer> items = inv.getItemsAndCount();
-        for (ItemIdentifierStack element : elements) {
-            Integer count = items.get(element.getItem());
-            if (count == null || count < element.getStackSize()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    public List<ItemIdentifierStack> idStacks() {
-        List<ItemIdentifierStack> stacks = new ArrayList<>();
-        inv.getItemsAndCount().forEach((item, count) -> stacks.add(item.makeStack(count)));
-        return stacks;
-    }
-
-    /** Merges through the property so the change is observed, instead of straight to the inventory. */
+    /**
+     * Merges through the property so the change is observed, instead of straight to the inventory.
+     */
     private class NotifyingSlotAccess implements SlotAccess {
 
         @Override
@@ -240,11 +181,6 @@ public class ItemIdentifierInventoryProperty
     @Override
     public boolean stillValid(Player player) {
         return inv.stillValid(player);
-    }
-
-    @Override
-    public void clearContent() {
-        inv.clearContent();
     }
 
     @Override
