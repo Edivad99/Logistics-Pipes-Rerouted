@@ -11,21 +11,21 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public interface IPromise {
 
-	boolean matches(IResource requestType);
+    boolean matches(IResource requestType);
 
-	int getAmount();
+    int getAmount();
 
-	IExtraPromise split(int more);
+    IExtraPromise split(int more);
 
-	IProvide getProvider();
+    IProvide getProvider();
 
-	ItemIdentifier getItemType();
+    ItemIdentifier getItemType();
 
-	@Nullable
-	ResourceType getType();
+    @Nullable
+    ResourceType getType();
 
-	@Nullable
-	IOrderInfoProvider fullFill(IResource requestType, @Nullable IAdditionalTargetInformation info);
+    @Nullable
+    IOrderInfoProvider fullFill(IResource requestType, @Nullable IAdditionalTargetInformation info);
 
-	IPromise copy();
+    IPromise copy();
 }

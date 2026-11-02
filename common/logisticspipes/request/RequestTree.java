@@ -31,218 +31,237 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class RequestTree extends RequestTreeNode {
 
-	public enum ActiveRequestType {
-		Provide,
-		Craft,
-		AcceptPartial,
-		SimulateOnly,
-		LogMissing,
-		LogUsed
-	}
+    public enum ActiveRequestType {
+        Provide,
+        Craft,
+        AcceptPartial,
+        SimulateOnly,
+        LogMissing,
+        LogUsed
+    }
 
-	public static final EnumSet<ActiveRequestType> defaultRequestFlags = EnumSet.of(ActiveRequestType.Provide, ActiveRequestType.Craft);
-	/** What the promise totals are kept by: one provider, one kind of item. */
-	private record PromiseKey(IProvide provider, ItemIdentifier item) {}
+    public static final EnumSet<ActiveRequestType> defaultRequestFlags = EnumSet.of(ActiveRequestType.Provide,
+        ActiveRequestType.Craft);
 
-	private @Nullable HashMap<PromiseKey, Integer> promisetotals;
+    /**
+     * What the promise totals are kept by: one provider, one kind of item.
+     */
+    private record PromiseKey(IProvide provider, ItemIdentifier item) {}
 
-	public RequestTree(IResource requestType, @Nullable RequestTree parent, EnumSet<ActiveRequestType> requestFlags,
-			@Nullable IAdditionalTargetInformation info) {
-		super(requestType, parent, requestFlags, info);
-	}
+    private @Nullable HashMap<PromiseKey, Integer> promisetotals;
 
-	private int getExistingPromisesFor(PromiseKey key) {
-		if (promisetotals == null) {
-			promisetotals = new HashMap<>();
-		}
-		Integer n = promisetotals.get(key);
-		if (n == null) {
-			return 0;
-		}
-		return n;
-	}
+    public RequestTree(IResource requestType, @Nullable RequestTree parent, EnumSet<ActiveRequestType> requestFlags,
+        @Nullable IAdditionalTargetInformation info) {
+        super(requestType, parent, requestFlags, info);
+    }
 
-	public int getAllPromissesFor(IProvide provider, ItemIdentifier item) {
-		PromiseKey key = new PromiseKey(provider, item);
-		return getExistingPromisesFor(key);
-	}
+    private int getExistingPromisesFor(PromiseKey key) {
+        if (promisetotals == null) {
+            promisetotals = new HashMap<>();
+        }
+        Integer n = promisetotals.get(key);
+        if (n == null) {
+            return 0;
+        }
+        return n;
+    }
 
-	public LinkedList<IExtraPromise> getExtrasFor(IResource item) {
-		HashMap<IProvide, List<IExtraPromise>> extraMap = new HashMap<>();
-		checkForExtras(item, extraMap);
-		removeUsedExtras(item, extraMap);
-		LinkedList<IExtraPromise> extras = new LinkedList<>();
-		extraMap.values().forEach(extras::addAll);
-		return extras;
-	}
+    public int getAllPromissesFor(IProvide provider, ItemIdentifier item) {
+        PromiseKey key = new PromiseKey(provider, item);
+        return getExistingPromisesFor(key);
+    }
 
-	protected OrderTree fullFillAll() {
-		return fullFill();
-	}
+    public LinkedList<IExtraPromise> getExtrasFor(IResource item) {
+        HashMap<IProvide, List<IExtraPromise>> extraMap = new HashMap<>();
+        checkForExtras(item, extraMap);
+        removeUsedExtras(item, extraMap);
+        LinkedList<IExtraPromise> extras = new LinkedList<>();
+        extraMap.values().forEach(extras::addAll);
+        return extras;
+    }
 
-	public void sendMissingMessage(RequestLog log) {
-		Map<IResource, Integer> missing = new HashMap<>();
-		buildMissingMap(missing);
-		log.handleMissingItems(RequestTreeNode.shrinkToList(missing));
-	}
+    protected OrderTree fullFillAll() {
+        return fullFill();
+    }
 
-	public void sendUsedMessage(RequestLog log) {
-		Map<IResource, Integer> used = new HashMap<>();
-		Map<IResource, Integer> missing = new HashMap<>();
-		buildUsedMap(used, missing);
-		log.handleSucessfullRequestOfList(RequestTreeNode.shrinkToList(used), new OrderTree());
-		log.handleMissingItems(RequestTreeNode.shrinkToList(missing));
-	}
+    public void sendMissingMessage(RequestLog log) {
+        Map<IResource, Integer> missing = new HashMap<>();
+        buildMissingMap(missing);
+        log.handleMissingItems(RequestTreeNode.shrinkToList(missing));
+    }
 
-	protected void promiseAdded(IPromise promise) {
-		PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
-		if (promisetotals == null) {
-			promisetotals = new HashMap<>();
-		}
-		promisetotals.put(key, getExistingPromisesFor(key) + promise.getAmount());
-	}
+    public void sendUsedMessage(RequestLog log) {
+        Map<IResource, Integer> used = new HashMap<>();
+        Map<IResource, Integer> missing = new HashMap<>();
+        buildUsedMap(used, missing);
+        log.handleSucessfullRequestOfList(RequestTreeNode.shrinkToList(used), new OrderTree());
+        log.handleMissingItems(RequestTreeNode.shrinkToList(missing));
+    }
 
-	protected void promiseRemoved(IPromise promise) {
-		PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
-		int r = getExistingPromisesFor(key) - promise.getAmount();
-		if (r == 0) {
-			promisetotals.remove(key);
-		} else {
-			promisetotals.put(key, r);
-		}
-	}
+    protected void promiseAdded(IPromise promise) {
+        PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
+        if (promisetotals == null) {
+            promisetotals = new HashMap<>();
+        }
+        promisetotals.put(key, getExistingPromisesFor(key) + promise.getAmount());
+    }
 
-	public static class workWeightedSorter implements Comparator<ExitRoute> {
+    protected void promiseRemoved(IPromise promise) {
+        PromiseKey key = new PromiseKey(promise.getProvider(), promise.getItemType());
+        int r = getExistingPromisesFor(key) - promise.getAmount();
+        if (r == 0) {
+            promisetotals.remove(key);
+        } else {
+            promisetotals.put(key, r);
+        }
+    }
 
-		public final double distanceWeight;
+    public static class workWeightedSorter implements Comparator<ExitRoute> {
 
-		public workWeightedSorter(double distanceWeight) {
-			this.distanceWeight = distanceWeight;
-		}
+        public final double distanceWeight;
 
-		@Override
-		public int compare(ExitRoute o1, ExitRoute o2) {
-			int c;
-			final CoreRoutedPipe firstExitPipe = o1.destination.getPipe();
-			final CoreRoutedPipe secondExitPipe = o2.destination.getPipe();
-			if (firstExitPipe instanceof IHavePriority) {
-				if (secondExitPipe instanceof IHavePriority) {
-					c = Integer.compare(((IHavePriority) secondExitPipe).getPriority(), ((IHavePriority) firstExitPipe).getPriority());
-					if (c != 0) {
-						return c;
-					}
-				} else {
-					return -1;
-				}
-			} else {
-				if (secondExitPipe instanceof IHavePriority) {
-					return 1;
-				}
-			}
+        public workWeightedSorter(double distanceWeight) {
+            this.distanceWeight = distanceWeight;
+        }
 
-			if (distanceWeight < 1/64.0) {
-				c = Double.compare(firstExitPipe.getLoadFactor(), secondExitPipe.getLoadFactor());
-			} else {
-				c = Double.compare(
-						(firstExitPipe.getLoadFactor() * 64) + (o1.distanceToDestination * distanceWeight),
-						(secondExitPipe.getLoadFactor() * 64) + (o2.distanceToDestination * distanceWeight));
-			}
-			return c;
-		}
+        @Override
+        public int compare(ExitRoute o1, ExitRoute o2) {
+            int c;
+            final CoreRoutedPipe firstExitPipe = o1.destination.getPipe();
+            final CoreRoutedPipe secondExitPipe = o2.destination.getPipe();
+            if (firstExitPipe instanceof IHavePriority) {
+                if (secondExitPipe instanceof IHavePriority) {
+                    c = Integer.compare(((IHavePriority) secondExitPipe).getPriority(),
+                        ((IHavePriority) firstExitPipe).getPriority());
+                    if (c != 0) {
+                        return c;
+                    }
+                } else {
+                    return -1;
+                }
+            } else {
+                if (secondExitPipe instanceof IHavePriority) {
+                    return 1;
+                }
+            }
 
-	}
+            if (distanceWeight < 1 / 64.0) {
+                c = Double.compare(firstExitPipe.getLoadFactor(), secondExitPipe.getLoadFactor());
+            } else {
+                c = Double.compare(
+                    (firstExitPipe.getLoadFactor() * 64) + (o1.distanceToDestination * distanceWeight),
+                    (secondExitPipe.getLoadFactor() * 64) + (o2.distanceToDestination * distanceWeight));
+            }
+            return c;
+        }
 
-	public static boolean request(List<ItemIdentifierStack> items, IRequestItems requester, @Nullable RequestLog log, EnumSet<ActiveRequestType> requestFlags,
-			@Nullable IAdditionalTargetInformation info) {
-		Map<IResource, Integer> messages = new HashMap<>();
-		RequestTree tree = new RequestTree(new ItemResource(new ItemIdentifierStack(ItemIdentifier.get(Item.BY_BLOCK.get(Blocks.STONE)), 0), requester), null, requestFlags, info);
-		boolean isDone = true;
-		for (ItemIdentifierStack stack : items) {
-			ItemResource req = new ItemResource(stack, requester);
-			Integer count = messages.get(req);
-			if (count == null) {
-				count = 0;
-			}
-			count += stack.getStackSize();
-			messages.put(req, count);
-			RequestTree node = new RequestTree(req, tree, requestFlags, info);
-			isDone = isDone && node.isDone();
-		}
-		if (isDone) {
-			OrderTree list = tree.fullFillAll();
-			if (log != null) {
-				log.handleSucessfullRequestOfList(RequestTreeNode.shrinkToList(messages), list);
-			}
-			return true;
-		} else {
-			if (log != null) {
-				tree.logFailedRequestTree(log);
-			}
-			return false;
-		}
-	}
+    }
 
-	public static int request(ItemIdentifierStack item, IRequestItems requester, @Nullable RequestLog log, boolean acceptPartial, boolean simulateOnly,
-			boolean logMissing, boolean logUsed, EnumSet<ActiveRequestType> requestFlags, @Nullable IAdditionalTargetInformation info) {
-		ItemResource req = new ItemResource(item, requester);
-		RequestTree tree = new RequestTree(req, null, requestFlags, info);
-		if (!simulateOnly && (tree.isDone() || ((tree.getPromiseAmount() > 0) && acceptPartial))) {
-			OrderTree list = tree.fullFillAll();
-			if (log != null) {
-				log.handleSucessfullRequestOf(req.copyForDisplayWith(item.getStackSize()), list);
-			}
-			return tree.getPromiseAmount();
-		} else {
-			if (log != null) {
-				if (!tree.isDone()) {
-					tree.recurseFailedRequestTree();
-				}
-				if (logMissing) {
-					tree.sendMissingMessage(log);
-				}
-				if (logUsed) {
-					tree.sendUsedMessage(log);
-				}
+    public static boolean request(List<ItemIdentifierStack> items, IRequestItems requester, @Nullable RequestLog log,
+        EnumSet<ActiveRequestType> requestFlags,
+        @Nullable IAdditionalTargetInformation info) {
+        Map<IResource, Integer> messages = new HashMap<>();
+        RequestTree tree = new RequestTree(
+            new ItemResource(new ItemIdentifierStack(ItemIdentifier.get(Item.BY_BLOCK.get(Blocks.STONE)), 0),
+                requester), null, requestFlags, info);
+        boolean isDone = true;
+        for (ItemIdentifierStack stack : items) {
+            ItemResource req = new ItemResource(stack, requester);
+            Integer count = messages.get(req);
+            if (count == null) {
+                count = 0;
+            }
+            count += stack.getStackSize();
+            messages.put(req, count);
+            RequestTree node = new RequestTree(req, tree, requestFlags, info);
+            isDone = isDone && node.isDone();
+        }
+        if (isDone) {
+            OrderTree list = tree.fullFillAll();
+            if (log != null) {
+                log.handleSucessfullRequestOfList(RequestTreeNode.shrinkToList(messages), list);
+            }
+            return true;
+        } else {
+            if (log != null) {
+                tree.logFailedRequestTree(log);
+            }
+            return false;
+        }
+    }
 
-			}
-			return tree.getPromiseAmount();
-		}
-	}
+    public static int request(ItemIdentifierStack item, IRequestItems requester, @Nullable RequestLog log,
+        boolean acceptPartial, boolean simulateOnly,
+        boolean logMissing, boolean logUsed, EnumSet<ActiveRequestType> requestFlags,
+        @Nullable IAdditionalTargetInformation info) {
+        ItemResource req = new ItemResource(item, requester);
+        RequestTree tree = new RequestTree(req, null, requestFlags, info);
+        if (!simulateOnly && (tree.isDone() || ((tree.getPromiseAmount() > 0) && acceptPartial))) {
+            OrderTree list = tree.fullFillAll();
+            if (log != null) {
+                log.handleSucessfullRequestOf(req.copyForDisplayWith(item.getStackSize()), list);
+            }
+            return tree.getPromiseAmount();
+        } else {
+            if (log != null) {
+                if (!tree.isDone()) {
+                    tree.recurseFailedRequestTree();
+                }
+                if (logMissing) {
+                    tree.sendMissingMessage(log);
+                }
+                if (logUsed) {
+                    tree.sendUsedMessage(log);
+                }
 
-	public static boolean request(ItemIdentifierStack item, IRequestItems requester, @Nullable RequestLog log, @Nullable IAdditionalTargetInformation info) {
-		return RequestTree.request(item, requester, log, false, false, true, false, RequestTree.defaultRequestFlags, info) == item.getStackSize();
-	}
+            }
+            return tree.getPromiseAmount();
+        }
+    }
 
-	public static int requestPartial(ItemIdentifierStack item, IRequestItems requester, @Nullable IAdditionalTargetInformation info) {
-		return RequestTree.request(item, requester, null, true, false, true, false, RequestTree.defaultRequestFlags, info);
-	}
+    public static boolean request(ItemIdentifierStack item, IRequestItems requester, @Nullable RequestLog log,
+        @Nullable IAdditionalTargetInformation info) {
+        return
+            RequestTree.request(item, requester, log, false, false, true, false, RequestTree.defaultRequestFlags, info)
+                == item.getStackSize();
+    }
 
-	public static int simulate(ItemIdentifierStack item, IRequestItems requester, RequestLog log) {
-		return RequestTree.request(item, requester, log, true, true, false, true, RequestTree.defaultRequestFlags, null);
-	}
+    public static int requestPartial(ItemIdentifierStack item, IRequestItems requester,
+        @Nullable IAdditionalTargetInformation info) {
+        return RequestTree.request(item, requester, null, true, false, true, false, RequestTree.defaultRequestFlags,
+            info);
+    }
 
-	public static int requestFluidPartial(FluidIdentifier liquid, int amount, IRequestFluid pipe, @Nullable RequestLog log) {
-		return RequestTree.requestFluid(liquid, amount, pipe, log, true);
-	}
+    public static int simulate(ItemIdentifierStack item, IRequestItems requester, RequestLog log) {
+        return RequestTree.request(item, requester, log, true, true, false, true, RequestTree.defaultRequestFlags,
+            null);
+    }
 
-	public static boolean requestFluid(FluidIdentifier liquid, int amount, IRequestFluid pipe, @Nullable RequestLog log) {
-		return RequestTree.requestFluid(liquid, amount, pipe, log, false) == amount;
-	}
+    public static int requestFluidPartial(FluidIdentifier liquid, int amount, IRequestFluid pipe,
+        @Nullable RequestLog log) {
+        return RequestTree.requestFluid(liquid, amount, pipe, log, true);
+    }
 
-	private static int requestFluid(FluidIdentifier liquid, int amount, IRequestFluid pipe, RequestLog log, boolean acceptPartial) {
-		FluidResource req = new FluidResource(liquid, amount, pipe);
-		RequestTree request = new RequestTree(req, null, RequestTree.defaultRequestFlags, null);
-		if (request.isDone() || acceptPartial) {
-			request.fullFill();
-			if (log != null) {
-				log.handleSucessfullRequestOf(req.copyForDisplayWith(req.getRequestedAmount()), null);
-			}
-			return request.getPromiseAmount();
-		} else {
-			if (log != null) {
-				request.sendMissingMessage(log);
-			}
-			return request.getPromiseAmount();
-		}
-	}
+    public static boolean requestFluid(FluidIdentifier liquid, int amount, IRequestFluid pipe,
+        @Nullable RequestLog log) {
+        return RequestTree.requestFluid(liquid, amount, pipe, log, false) == amount;
+    }
+
+    private static int requestFluid(FluidIdentifier liquid, int amount, IRequestFluid pipe, RequestLog log,
+        boolean acceptPartial) {
+        FluidResource req = new FluidResource(liquid, amount, pipe);
+        RequestTree request = new RequestTree(req, null, RequestTree.defaultRequestFlags, null);
+        if (request.isDone() || acceptPartial) {
+            request.fullFill();
+            if (log != null) {
+                log.handleSucessfullRequestOf(req.copyForDisplayWith(req.getRequestedAmount()), null);
+            }
+            return request.getPromiseAmount();
+        } else {
+            if (log != null) {
+                request.sendMissingMessage(log);
+            }
+            return request.getPromiseAmount();
+        }
+    }
 }

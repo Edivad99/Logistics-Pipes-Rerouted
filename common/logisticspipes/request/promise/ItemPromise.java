@@ -24,64 +24,64 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public class ItemPromise implements IPromise {
 
-	public ItemIdentifier item;
-	public int numberOfItems;
-	public IProvideItems sender;
-	public @Nullable ResourceType type;
+    public ItemIdentifier item;
+    public int numberOfItems;
+    public IProvideItems sender;
+    public @Nullable ResourceType type;
 
-	public ItemPromise(ItemIdentifier item, int numberOfItems, IProvideItems sender, @Nullable ResourceType type) {
-		this.item = item;
-		this.numberOfItems = numberOfItems;
-		this.sender = sender;
-		this.type = type;
-	}
+    public ItemPromise(ItemIdentifier item, int numberOfItems, IProvideItems sender, @Nullable ResourceType type) {
+        this.item = item;
+        this.numberOfItems = numberOfItems;
+        this.sender = sender;
+        this.type = type;
+    }
 
-	@Override
-	public ItemPromise copy() {
-		return new ItemPromise(item, numberOfItems, sender, type);
-	}
+    @Override
+    public ItemPromise copy() {
+        return new ItemPromise(item, numberOfItems, sender, type);
+    }
 
-	@Override
-	public boolean matches(IResource requestType) {
-		return requestType.matches(item, IResource.MatchSettings.NORMAL);
-	}
+    @Override
+    public boolean matches(IResource requestType) {
+        return requestType.matches(item, IResource.MatchSettings.NORMAL);
+    }
 
-	@Override
-	public int getAmount() {
-		return numberOfItems;
-	}
+    @Override
+    public int getAmount() {
+        return numberOfItems;
+    }
 
-	@Override
-	public IExtraPromise split(int more) {
-		numberOfItems -= more;
-		return new ExtraItemPromise(getItemType(), more, sender, false);
-	}
+    @Override
+    public IExtraPromise split(int more) {
+        numberOfItems -= more;
+        return new ExtraItemPromise(getItemType(), more, sender, false);
+    }
 
-	@Override
-	public IProvide getProvider() {
-		return sender;
-	}
+    @Override
+    public IProvide getProvider() {
+        return sender;
+    }
 
-	@Override
-	public ItemIdentifier getItemType() {
-		return item;
-	}
+    @Override
+    public ItemIdentifier getItemType() {
+        return item;
+    }
 
-	@Override
-	public @Nullable ResourceType getType() {
-		return type;
-	}
+    @Override
+    public @Nullable ResourceType getType() {
+        return type;
+    }
 
-	@Override
-	public @Nullable IOrderInfoProvider fullFill(IResource requestType, @Nullable IAdditionalTargetInformation info) {
-		IRequestItems destination;
-		if (requestType instanceof ItemResource itemResource) {
-			destination = itemResource.getTarget();
-		} else if (requestType instanceof DictResource dictResource) {
-			destination = dictResource.getTarget();
-		} else {
-			throw new UnsupportedOperationException();
-		}
-		return sender.fullFill(this, Objects.requireNonNull(destination, "destination"), info);
-	}
+    @Override
+    public @Nullable IOrderInfoProvider fullFill(IResource requestType, @Nullable IAdditionalTargetInformation info) {
+        IRequestItems destination;
+        if (requestType instanceof ItemResource itemResource) {
+            destination = itemResource.getTarget();
+        } else if (requestType instanceof DictResource dictResource) {
+            destination = dictResource.getTarget();
+        } else {
+            throw new UnsupportedOperationException();
+        }
+        return sender.fullFill(this, Objects.requireNonNull(destination, "destination"), info);
+    }
 }

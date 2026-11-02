@@ -21,7 +21,8 @@ public final class RecipeComponentGuesser {
      */
     private static final int ENOUGH = 64;
 
-    private RecipeComponentGuesser() {}
+    private RecipeComponentGuesser() {
+    }
 
     /**
      * For every slot, the index into its candidate list that the player should use, or empty when
@@ -30,12 +31,12 @@ public final class RecipeComponentGuesser {
     public static List<Optional<Integer>> choose(CoreRoutedPipe pipe, List<List<ItemIdentifier>> candidates) {
         // Only worth asking the network what it can craft if something is actually short.
         final Supplier<List<ItemIdentifier>> craftable = Suppliers.memoize(() ->
-                NetworkItems.getCraftableItems(pipe.getRouter().getIRoutersByCost()));
+            NetworkItems.getCraftableItems(pipe.getRouter().getIRoutersByCost()));
         return candidates.stream().map(slot -> choose(pipe, slot, craftable)).toList();
     }
 
     private static Optional<Integer> choose(CoreRoutedPipe pipe, List<ItemIdentifier> candidates,
-            Supplier<List<ItemIdentifier>> craftable) {
+        Supplier<List<ItemIdentifier>> craftable) {
         int best = -1;
         int bestAmount = 0;
         for (int i = 0; i < candidates.size(); i++) {

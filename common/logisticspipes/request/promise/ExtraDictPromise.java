@@ -9,33 +9,33 @@ import logisticspipes.request.resources.IResource;
 
 public class ExtraDictPromise extends DictPromise implements IExtraPromise {
 
-	public ExtraDictPromise(DictResource item, int numberOfItems, IProvideItems sender, boolean provided) {
-		super(item, numberOfItems, sender, null);
-		this.provided = provided;
-	}
+    public ExtraDictPromise(DictResource item, int numberOfItems, IProvideItems sender, boolean provided) {
+        super(item, numberOfItems, sender, null);
+        this.provided = provided;
+    }
 
-	@Getter
-	public boolean provided;
+    @Getter
+    public boolean provided;
 
-	@Override
-	public ExtraDictPromise copy() {
-		return new ExtraDictPromise(getResource(), numberOfItems, sender, provided);
-	}
+    @Override
+    public ExtraDictPromise copy() {
+        return new ExtraDictPromise(getResource(), numberOfItems, sender, provided);
+    }
 
-	@Override
-	public void registerExtras(IResource requestType) {
-		if (sender instanceof ICraftItems) {
-			((ICraftItems) sender).registerExtras(this);
-		}
-	}
+    @Override
+    public void registerExtras(IResource requestType) {
+        if (sender instanceof ICraftItems) {
+            ((ICraftItems) sender).registerExtras(this);
+        }
+    }
 
-	@Override
-	public void lowerAmount(int usedcount) {
-		numberOfItems -= usedcount;
-	}
+    @Override
+    public void lowerAmount(int usedcount) {
+        numberOfItems -= usedcount;
+    }
 
-	@Override
-	public void setAmount(int amount) {
-		numberOfItems = amount;
-	}
+    @Override
+    public void setAmount(int amount) {
+        numberOfItems = amount;
+    }
 }

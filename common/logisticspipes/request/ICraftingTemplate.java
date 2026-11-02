@@ -14,28 +14,30 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public interface ICraftingTemplate extends Comparable<ICraftingTemplate> {
 
-	List<Requirement> getComponents(int nCraftingSets);
+    List<Requirement> getComponents(int nCraftingSets);
 
-	List<IExtraPromise> getByproducts(int workSets);
+    List<IExtraPromise> getByproducts(int workSets);
 
-	int getResultStackSize();
+    int getResultStackSize();
 
-	IPromise generatePromise(int nCraftingSetsNeeded);
+    IPromise generatePromise(int nCraftingSetsNeeded);
 
-	ICraft getCrafter();
+    ICraft getCrafter();
 
-	int getPriority();
+    int getPriority();
 
-	boolean canCraft(IResource requestType);
+    boolean canCraft(IResource requestType);
 
-	IResource getResultItem();
+    IResource getResultItem();
 
-	int comparePriority(int priority);
+    int comparePriority(int priority);
 
-	int compareStack(ItemIdentifierStack stack);
+    int compareStack(ItemIdentifierStack stack);
 
-	int compareCrafter(ICraftItems crafter);
+    int compareCrafter(ICraftItems crafter);
 
-	/** One thing a crafting set needs, and where in the crafter it has to go. */
-	record Requirement(IResource resource, @Nullable IAdditionalTargetInformation info) {}
+    /**
+     * One thing a crafting set needs, and where in the crafter it has to go.
+     */
+    record Requirement(IResource resource, @Nullable IAdditionalTargetInformation info) {}
 }

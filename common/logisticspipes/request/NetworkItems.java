@@ -26,10 +26,9 @@ public final class NetworkItems {
     }
 
     /**
-     * @param validDestinations
-     *            a list of ExitRoute of valid destinations.
+     * @param validDestinations a list of ExitRoute of valid destinations.
      * @return HashMap with ItemIdentifier and Integer item count of available
-     *         items.
+     * items.
      */
     public static HashMap<ItemIdentifier, Integer> getAvailableItems(List<ExitRoute> validDestinations) {
         //TODO: Replace this entire function with a fetch from the pre-built arrays (path incoming later)
@@ -66,8 +65,7 @@ public final class NetworkItems {
     }
 
     /**
-     * @param validDestinations
-     *            a List of ExitRoute of valid destinations.
+     * @param validDestinations a List of ExitRoute of valid destinations.
      * @return LinkedList with ItemIdentifier
      */
     public static LinkedList<ItemIdentifier> getCraftableItems(List<ExitRoute> validDestinations) {

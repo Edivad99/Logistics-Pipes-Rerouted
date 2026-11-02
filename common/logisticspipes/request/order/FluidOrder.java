@@ -12,37 +12,37 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class FluidOrder extends Order {
 
-	public FluidOrder(FluidIdentifier fluid, Integer amount, IRequestFluid destination, ResourceType type,
-			@Nullable IAdditionalTargetInformation info) {
-		super(type, info);
-		this.fluid = fluid;
-		this.amount = amount;
-		this.destination = destination;
-	}
+    public FluidOrder(FluidIdentifier fluid, Integer amount, IRequestFluid destination, ResourceType type,
+        @Nullable IAdditionalTargetInformation info) {
+        super(type, info);
+        this.fluid = fluid;
+        this.amount = amount;
+        this.destination = destination;
+    }
 
-	@Getter
-	private final FluidIdentifier fluid;
-	@Getter
-	private int amount;
-	private final IRequestFluid destination;
+    @Getter
+    private final FluidIdentifier fluid;
+    @Getter
+    private int amount;
+    private final IRequestFluid destination;
 
-	@Override
-	public ItemIdentifierStack getAsDisplayItem() {
-		return fluid.getItemIdentifier().makeStack(amount);
-	}
+    @Override
+    public ItemIdentifierStack getAsDisplayItem() {
+        return fluid.getItemIdentifier().makeStack(amount);
+    }
 
-	@Override
+    @Override
     public IRouter getRouter() {
-		return destination.getRouter();
-	}
+        return destination.getRouter();
+    }
 
-	@Override
-	public void sendFailed() {
-		destination.sendFailed(fluid, amount);
-	}
+    @Override
+    public void sendFailed() {
+        destination.sendFailed(fluid, amount);
+    }
 
-	@Override
-	public void reduceAmountBy(int reduce) {
-		amount -= reduce;
-	}
+    @Override
+    public void reduceAmountBy(int reduce) {
+        amount -= reduce;
+    }
 }

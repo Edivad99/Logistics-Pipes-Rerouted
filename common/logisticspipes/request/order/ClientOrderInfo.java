@@ -19,43 +19,48 @@ import logisticspipes.utils.item.ItemIdentifierStack;
  */
 public class ClientOrderInfo implements IOrderInfoProvider {
 
-	@Getter
-	private final ItemIdentifierStack asDisplayItem;
-	@Getter
-	private final int routerId;
-	@Getter
-	private final ResourceType type;
-	@Getter
-	private final boolean isFinished;
-	@Getter
-	private final boolean inProgress;
-	@Getter
-	private final byte machineProgress;
-	@Getter
-	private final List<Float> progresses;
-	@Getter
-	private final @Nullable BlockPos targetPosition;
-	@Getter
-	private final @Nullable ItemIdentifier targetType;
+    @Getter
+    private final ItemIdentifierStack asDisplayItem;
+    @Getter
+    private final int routerId;
+    @Getter
+    private final ResourceType type;
+    @Getter
+    private final boolean isFinished;
+    @Getter
+    private final boolean inProgress;
+    @Getter
+    private final byte machineProgress;
+    @Getter
+    private final List<Float> progresses;
+    @Getter
+    private final @Nullable BlockPos targetPosition;
+    @Getter
+    private final @Nullable ItemIdentifier targetType;
 
-	/** Always false: a client cannot ask to watch an order it only receives. */
-	@Getter
-	private final boolean isWatched = false;
+    /**
+     * Always false: a client cannot ask to watch an order it only receives.
+     */
+    @Getter
+    private final boolean isWatched = false;
 
-	public ClientOrderInfo(ItemIdentifierStack asDisplayItem, int routerId, ResourceType type,
-			Progress progress, Optional<Target> target) {
-		this.asDisplayItem = asDisplayItem;
-		this.routerId = routerId;
-		this.type = type;
-		isFinished = progress.finished();
-		inProgress = progress.inProgress();
-		machineProgress = progress.machineProgress();
-		progresses = progress.steps();
-		targetPosition = target.map(Target::position).orElse(null);
-		targetType = target.map(Target::type).orElse(null);
-	}
+    public ClientOrderInfo(ItemIdentifierStack asDisplayItem, int routerId, ResourceType type,
+        Progress progress, Optional<Target> target) {
+        this.asDisplayItem = asDisplayItem;
+        this.routerId = routerId;
+        this.type = type;
+        isFinished = progress.finished();
+        inProgress = progress.inProgress();
+        machineProgress = progress.machineProgress();
+        progresses = progress.steps();
+        targetPosition = target.map(Target::position).orElse(null);
+        targetType = target.map(Target::type).orElse(null);
+    }
 
-	/** Ignored: watching is decided on the server, and this order is a copy. */
-	@Override
-	public void setWatched() {}
+    /**
+     * Ignored: watching is decided on the server, and this order is a copy.
+     */
+    @Override
+    public void setWatched() {
+    }
 }

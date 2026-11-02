@@ -14,48 +14,47 @@ import logisticspipes.utils.item.ItemIdentifierStack;
  */
 public interface IResource {
 
-	/**
-	 * Tag and body: the tag says which of the three implementations follows.
-	 *
-	 * <p>The tag is the enum constant, not its ordinal, so the declaration order of
-	 * {@link ResourceNetwork} is no longer part of the protocol.
-	 */
-	StreamCodec<RegistryFriendlyByteBuf, IResource> STREAM_CODEC =
-			NeoForgeStreamCodecs.<RegistryFriendlyByteBuf, ResourceNetwork>enumCodec(ResourceNetwork.class)
-					.dispatch(ResourceNetwork::of, ResourceNetwork::codec);
+    /**
+     * Tag and body: the tag says which of the three implementations follows.
+     *
+     * <p>The tag is the enum constant, not its ordinal, so the declaration order of
+     * {@link ResourceNetwork} is no longer part of the protocol.
+     */
+    StreamCodec<RegistryFriendlyByteBuf, IResource> STREAM_CODEC =
+        NeoForgeStreamCodecs.<RegistryFriendlyByteBuf, ResourceNetwork>enumCodec(ResourceNetwork.class)
+            .dispatch(ResourceNetwork::of, ResourceNetwork::codec);
 
+    ItemIdentifier getAsItem();
 
-	ItemIdentifier getAsItem();
+    int getRequestedAmount();
 
-	int getRequestedAmount();
+    IRouter getRouter();
 
-	IRouter getRouter();
+    boolean matches(IResource resource, MatchSettings settings);
 
-	boolean matches(IResource resource, MatchSettings settings);
+    boolean matches(ItemIdentifier itemType, MatchSettings settings);
 
-	boolean matches(ItemIdentifier itemType, MatchSettings settings);
+    IResource clone(int multiplier);
 
-	IResource clone(int multiplier);
+    boolean mergeForDisplay(IResource resource, int withAmount); //Amount overrides existing amount inside the resource
 
-	boolean mergeForDisplay(IResource resource, int withAmount); //Amount overrides existing amount inside the resource
+    IResource copyForDisplayWith(int amount);
 
-	IResource copyForDisplayWith(int amount);
+    String getDisplayText(ColorCode missing);
 
-	String getDisplayText(ColorCode missing);
+    ItemIdentifierStack getDisplayItem();
 
-	ItemIdentifierStack getDisplayItem();
+    /**
+     * Settings only apply for the normal Item Implementation.
+     */
+    enum MatchSettings {
+        NORMAL,
+        WITHOUT_NBT
+    }
 
-	/**
-	 * Settings only apply for the normal Item Implementation.
-	 */
-	enum MatchSettings {
-		NORMAL,
-		WITHOUT_NBT
-	}
-
-	enum ColorCode {
-		NONE,
-		MISSING,
-		SUCCESS
-	}
+    enum ColorCode {
+        NONE,
+        MISSING,
+        SUCCESS
+    }
 }

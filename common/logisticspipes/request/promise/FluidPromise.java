@@ -21,58 +21,58 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 public class FluidPromise implements IPromise {
 
-	public FluidIdentifier liquid;
-	public int amount;
-	public IProvideFluids sender;
-	public ResourceType type;
+    public FluidIdentifier liquid;
+    public int amount;
+    public IProvideFluids sender;
+    public ResourceType type;
 
-	@Override
-	public FluidPromise copy() {
-		FluidPromise result = new FluidPromise();
-		result.liquid = liquid;
-		result.amount = amount;
-		result.sender = sender;
-		result.type = type;
-		return result;
-	}
+    @Override
+    public FluidPromise copy() {
+        FluidPromise result = new FluidPromise();
+        result.liquid = liquid;
+        result.amount = amount;
+        result.sender = sender;
+        result.type = type;
+        return result;
+    }
 
-	@Override
-	public boolean matches(IResource requestType) {
-		if (requestType instanceof FluidResource) {
-			FluidResource fluid = (FluidResource) requestType;
-			return fluid.getFluid().equals(liquid);
-		}
-		return false;
-	}
+    @Override
+    public boolean matches(IResource requestType) {
+        if (requestType instanceof FluidResource) {
+            FluidResource fluid = (FluidResource) requestType;
+            return fluid.getFluid().equals(liquid);
+        }
+        return false;
+    }
 
-	@Override
-	public int getAmount() {
-		return amount;
-	}
+    @Override
+    public int getAmount() {
+        return amount;
+    }
 
-	@Override
-	public IExtraPromise split(int more) {
-		amount -= more;
-		return new ExtraFluidPromise(liquid, more, sender, false);
-	}
+    @Override
+    public IExtraPromise split(int more) {
+        amount -= more;
+        return new ExtraFluidPromise(liquid, more, sender, false);
+    }
 
-	@Override
-	public IProvide getProvider() {
-		return sender;
-	}
+    @Override
+    public IProvide getProvider() {
+        return sender;
+    }
 
-	@Override
-	public ItemIdentifier getItemType() {
-		return liquid.getItemIdentifier();
-	}
+    @Override
+    public ItemIdentifier getItemType() {
+        return liquid.getItemIdentifier();
+    }
 
-	@Override
-	public @Nullable ResourceType getType() {
-		return type;
-	}
+    @Override
+    public @Nullable ResourceType getType() {
+        return type;
+    }
 
-	@Override
-	public @Nullable IOrderInfoProvider fullFill(IResource requestType, @Nullable IAdditionalTargetInformation info) {
-		return sender.fullFill(this, ((FluidResource) requestType).getTarget(), type, info);
-	}
+    @Override
+    public @Nullable IOrderInfoProvider fullFill(IResource requestType, @Nullable IAdditionalTargetInformation info) {
+        return sender.fullFill(this, ((FluidResource) requestType).getTarget(), type, info);
+    }
 }

@@ -10,20 +10,21 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class DictPromise extends ItemPromise {
 
-	@Getter
-	private DictResource resource;
+    @Getter
+    private DictResource resource;
 
-	public DictPromise(DictResource item, int stackSize, IProvideItems sender, IOrderInfoProvider.@Nullable ResourceType type) {
-		super(item.stack.getItem(), stackSize, sender, type);
-		this.resource = item;
-		this.resource.stack = new ItemIdentifierStack(this.resource.stack);
-		this.resource.stack.setStackSize(stackSize);
-	}
+    public DictPromise(DictResource item, int stackSize, IProvideItems sender,
+        IOrderInfoProvider.@Nullable ResourceType type) {
+        super(item.stack.getItem(), stackSize, sender, type);
+        this.resource = item;
+        this.resource.stack = new ItemIdentifierStack(this.resource.stack);
+        this.resource.stack.setStackSize(stackSize);
+    }
 
-	@Override
-	public IExtraPromise split(int more) {
-		numberOfItems -= more;
-		this.resource.stack.setStackSize(numberOfItems);
-		return new ExtraDictPromise(getResource().clone(), more, sender, false);
-	}
+    @Override
+    public IExtraPromise split(int more) {
+        numberOfItems -= more;
+        this.resource.stack.setStackSize(numberOfItems);
+        return new ExtraDictPromise(getResource().clone(), more, sender, false);
+    }
 }

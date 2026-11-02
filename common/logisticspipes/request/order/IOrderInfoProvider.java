@@ -17,95 +17,96 @@ import logisticspipes.utils.item.ItemIdentifierStack;
 
 public interface IOrderInfoProvider {
 
-	/**
-	 * One order, as the client's monitor shows it.
-	 *
-	 * <p>Encodes any order the server holds and decodes into a {@link ClientOrderInfo}: the
-	 * client has no routers or crafting templates to hang a real order off, and only ever displays
-	 * one.
-	 *
-	 * <p>Two of the components are groups rather than plain fields: {@link Progress} is everything
-	 * that answers "how far along is it", and {@link Target} the pair that is only meaningful
-	 * together -- an order either has a destination or has not, and the old format wrote both
-	 * fields behind one shared boolean to say so.
-	 */
-	StreamCodec<RegistryFriendlyByteBuf, IOrderInfoProvider> STREAM_CODEC =
-			StreamCodec.composite(
-					ItemIdentifierStack.STREAM_CODEC, IOrderInfoProvider::getAsDisplayItem,
-					ByteBufCodecs.VAR_INT, IOrderInfoProvider::getRouterId,
-					NeoForgeStreamCodecs.enumCodec(ResourceType.class),
-					IOrderInfoProvider::getType,
-					Progress.STREAM_CODEC, Progress::of,
-					ByteBufCodecs.optional(Target.STREAM_CODEC), Target::of,
-					ClientOrderInfo::new);
+    /**
+     * One order, as the client's monitor shows it.
+     *
+     * <p>Encodes any order the server holds and decodes into a {@link ClientOrderInfo}: the
+     * client has no routers or crafting templates to hang a real order off, and only ever displays
+     * one.
+     *
+     * <p>Two of the components are groups rather than plain fields: {@link Progress} is everything
+     * that answers "how far along is it", and {@link Target} the pair that is only meaningful
+     * together -- an order either has a destination or has not, and the old format wrote both
+     * fields behind one shared boolean to say so.
+     */
+    StreamCodec<RegistryFriendlyByteBuf, IOrderInfoProvider> STREAM_CODEC =
+        StreamCodec.composite(
+            ItemIdentifierStack.STREAM_CODEC, IOrderInfoProvider::getAsDisplayItem,
+            ByteBufCodecs.VAR_INT, IOrderInfoProvider::getRouterId,
+            NeoForgeStreamCodecs.enumCodec(ResourceType.class),
+            IOrderInfoProvider::getType,
+            Progress.STREAM_CODEC, Progress::of,
+            ByteBufCodecs.optional(Target.STREAM_CODEC), Target::of,
+            ClientOrderInfo::new);
 
-	/** How far along an order is. */
-	record Progress(boolean finished, boolean inProgress, byte machineProgress, List<Float> steps) {
+    /**
+     * How far along an order is.
+     */
+    record Progress(boolean finished, boolean inProgress, byte machineProgress, List<Float> steps) {
 
-		public static final StreamCodec<RegistryFriendlyByteBuf, Progress> STREAM_CODEC =
-				StreamCodec.composite(
-						ByteBufCodecs.BOOL, Progress::finished,
-						ByteBufCodecs.BOOL, Progress::inProgress,
-						ByteBufCodecs.BYTE, Progress::machineProgress,
-						ByteBufCodecs.FLOAT.apply(ByteBufCodecs.list()), Progress::steps,
-						Progress::new);
+        public static final StreamCodec<RegistryFriendlyByteBuf, Progress> STREAM_CODEC =
+            StreamCodec.composite(
+                ByteBufCodecs.BOOL, Progress::finished,
+                ByteBufCodecs.BOOL, Progress::inProgress,
+                ByteBufCodecs.BYTE, Progress::machineProgress,
+                ByteBufCodecs.FLOAT.apply(ByteBufCodecs.list()), Progress::steps,
+                Progress::new);
 
-		public static Progress of(IOrderInfoProvider order) {
-			return new Progress(order.isFinished(), order.isInProgress(), order.getMachineProgress(),
-					List.copyOf(order.getProgresses()));
-		}
-	}
+        public static Progress of(IOrderInfoProvider order) {
+            return new Progress(order.isFinished(), order.isInProgress(), order.getMachineProgress(),
+                List.copyOf(order.getProgresses()));
+        }
+    }
 
-	/**
-	 * Where an order is headed.
-	 *
-	 * <p>Absent for an order that has not been assigned one yet. The two fields travel together
-	 * because the old format wrote them behind one shared boolean, and reading either without the
-	 * other says nothing.
-	 */
-	record Target(BlockPos position, ItemIdentifier type) {
+    /**
+     * Where an order is headed.
+     *
+     * <p>Absent for an order that has not been assigned one yet. The two fields travel together
+     * because the old format wrote them behind one shared boolean, and reading either without the
+     * other says nothing.
+     */
+    record Target(BlockPos position, ItemIdentifier type) {
 
-		public static final StreamCodec<RegistryFriendlyByteBuf, Target> STREAM_CODEC =
-				StreamCodec.composite(
-						BlockPos.STREAM_CODEC, Target::position,
-						ItemIdentifier.STREAM_CODEC, Target::type,
-						Target::new);
+        public static final StreamCodec<RegistryFriendlyByteBuf, Target> STREAM_CODEC =
+            StreamCodec.composite(
+                BlockPos.STREAM_CODEC, Target::position,
+                ItemIdentifier.STREAM_CODEC, Target::type,
+                Target::new);
 
-		public static Optional<Target> of(IOrderInfoProvider order) {
-			final BlockPos position = order.getTargetPosition();
-			final ItemIdentifier type = order.getTargetType();
-			return position == null || type == null ? Optional.empty() : Optional.of(new Target(position, type));
-		}
-	}
+        public static Optional<Target> of(IOrderInfoProvider order) {
+            final BlockPos position = order.getTargetPosition();
+            final ItemIdentifier type = order.getTargetType();
+            return position == null || type == null ? Optional.empty() : Optional.of(new Target(position, type));
+        }
+    }
 
-	boolean isFinished();
+    boolean isFinished();
 
-	ItemIdentifierStack getAsDisplayItem();
+    ItemIdentifierStack getAsDisplayItem();
 
-	ResourceType getType();
+    ResourceType getType();
 
-	int getRouterId();
+    int getRouterId();
 
-	boolean isInProgress();
+    boolean isInProgress();
 
-	boolean isWatched();
+    boolean isWatched();
 
-	void setWatched();
+    void setWatched();
 
-	List<Float> getProgresses();
+    List<Float> getProgresses();
 
-	byte getMachineProgress();
+    byte getMachineProgress();
 
-	@Nullable
-	ItemIdentifier getTargetType();
+    @Nullable
+    ItemIdentifier getTargetType();
 
-	@Nullable
-	BlockPos getTargetPosition();
+    @Nullable
+    BlockPos getTargetPosition();
 
-
-	enum ResourceType {
-		PROVIDER,
-		CRAFTING,
-		EXTRA
-	}
+    enum ResourceType {
+        PROVIDER,
+        CRAFTING,
+        EXTRA
+    }
 }

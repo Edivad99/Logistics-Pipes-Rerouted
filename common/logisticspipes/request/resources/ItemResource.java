@@ -13,125 +13,129 @@ import logisticspipes.utils.string.ChatColor;
 
 public class ItemResource implements IResource {
 
-	private final ItemIdentifierStack stack;
-	/** Null on the client, which only ever displays a resource. */
-	private final @Nullable IRequestItems requester;
+    private final ItemIdentifierStack stack;
+    /**
+     * Null on the client, which only ever displays a resource.
+     */
+    private final @Nullable IRequestItems requester;
 
-	public static final StreamCodec<RegistryFriendlyByteBuf, ItemResource> STREAM_CODEC =
-			StreamCodec.composite(
-					ItemIdentifierStack.STREAM_CODEC, resource -> resource.stack,
-					ItemResource::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ItemResource> STREAM_CODEC =
+        StreamCodec.composite(
+            ItemIdentifierStack.STREAM_CODEC, resource -> resource.stack,
+            ItemResource::new);
 
-	/** Rebuilt on the client, where a resource has no requester to answer to. */
-	private ItemResource(ItemIdentifierStack stack) {
-		this(stack, null);
-	}
+    /**
+     * Rebuilt on the client, where a resource has no requester to answer to.
+     */
+    private ItemResource(ItemIdentifierStack stack) {
+        this(stack, null);
+    }
 
-	public ItemResource(ItemIdentifierStack stack, @Nullable IRequestItems requester) {
-		this.stack = stack;
-		this.requester = requester;
-	}
+    public ItemResource(ItemIdentifierStack stack, @Nullable IRequestItems requester) {
+        this.stack = stack;
+        this.requester = requester;
+    }
 
-	@Override
-	public ItemIdentifier getAsItem() {
-		return stack.getItem();
-	}
+    @Override
+    public ItemIdentifier getAsItem() {
+        return stack.getItem();
+    }
 
-	@Override
-	public int getRequestedAmount() {
-		return stack.getStackSize();
-	}
+    @Override
+    public int getRequestedAmount() {
+        return stack.getStackSize();
+    }
 
-	public ItemIdentifier getItem() {
-		return stack.getItem();
-	}
+    public ItemIdentifier getItem() {
+        return stack.getItem();
+    }
 
-	public ItemIdentifierStack getItemStack() {
-		return stack;
-	}
+    public ItemIdentifierStack getItemStack() {
+        return stack;
+    }
 
-	public @Nullable IRequestItems getTarget() {
-		return requester;
-	}
+    public @Nullable IRequestItems getTarget() {
+        return requester;
+    }
 
-	@Override
+    @Override
     public IRouter getRouter() {
-		return requester.getRouter();
-	}
+        return requester.getRouter();
+    }
 
-	@Override
-	public boolean matches(IResource resource, MatchSettings settings) {
-		if (resource instanceof DictResource) {
-			return resource.matches(this, settings);
-		} else if (resource instanceof ItemResource) {
-			return matches(((ItemResource) resource).getItem(), settings)
-					&& resource.matches(getItem(), settings);
-		}
-		return false;
-	}
+    @Override
+    public boolean matches(IResource resource, MatchSettings settings) {
+        if (resource instanceof DictResource) {
+            return resource.matches(this, settings);
+        } else if (resource instanceof ItemResource) {
+            return matches(((ItemResource) resource).getItem(), settings)
+                && resource.matches(getItem(), settings);
+        }
+        return false;
+    }
 
-	@Override
-	public boolean matches(ItemIdentifier itemType, MatchSettings settings) {
-		switch (settings) {
-			case NORMAL:
-				return stack.getItem().equals(itemType);
-			case WITHOUT_NBT:
-				return stack.getItem().equalsWithoutNBT(itemType);
-		}
-		return stack.getItem().equals(itemType);
-	}
+    @Override
+    public boolean matches(ItemIdentifier itemType, MatchSettings settings) {
+        switch (settings) {
+            case NORMAL:
+                return stack.getItem().equals(itemType);
+            case WITHOUT_NBT:
+                return stack.getItem().equalsWithoutNBT(itemType);
+        }
+        return stack.getItem().equals(itemType);
+    }
 
-	@Override
-	public IResource clone(int multiplier) {
-		ItemIdentifierStack stack = new ItemIdentifierStack(this.stack);
-		stack.setStackSize(stack.getStackSize() * multiplier);
-		return new ItemResource(stack, requester);
-	}
+    @Override
+    public IResource clone(int multiplier) {
+        ItemIdentifierStack stack = new ItemIdentifierStack(this.stack);
+        stack.setStackSize(stack.getStackSize() * multiplier);
+        return new ItemResource(stack, requester);
+    }
 
-	@Override
-	public boolean mergeForDisplay(IResource resource, int withAmount) {
-		if (resource instanceof ItemResource) {
-			if (((ItemResource) resource).stack.getItem().equals(stack.getItem())) {
-				stack.setStackSize(stack.getStackSize() + withAmount);
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean mergeForDisplay(IResource resource, int withAmount) {
+        if (resource instanceof ItemResource) {
+            if (((ItemResource) resource).stack.getItem().equals(stack.getItem())) {
+                stack.setStackSize(stack.getStackSize() + withAmount);
+                return true;
+            }
+        }
+        return false;
+    }
 
-	@Override
-	public IResource copyForDisplayWith(int amount) {
-		ItemIdentifierStack stack = new ItemIdentifierStack(this.stack);
-		stack.setStackSize(amount);
-		return new ItemResource(stack, requester);
-	}
+    @Override
+    public IResource copyForDisplayWith(int amount) {
+        ItemIdentifierStack stack = new ItemIdentifierStack(this.stack);
+        stack.setStackSize(amount);
+        return new ItemResource(stack, requester);
+    }
 
-	@Override
-	public String getDisplayText(ColorCode code) {
-		StringBuilder builder = new StringBuilder();
-		if (code != ColorCode.NONE) {
-			builder.append(code == ColorCode.MISSING ? ChatColor.RED : ChatColor.GREEN);
-		}
-		builder.append(stack.getFriendlyName());
-		if (code != ColorCode.NONE) {
-			builder.append(ChatColor.WHITE);
-		}
-		return builder.toString();
-	}
+    @Override
+    public String getDisplayText(ColorCode code) {
+        StringBuilder builder = new StringBuilder();
+        if (code != ColorCode.NONE) {
+            builder.append(code == ColorCode.MISSING ? ChatColor.RED : ChatColor.GREEN);
+        }
+        builder.append(stack.getFriendlyName());
+        if (code != ColorCode.NONE) {
+            builder.append(ChatColor.WHITE);
+        }
+        return builder.toString();
+    }
 
-	@Override
-	public ItemIdentifierStack getDisplayItem() {
-		return stack;
-	}
+    @Override
+    public ItemIdentifierStack getDisplayItem() {
+        return stack;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		// only ItemResources can be equal specifically
-		return obj instanceof ItemResource && matches((IResource) obj, MatchSettings.NORMAL);
-	}
+    @Override
+    public boolean equals(Object obj) {
+        // only ItemResources can be equal specifically
+        return obj instanceof ItemResource && matches((IResource) obj, MatchSettings.NORMAL);
+    }
 
-	@Override
-	public String toString() {
-		return String.format("ItemResource(%s, target=%s)", stack, requester);
-	}
+    @Override
+    public String toString() {
+        return String.format("ItemResource(%s, target=%s)", stack, requester);
+    }
 }
