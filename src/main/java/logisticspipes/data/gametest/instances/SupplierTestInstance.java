@@ -79,6 +79,7 @@ public class SupplierTestInstance extends GameTestInstance {
         LPTestHelper.placePowerJunction(helper, new BlockPos(0, 1, 1));
         var providerBarrel = LPTestHelper.placeBarrel(helper, PROVIDER.south(), scenario.stock.get());
         var suppliedBarrel = LPTestHelper.placeBarrel(helper, SUPPLIER.south());
+        scenario.suppliedSetup.accept(suppliedBarrel);
         LPTestHelper.placePipe(helper, new BlockPos(1, 1, 1), new PipeItemsBasicLogistics(LPItems.PIPE_BASIC.get()));
         var provider = LPTestHelper.placePipe(helper, PROVIDER, new PipeItemsProviderLogistics(LPItems.PIPE_PROVIDER.get()));
         LPTestHelper.placePipe(helper, LINK, new PipeItemsBasicLogistics(LPItems.PIPE_BASIC.get()));
@@ -373,10 +374,11 @@ public class SupplierTestInstance extends GameTestInstance {
             .waitSlot(COBBLESTONE_SLOT, Items.COBBLESTONE, PATTERN_COBBLESTONE)
             .expectProvider(Items.COBBLESTONE, 64 - 2 * PATTERN_COBBLESTONE)),
         /**
-         * A slot holding something else is left alone; nothing is asked for it.
+         * A slot holding something else is left alone; nothing is asked for it. The slot is taken
+         * before the network is up: taken afterwards, the supplier could look at it while still empty.
          */
-        PATTERN_SLOT_TAKEN(Config.pattern(PatternMode.Full), stock(64), s -> s
-            .putInSlot(COBBLESTONE_SLOT, new ItemStack(Items.STONE, 1))
+        PATTERN_SLOT_TAKEN(Config.pattern(PatternMode.Full), stock(64), false,
+            supplied -> supplied.setItem(COBBLESTONE_SLOT, new ItemStack(Items.STONE, 1)), s -> s
             .idleCycle()
             .idleCycle()
             .expectSupplied(Items.COBBLESTONE, 0)
@@ -410,6 +412,10 @@ public class SupplierTestInstance extends GameTestInstance {
          */
         final Supplier<ItemStack[]> stock;
         final boolean overflow;
+        /**
+         * What is in the supplied barrel before the network is up.
+         */
+        final Consumer<BarrelBlockEntity> suppliedSetup;
         final Consumer<Steps> script;
 
         Scenario(Config config, Supplier<ItemStack[]> stock, Consumer<Steps> script) {
@@ -417,9 +423,15 @@ public class SupplierTestInstance extends GameTestInstance {
         }
 
         Scenario(Config config, Supplier<ItemStack[]> stock, boolean overflow, Consumer<Steps> script) {
+            this(config, stock, overflow, supplied -> { }, script);
+        }
+
+        Scenario(Config config, Supplier<ItemStack[]> stock, boolean overflow,
+            Consumer<BarrelBlockEntity> suppliedSetup, Consumer<Steps> script) {
             this.config = config;
             this.stock = stock;
             this.overflow = overflow;
+            this.suppliedSetup = suppliedSetup;
             this.script = script;
         }
 
