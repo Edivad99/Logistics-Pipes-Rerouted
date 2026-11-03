@@ -97,7 +97,6 @@ public class UpgradeManager
         inv.serialize(output, "UpgradeInventory_");
         sneakyInv.serialize(output, "SneakyUpgradeInventory_");
         secInv.serialize(output, "SecurityInventory_");
-        InventoryChanged(inv);
     }
 
     private boolean updateModule(int slot, @Nullable IPipeUpgrade[] upgrades, Container inv) {
