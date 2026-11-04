@@ -1,14 +1,20 @@
 package logisticspipes.integrations.ae2;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import appeng.api.ids.AEBlockIds;
+import appeng.api.ids.AEPartIds;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.IInWorldGridNodeHost;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.networking.storage.IStorageService;
+import appeng.api.parts.IPart;
+import appeng.api.parts.IPartHost;
+import appeng.api.parts.IPartItem;
 import appeng.api.storage.MEStorage;
 import org.jspecify.annotations.Nullable;
 
@@ -24,14 +30,14 @@ public final class AE2Networks {
     }
 
     /**
-     * The storage of the network {@code blockEntity} belongs to, or null when there is none to talk to.
+     * The storage of the network behind the ME Interface or null when there is none to talk to.
      */
     @Nullable
     public static MEStorage findStorage(BlockEntity blockEntity, @Nullable Direction dir) {
         if (!(blockEntity instanceof IInWorldGridNodeHost host)) {
             return null;
         }
-        IGridNode node = AE2Networks.findNode(host, dir);
+        IGridNode node = AE2Networks.findInterfaceNode(blockEntity, host, dir);
         // An unbooted or unpowered network reports nothing rather than pretending to be empty-ish:
         // isActive() covers both, and asking a down network for its inventory is meaningless.
         if (node == null || !node.isActive()) {
@@ -40,6 +46,36 @@ public final class AE2Networks {
         IGrid grid = node.getGrid();
         IStorageService storageService = grid.getStorageService();
         return storageService.getInventory();
+    }
+
+    @Nullable
+    private static IGridNode findInterfaceNode(BlockEntity blockEntity, IInWorldGridNodeHost host,
+        @Nullable Direction dir) {
+        if (AEBlockIds.INTERFACE.equals(BuiltInRegistries.BLOCK.getKey(blockEntity.getBlockState().getBlock()))) {
+            return AE2Networks.findNode(host, dir);
+        }
+        if (!(host instanceof IPartHost partHost)) {
+            return null;
+        }
+        if (dir != null) {
+            return AE2Networks.interfacePartNode(partHost.getPart(dir));
+        }
+        // No side given: any interface part on the cable bus leads to the same grid.
+        for (Direction side : Direction.values()) {
+            IGridNode node = AE2Networks.interfacePartNode(partHost.getPart(side));
+            if (node != null) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private static IGridNode interfacePartNode(@Nullable IPart part) {
+        if (part == null || !AEPartIds.INTERFACE.equals(IPartItem.getId(part.getPartItem()))) {
+            return null;
+        }
+        return part.getGridNode();
     }
 
     @Nullable

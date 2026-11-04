@@ -25,8 +25,7 @@ import logisticspipes.utils.item.ItemIdentifier;
 
 /**
  * Exposes the contents of an Applied Energistics 2 network to Logistics Pipes, so that a provider
- * pipe placed against an ME Interface (or any other block that hosts a grid node) can see and
- * supply what the network stores.
+ * pipe placed against an ME Interface, block or part, can see and supply what the network stores.
  *
  * <p>Reads, extracts and inserts. Insertion is not optional: {@code InventoryUtilFactory} consults
  * the special handlers <i>before</i> falling back to the block's {@code IItemHandler} capability, for

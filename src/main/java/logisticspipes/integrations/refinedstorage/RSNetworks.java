@@ -10,6 +10,7 @@ import com.refinedmods.refinedstorage.api.network.node.container.NetworkNodeCont
 import com.refinedmods.refinedstorage.api.network.storage.StorageNetworkComponent;
 import com.refinedmods.refinedstorage.api.storage.Actor;
 import com.refinedmods.refinedstorage.common.api.support.network.NetworkNodeContainerProvider;
+import com.refinedmods.refinedstorage.common.iface.InterfaceBlockEntity;
 import com.refinedmods.refinedstorage.neoforge.api.RefinedStorageNeoForgeApi;
 import org.jspecify.annotations.Nullable;
 
@@ -31,10 +32,13 @@ public final class RSNetworks {
     }
 
     /**
-     * The storage of the network {@code blockEntity} belongs to, or null when there is none to talk to.
+     * The storage of the network behind the Interface or null when there is none to talk to.
      */
     @Nullable
     public static StorageNetworkComponent findStorage(BlockEntity blockEntity, @Nullable Direction dir) {
+        if (!(blockEntity instanceof InterfaceBlockEntity)) {
+            return null;
+        }
         Level level = blockEntity.getLevel();
         if (level == null) {
             return null;
