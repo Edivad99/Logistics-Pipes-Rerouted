@@ -31,13 +31,13 @@ public interface IPipeInformationProvider {
     CoreRoutedPipe getRoutingPipe();
 
     @Nullable
-    BlockEntity getNextConnectedTile(Direction direction);
+    BlockEntity getNextConnectedBlockEntity(Direction direction);
 
     boolean isFirewallPipe();
 
     IFilter getFirewallFilter();
 
-    BlockEntity getTile();
+    BlockEntity getBlockEntity();
 
     boolean divideNetwork();
 
@@ -47,7 +47,13 @@ public interface IPipeInformationProvider {
 
     boolean isOutputClosed(Direction direction);
 
-    boolean canConnect(BlockEntity to, Direction direction, boolean flag);
+    /**
+     * Whether this pipe would connect to {@code to} through {@code direction}.
+     *
+     * @param ignoreSystemDisconnection whether to connect anyway when the router has cut that side
+     *     off because the pipe there belongs to another security station
+     */
+    boolean canConnect(BlockEntity to, Direction direction, boolean ignoreSystemDisconnection);
 
     double getDistance();
 
@@ -64,7 +70,7 @@ public interface IPipeInformationProvider {
 
     boolean acceptItem(LPTravelingItem item, BlockEntity from);
 
-    void refreshTileCacheOnSide(Direction side);
+    void refreshNeighborCache(Direction side);
 
     boolean isMultiBlock();
 

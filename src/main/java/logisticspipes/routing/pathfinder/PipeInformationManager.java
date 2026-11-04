@@ -19,9 +19,9 @@ public final class PipeInformationManager {
     }
 
     public static boolean canConnect(IPipeInformationProvider startPipe, IPipeInformationProvider provider,
-        Direction direction, boolean flag) {
-        return startPipe.canConnect(provider.getTile(), direction, flag) && provider.canConnect(startPipe.getTile(),
-            direction.getOpposite(), flag);
+        Direction direction, boolean ignoreSystemDisconnection) {
+        return startPipe.canConnect(provider.getBlockEntity(), direction, ignoreSystemDisconnection)
+            && provider.canConnect(startPipe.getBlockEntity(), direction.getOpposite(), ignoreSystemDisconnection);
     }
 
     /**

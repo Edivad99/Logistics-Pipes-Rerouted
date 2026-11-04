@@ -208,16 +208,16 @@ public class HSTubeGain extends CoreMultiBlockPipe {
 
     @Override
     @Nullable
-    public BlockEntity getConnectedEndTile(Direction output) {
+    public BlockEntity getBlockEntityAtExit(Direction output) {
         if (orientation.dir.getOpposite() == output) {
             return getContainer().getBlockEntity(output);
         } else {
             PositionRotation rotation = new PositionRotation();
             orientation.rotatePositions(rotation);
             BlockPos offset = rotation.apply(new BlockPos(0, 1, -3));
-            BlockEntity subTile = getLevel().getBlockEntity(getPos().offset(offset));
-            if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity genericSubMultiBlockBlockEntity) {
-                return genericSubMultiBlockBlockEntity.getTile(output);
+            if (getLevel().getBlockEntity(getPos().offset(offset))
+                instanceof LogisticsGenericSubMultiBlockBlockEntity subBlockEntity) {
+                return subBlockEntity.getBlockEntity(output);
             }
         }
         return null;

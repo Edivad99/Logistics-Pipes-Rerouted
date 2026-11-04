@@ -46,13 +46,13 @@ public class PipeChangeDetection {
                     && nextPipe.isChangeDetectionActive()) {
                     if (PipeInformationManager.isPipe(nextTile)) {
                         PipeInformationManager.getInformationProviderFor(nextTile)
-                            .refreshTileCacheOnSide(dir.getOpposite());
+                            .refreshNeighborCache(dir.getOpposite());
                     }
                     if (PipeInformationManager.isPipe(tile)) {
                         PipeInformationManager.getInformationProviderFor(tile)
-                            .refreshTileCacheOnSide(dir);
+                            .refreshNeighborCache(dir);
                         PipeInformationManager.getInformationProviderFor(tile)
-                            .refreshTileCacheOnSide(dir.getOpposite());
+                            .refreshNeighborCache(dir.getOpposite());
                     }
                     for (IBlockEntityChangeListener listener : new ArrayList<>(nextPipe.changeListeners)) {
                         listener.pipeAdded(pos, dir.getOpposite());
@@ -89,7 +89,7 @@ public class PipeChangeDetection {
                     && nextPipe.isChangeDetectionActive()) {
                     if (PipeInformationManager.isPipe(nextTile)) {
                         PipeInformationManager.getInformationProviderFor(nextTile)
-                            .refreshTileCacheOnSide(dir.getOpposite());
+                            .refreshNeighborCache(dir.getOpposite());
                     }
                 }
             }

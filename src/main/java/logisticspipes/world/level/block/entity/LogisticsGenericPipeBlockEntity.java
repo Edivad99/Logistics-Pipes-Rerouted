@@ -471,7 +471,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         throw new RuntimeException("This is no firewall pipe");
     }
 
-    public BlockEntity getTile() {
+    public BlockEntity getBlockEntity() {
         return this;
     }
 
@@ -511,11 +511,11 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     }
 
     @Override
-    public boolean canConnect(BlockEntity to, Direction direction, boolean flag) {
+    public boolean canConnect(BlockEntity to, Direction direction, boolean ignoreSystemDisconnection) {
         if (pipe == null) {
             return false;
         }
-        return pipe.canPipeConnect(to, direction, flag);
+        return pipe.canPipeConnect(to, direction, ignoreSystemDisconnection);
     }
 
     @Override
@@ -712,9 +712,9 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     @Override
     @Nullable
-    public BlockEntity getNextConnectedTile(Direction to) {
+    public BlockEntity getNextConnectedBlockEntity(Direction to) {
         if (this.pipe.isMultiBlock()) {
-            return ((CoreMultiBlockPipe) this.pipe).getConnectedEndTile(to);
+            return ((CoreMultiBlockPipe) this.pipe).getBlockEntityAtExit(to);
         }
         return getBlockEntity(to, false);
     }
@@ -807,7 +807,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     }
 
     @Override
-    public void refreshTileCacheOnSide(Direction side) {
+    public void refreshNeighborCache(Direction side) {
         TileBuffer[] cache = getTileCache();
         if (cache != null) {
             cache[side.ordinal()].refresh();

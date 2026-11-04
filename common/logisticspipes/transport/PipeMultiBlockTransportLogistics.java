@@ -91,7 +91,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 		BlockEntity tile = null;
 		if (getMultiPipe() != null) {
 			// Both callers stop an item without an exit before it gets here.
-			tile = getMultiPipe().getConnectedEndTile(
+			tile = getMultiPipe().getBlockEntityAtExit(
 				Objects.requireNonNull(item.output, "item reached the end of a tube without an exit"));
 		}
 		if (items.scheduleRemoval(item)) {
@@ -150,7 +150,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 	public CoreUnroutedPipe getNextPipe(Direction output) {
 		BlockEntity tile = null;
 		if (getMultiPipe() != null) {
-			tile = getMultiPipe().getConnectedEndTile(output);
+			tile = getMultiPipe().getBlockEntityAtExit(output);
 		}
 		if (tile instanceof LogisticsGenericSubMultiBlockBlockEntity) {
 			List<LogisticsGenericPipeBlockEntity> list = ((LogisticsGenericSubMultiBlockBlockEntity) tile).getMainPipe();

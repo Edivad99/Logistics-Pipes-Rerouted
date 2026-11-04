@@ -278,17 +278,17 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
         mainPipe = null;
     }
 
-    public BlockEntity getTile() {
+    public BlockEntity getBlockEntity() {
         return this;
     }
 
     @Nullable
-    public BlockEntity getTile(Direction to) {
-        return getTile(to, false);
+    public BlockEntity getBlockEntity(Direction to) {
+        return getBlockEntity(to, false);
     }
 
     @Nullable
-    public BlockEntity getTile(Direction to, boolean force) {
+    public BlockEntity getBlockEntity(Direction to, boolean force) {
         TileBuffer[] cache = getTileCache();
         if (cache != null) {
             if (force) {

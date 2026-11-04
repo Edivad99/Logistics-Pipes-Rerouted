@@ -127,7 +127,7 @@ public class HSTubeLine extends CoreMultiBlockPipe {
 
     @Override
     @Nullable
-    public BlockEntity getConnectedEndTile(Direction output) {
+    public BlockEntity getBlockEntityAtExit(Direction output) {
         if (output == this.orientation.dir || output.getOpposite() == this.orientation.dir) {
             return getContainer().getBlockEntity(output);
         }

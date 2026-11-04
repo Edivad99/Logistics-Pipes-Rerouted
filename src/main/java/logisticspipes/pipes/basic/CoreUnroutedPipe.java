@@ -150,7 +150,7 @@ public abstract class CoreUnroutedPipe {
         return container.getLevel();
     }
 
-    public boolean canPipeConnect(BlockEntity tile, Direction direction, boolean flag) {
+    public boolean canPipeConnect(BlockEntity tile, Direction direction, boolean ignoreSystemDisconnection) {
         return canPipeConnect(tile, direction);
     }
 
@@ -273,7 +273,7 @@ public abstract class CoreUnroutedPipe {
                 continue;
             }
             IPipeInformationProvider information = PipeInformationManager.getInformationProviderFor(
-                container.getNextConnectedTile(dir));
+                container.getNextConnectedBlockEntity(dir));
             if (information != null) {
                 BlockPos pos = information.getPos();
                 if (visited.contains(pos)) {

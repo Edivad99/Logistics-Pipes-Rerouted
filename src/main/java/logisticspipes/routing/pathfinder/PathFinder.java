@@ -214,7 +214,7 @@ public class PathFinder {
             }
 
             // tile may be up to 1 second old, but any neighbour pipe change will cause an immidiate update here, so we know that if it has changed, it isn't a pipe that has done so.
-            BlockEntity tile = startPipe.getNextConnectedTile(direction);
+            BlockEntity tile = startPipe.getNextConnectedBlockEntity(direction);
 
             if (tile == null) {
                 continue;
@@ -395,14 +395,14 @@ public class PathFinder {
         int dis = 1;
         BlockEntity tile = level.getBlockEntity(lpPosition);
         if (tile instanceof LogisticsGenericPipeBlockEntity) {
-            tile = ((LogisticsGenericPipeBlockEntity) tile).getNextConnectedTile(exitOrientation);
+            tile = ((LogisticsGenericPipeBlockEntity) tile).getNextConnectedBlockEntity(exitOrientation);
         }
         if (tile == null) {
             return 0;
         }
         IPipeInformationProvider info = PipeInformationManager.getInformationProviderFor(tile);
         while (info != null && !info.isRoutingPipe()) {
-            tile = info.getNextConnectedTile(exitOrientation);
+            tile = info.getNextConnectedBlockEntity(exitOrientation);
             if (tile == null) {
                 info = null;
                 continue;

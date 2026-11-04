@@ -214,16 +214,16 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
                     LogisticsGenericSubMultiBlockBlock.CURRENT_CREATED_MULTI_BLOCK = blockPos;
                     for (CoreMultiBlockPipe.SubBlock sub : mPipe.getRotatedSubBlocks()) {
                         final BlockPos subPos = sub.at(blockPos);
-                        BlockEntity subTile = level.getBlockEntity(subPos);
+                        BlockEntity subBlockEntity = level.getBlockEntity(subPos);
                         BlockState oldSubBlockState = level.getBlockState(subPos);
-                        if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
+                        if (subBlockEntity instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
                             multiBlock.addMultiBlockMainPos(blockPos);
                             multiBlock.addSubTypeTo(sub.type());
-                            TargetLookup.sendToChunkWatchers(subTile, multiBlock.getDescriptionMessage());
+                            TargetLookup.sendToChunkWatchers(subBlockEntity, multiBlock.getDescriptionMessage());
                         } else {
                             level.setBlock(subPos, LPBlocks.SUB_MULTIBLOCK.get().defaultBlockState(), 3);
-                            subTile = level.getBlockEntity(subPos);
-                            if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
+                            subBlockEntity = level.getBlockEntity(subPos);
+                            if (subBlockEntity instanceof LogisticsGenericSubMultiBlockBlockEntity multiBlock) {
                                 multiBlock.addSubTypeTo(sub.type());
                             }
                         }

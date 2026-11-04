@@ -226,7 +226,7 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
 
     @Override
     @Nullable
-    public BlockEntity getConnectedEndTile(Direction output) {
+    public BlockEntity getBlockEntityAtExit(Direction output) {
         boolean useOwn;
         if (!BlockPos.ZERO.equals(orientation.getOffset())) {
             if (orientation.dir.getOpposite() == output) {
@@ -251,9 +251,9 @@ public class HSTubeSCurve extends CoreMultiBlockPipe {
             PositionRotation rotation = new PositionRotation();
             orientation.rotatePositions(rotation);
             BlockPos offset = rotation.apply(new BlockPos(1, 0, -3));
-            BlockEntity subTile = getLevel().getBlockEntity(getPos().offset(offset));
-            if (subTile instanceof LogisticsGenericSubMultiBlockBlockEntity genericSubMultiBlockBlockEntity) {
-                return genericSubMultiBlockBlockEntity.getTile(output);
+            if (getLevel().getBlockEntity(getPos().offset(offset))
+                instanceof LogisticsGenericSubMultiBlockBlockEntity subBlockEntity) {
+                return subBlockEntity.getBlockEntity(output);
             }
         }
         return null;

@@ -124,11 +124,11 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
             if (mayUse.test(target) && level.isEmptyBlock(target)) {
                 continue;
             }
-            if (!(level.getBlockEntity(target) instanceof LogisticsGenericSubMultiBlockBlockEntity subTile)
-                || !canShare(subTile.getSubTypes(), block.type())) {
+            if (!(level.getBlockEntity(target) instanceof LogisticsGenericSubMultiBlockBlockEntity subBlockEntity)
+                || !canShare(subBlockEntity.getSubTypes(), block.type())) {
                 return false;
             }
-            subTile.getConnectedMainPipes()
+            subBlockEntity.getConnectedMainPipes()
                 .forEach(main -> sharedWith.merge(main.getBlockPos(), 1, Integer::sum));
         }
         return sharedWith.values().stream().allMatch(shared -> shared <= 2);
@@ -167,8 +167,17 @@ public abstract class CoreMultiBlockPipe extends CoreUnroutedPipe {
 
     public abstract @Nullable Direction getExitForInput(Direction comingFrom);
 
+    /**
+     * The block entity placed right after the end of this tube that points towards {@code output}.
+     *
+     * <p>A tube has two ends. Items that leave the tube through the end pointing towards
+     * {@code output} go into the block entity this returns, usually the next tube.
+     *
+     * @return null if neither end of this tube points towards {@code output}, or if there is no
+     *     block entity after that end
+     */
     @Nullable
-    public abstract BlockEntity getConnectedEndTile(Direction output);
+    public abstract BlockEntity getBlockEntityAtExit(Direction output);
 
     @Override
     public abstract boolean actAsNormalPipe();

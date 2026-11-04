@@ -91,7 +91,7 @@ public class BlockChangeListener {
                 // dir goes from changed → adjacent; from adjacent's perspective
                 // the changed block is in direction dir.getOpposite().
                 PipeInformationManager.getInformationProviderFor(adjacentTE)
-                    .refreshTileCacheOnSide(dir.getOpposite());
+                    .refreshNeighborCache(dir.getOpposite());
             }
         }
     }
