@@ -168,7 +168,7 @@ public class SecurityStationScreen extends LogisticsBaseGuiScreen<SecurityStatio
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 175);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 11, topPos + 176);
         LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 81, topPos + 140);
 
         addition = (minecraft.font.width(searchBar.getValue()) - 82);

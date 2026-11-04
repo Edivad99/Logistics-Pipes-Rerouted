@@ -67,7 +67,7 @@ public class LogisticsCraftingTableScreen extends LogisticsBaseGuiScreen<AutoCra
                 LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 7 + x * 18, topPos + 79 + y * 18);
             }
         }
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 8, topPos + 135);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 9, topPos + 136);
 
         @Nullable ItemIdentifierStack[] items = new ItemIdentifierStack[9];
         for (int i = 0; i < 9; i++) {

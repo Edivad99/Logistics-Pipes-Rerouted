@@ -61,7 +61,7 @@ public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
 		}
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 20, right, bottom, 0.0f, true);
 		LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * current_Tab) + 2, topPos - 2, leftPos + 27 + (25 * current_Tab), topPos + 38, 0.0f, true, true, true, false, true);
-		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 135);
+		LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 11, topPos + 136);
 
 		int x = 6;
 		for (TabSubGui aTabList : tabList) {

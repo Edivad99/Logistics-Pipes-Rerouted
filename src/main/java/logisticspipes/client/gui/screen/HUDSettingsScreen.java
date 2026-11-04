@@ -60,8 +60,8 @@ public class HUDSettingsScreen extends LogisticsBaseGuiScreen<HudSettingsMenu> {
             minecraft.player.closeContainer();
         }
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-        LPGuiGraphics.drawPlayerHotbarBackground(guiGraphics, leftPos + 10, topPos + 134);
-        LPGuiGraphics.drawPlayerArmorBackground(guiGraphics, leftPos + 10, topPos + 65);
+        LPGuiGraphics.drawPlayerHotbarBackground(guiGraphics, leftPos + 11, topPos + 135);
+        LPGuiGraphics.drawPlayerArmorBackground(guiGraphics, leftPos + 11, topPos + 66);
     }
 
     @Override

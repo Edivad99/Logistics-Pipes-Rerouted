@@ -105,7 +105,7 @@ public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 135);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 11, topPos + 136);
         guiGraphics.fill(leftPos + 9, topPos + 78, leftPos + 170, topPos + 132, Color.getValue(Color.GREY));
     }
 

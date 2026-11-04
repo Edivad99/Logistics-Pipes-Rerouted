@@ -203,7 +203,7 @@ public class ProgramCompilerScreen extends LogisticsBaseGuiScreen<ProgramCompile
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int var2, int var3, float var1) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 105);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 11, topPos + 106);
         LPGuiGraphics.drawSlotDiskBackground(guiGraphics, leftPos + 9, topPos + 9);
         LPGuiGraphics.drawSlotProgrammerBackground(guiGraphics, leftPos + 153, topPos + 9);
 

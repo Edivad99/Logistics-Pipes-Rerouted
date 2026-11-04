@@ -74,26 +74,26 @@ public final class LPGuiGraphics {
         //Player "backpack"
         for (int row = 0; row < 3; row++) {
             for (int column = 0; column < 9; column++) {
-                LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + column * 18, yOffset + row * 18);
+                LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + column * 18 - 1, yOffset + row * 18 - 1);
             }
         }
         //Player "hotbar"
         for (int i1 = 0; i1 < 9; i1++) {
-            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + i1 * 18, yOffset + 58);
+            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + i1 * 18 - 1, yOffset + 58 - 1);
         }
     }
 
     public static void drawPlayerHotbarBackground(GuiGraphicsExtractor guiGraphics, int xOffset, int yOffset) {
         //Player "hotbar"
         for (int i1 = 0; i1 < 9; i1++) {
-            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + i1 * 18, yOffset);
+            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset + i1 * 18 - 1, yOffset - 1);
         }
     }
 
     public static void drawPlayerArmorBackground(GuiGraphicsExtractor guiGraphics, int xOffset, int yOffset) {
         //Player "armor"
         for (int i1 = 0; i1 < 4; i1++) {
-            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset, yOffset - i1 * 18);
+            LPGuiGraphics.drawSlotBackground(guiGraphics, xOffset - 1, yOffset - 1 - i1 * 18);
         }
     }
 

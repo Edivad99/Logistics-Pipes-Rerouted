@@ -397,7 +397,7 @@ public class CraftingPipeScreen extends ModuleBaseScreen<CraftingModuleMenu> {
         } else {
             LPGuiGraphics.drawBigSlotBackground(guiGraphics, leftPos + 80, topPos + 100);
         }
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 8, topPos + panelHeight - 82);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 9, topPos + panelHeight - 81);
 
         super.renderExtensions(guiGraphics);
     }

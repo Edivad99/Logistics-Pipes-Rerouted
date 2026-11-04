@@ -16,7 +16,7 @@ public class ItemAmountSignCreationScreen extends LogisticsBaseGuiScreen<ItemAmo
     @Override
     protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int i, int j, float f) {
         LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos, right, bottom, 0.0f, true);
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 10, topPos + 40);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 11, topPos + 41);
         LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 9, topPos + 12);
     }
 }

@@ -255,7 +255,7 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
             guiGraphics.fill(leftPos + 164 + a, topPos + 65 - a, leftPos + 166 + a, topPos + 67 - a,
                 Color.getValue(Color.DARKER_GREY));
         }
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 20, topPos + 150);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 21, topPos + 151);
         for (final Entry<Integer, WatchedRequest> entry : table.watchedRequests.entrySet()) {
             if (!handledExtension.get(entry.getKey())) {
                 handledExtension.set(entry.getKey());

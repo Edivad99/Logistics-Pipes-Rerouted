@@ -115,7 +115,7 @@ public class ProviderScreen extends ModuleBaseScreen<ProviderMenu> {
                     topPos + FILTER_Y + row * SLOT_SIZE);
             }
         }
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 7, topPos + PLAYER_INVENTORY_Y);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 8, topPos + PLAYER_INVENTORY_Y + 1);
     }
 
     /**

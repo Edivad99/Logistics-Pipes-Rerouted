@@ -133,8 +133,8 @@ public class ChassisPipeScreen extends LogisticsBaseGuiScreen<ChassisMenu> {
             LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 17, topPos + 8 + 20 * i);
         }
 
-        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 18,
-            topPos + 9 + 20 * chassisPipe.getChassisSize());
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 19,
+            topPos + 10 + 20 * chassisPipe.getChassisSize());
 
         if (hasUpgradeModuleUpgrade) {
             for (int i = 0; i < chassisPipe.getChassisSize(); i++) {
