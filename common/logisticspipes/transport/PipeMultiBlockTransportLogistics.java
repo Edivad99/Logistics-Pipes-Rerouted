@@ -1,6 +1,7 @@
 package logisticspipes.transport;
 
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -89,7 +90,9 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 	protected void reachedEnd(LPTravelingItem item) {
 		BlockEntity tile = null;
 		if (getMultiPipe() != null) {
-			tile = getMultiPipe().getConnectedEndTile(item.output);
+			// Both callers stop an item without an exit before it gets here.
+			tile = getMultiPipe().getConnectedEndTile(
+				Objects.requireNonNull(item.output, "item reached the end of a tube without an exit"));
 		}
 		if (items.scheduleRemoval(item)) {
 			if (!container.getLevel().isClientSide()) {

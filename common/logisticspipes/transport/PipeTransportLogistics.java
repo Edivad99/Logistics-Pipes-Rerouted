@@ -255,7 +255,16 @@ public class PipeTransportLogistics {
 		}
 
 		if (item.getPosition() >= getPipeLength()) {
-			reachedEnd(item);
+			// The leftover position from the previous pipe can already be past this one's end.
+			// Without an exit, which is always the case for a client copy, handle it the way
+			// moveSolids does instead of asking for the tile on a null side.
+			if (item.output == null) {
+				if (!getWorld().isClientSide()) {
+					dropItem((LPTravelingItemServer) item);
+				}
+			} else {
+				reachedEnd(item);
+			}
 		} else {
 			items.add(item);
 
