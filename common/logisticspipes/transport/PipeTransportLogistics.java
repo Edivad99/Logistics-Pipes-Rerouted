@@ -328,7 +328,7 @@ public class PipeTransportLogistics {
 		}
 	}
 
-	public RoutingResult resolveDestination(LPTravelingItemServer data) {
+	RoutingResult resolveDestination(LPTravelingItemServer data) {
 		if (isRouted) {
 			return resolveRoutedDestination(data);
 		} else {
@@ -336,7 +336,7 @@ public class PipeTransportLogistics {
 		}
 	}
 
-	public RoutingResult resolveUnroutedDestination(LPTravelingItemServer data) {
+	RoutingResult resolveUnroutedDestination(LPTravelingItemServer data) {
 		List<Direction> dirs = new ArrayList<>(Arrays.asList(Direction.values()));
 		dirs.remove(data.input.getOpposite());
 		Iterator<Direction> iter = dirs.iterator();
@@ -359,7 +359,7 @@ public class PipeTransportLogistics {
 		return new RoutingResult(dirs.get(num), true);
 	}
 
-	public RoutingResult resolveRoutedDestination(LPTravelingItemServer data) {
+	RoutingResult resolveRoutedDestination(LPTravelingItemServer data) {
 
 		Direction blocked = null;
 

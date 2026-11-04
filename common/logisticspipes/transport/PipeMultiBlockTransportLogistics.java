@@ -79,7 +79,7 @@ public class PipeMultiBlockTransportLogistics extends PipeTransportLogistics {
 	}
 
 	@Override
-	public RoutingResult resolveDestination(LPTravelingItemServer data) {
+	RoutingResult resolveDestination(LPTravelingItemServer data) {
 		if (getMultiPipe() == null) {
 			return new RoutingResult(null, false);
 		}

@@ -21,7 +21,7 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.particle.Particles;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.textures.PipeTexture;
-import logisticspipes.transport.EntrencsTransport;
+import logisticspipes.transport.SystemEntranceTransport;
 import logisticspipes.utils.item.ItemIdentifierInventory;
 import logisticspipes.world.inventory.FreqCardMenu;
 import logisticspipes.world.item.component.LPDataComponents;
@@ -31,18 +31,15 @@ public class PipeItemsSystemEntranceLogistics extends CoreRoutedPipe implements 
     public ItemIdentifierInventory inv = new ItemIdentifierInventory(1, "Freq Slot", 1);
 
     public PipeItemsSystemEntranceLogistics(Item item) {
-        super(new EntrencsTransport(), item);
-        ((EntrencsTransport) transport).pipe = this;
+        super(new SystemEntranceTransport(), item);
     }
 
     @Nullable
     public UUID getLocalFreqUUID() {
         UUID uuid = inv.getItem(0).get(LPDataComponents.UUID);
-        if (uuid == null) {
-            return null;
+        if (uuid != null) {
+            spawnParticle(Particles.WHITE_SPARKLE, 2);
         }
-
-        spawnParticle(Particles.WHITE_SPARKLE, 2);
         return uuid;
     }
 
