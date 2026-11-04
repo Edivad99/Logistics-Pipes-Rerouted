@@ -35,12 +35,12 @@ import logisticspipes.network.to_server.block.RequestTrackableItemsMessage;
 import logisticspipes.network.to_server.block.TrackItemMessage;
 import logisticspipes.util.TrackingTask;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.inventory.StatisticsMenu;
 import logisticspipes.world.level.block.entity.LogisticsStatisticsBlockEntity;
 
@@ -291,7 +291,7 @@ public class StatisticsScreen extends LogisticsBaseGuiScreen<StatisticsMenu> {
                     }
                     LPGuiGraphics.drawSlotBackground(guiGraphics, leftPos + 10, topPos + 99);
                     guiGraphics.item(task.item.makeNormalStack(1), leftPos + 12, topPos + 101);
-                    taskNameLabel = StringUtils.getWithMaxWidth(task.item.getFriendlyName(), 136, font);
+                    taskNameLabel = TextUtil.getTrimmedString(task.item.getFriendlyName(), 136, font);
 
                     int xOrigo = xCenter - 72;
                     int yOrigo = yCenter + 90;

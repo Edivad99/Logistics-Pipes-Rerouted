@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -35,7 +36,6 @@ import logisticspipes.utils.gui.SimpleGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.SubGuiScreen;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.string.ChatColor;
 
 public class RequestMonitorPopup extends SubGuiScreen {
 
@@ -407,8 +407,8 @@ public class RequestMonitorPopup extends SubGuiScreen {
                 if (guiLeft < par1 && par1 < guiLeft + xSize - 16 && guiTop < par2 && par2 < guiTop + ySize - 16) {
                     IOrderInfoProvider order = aList;
                     List<String> tooltipList = new ArrayList<>();
-                    tooltipList.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
-                    tooltipList.add(ChatColor.BLUE + "Send to Router ID: " + ChatColor.YELLOW + order.getRouterId());
+                    tooltipList.add(ChatFormatting.BLUE + "Request Type: " + ChatFormatting.YELLOW + order.getType().name());
+                    tooltipList.add(ChatFormatting.BLUE + "Send to Router ID: " + ChatFormatting.YELLOW + order.getRouterId());
                     // The display item and the constant `true` that the old Object[] also carried
                     // were never read back by the renderer, so they are gone.
                     tooltip = new OrderTooltip((int) (par1 * zoom.zoom - 10), (int) (par2 * zoom.zoom), tooltipList);

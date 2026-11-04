@@ -55,20 +55,4 @@ public enum Color {
 	public static int getValue(Color color) {
 		return color.colorValue;
 	}
-
-	public static float getAlpha(int colorValue) {
-		return (colorValue >> 24 & 255) / 255.0F;
-	}
-
-	public static float getRed(int colorValue) {
-		return (colorValue >> 16 & 255) / 255.0F;
-	}
-
-	public static float getGreen(int colorValue) {
-		return (colorValue >> 8 & 255) / 255.0F;
-	}
-
-	public static float getBlue(int colorValue) {
-		return (colorValue & 255) / 255.0F;
-	}
 }

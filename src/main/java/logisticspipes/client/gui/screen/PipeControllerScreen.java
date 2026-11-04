@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.core.BlockPos;
@@ -26,14 +27,13 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.request.order.IOrderInfoProvider;
 import logisticspipes.security.ClientAuthorizations;
 import logisticspipes.utils.Color;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.ItemDisplay;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.LogisticsBaseTabGuiScreen;
 import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.string.ChatColor;
-import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.inventory.PipeControllerMenu;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
@@ -177,14 +177,14 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
                 guiGraphics.text(font, "Id: ", 10, 68, Color.getValue(Color.DARKER_GREY), false);
                 // A whole id is wider than the screen, so it is broken after its third group.
                 String[] groups = id.toString().split("-");
-                guiGraphics.text(font, ChatColor.BLUE + groups[0] + "-" + groups[1] + "-" + groups[2] + "-",
+                guiGraphics.text(font, ChatFormatting.BLUE + groups[0] + "-" + groups[1] + "-" + groups[2] + "-",
                     10, 80, Color.getValue(Color.DARKER_GREY), false);
-                guiGraphics.text(font, ChatColor.BLUE + groups[3] + "-" + groups[4],
+                guiGraphics.text(font, ChatFormatting.BLUE + groups[3] + "-" + groups[4],
                     10, 90, Color.getValue(Color.DARKER_GREY), false);
                 guiGraphics.text(font,
                     "Authorization: " + (ClientAuthorizations.isAuthorized(id) ?
-                        ChatColor.GREEN + "Authorized" :
-                        ChatColor.RED + "Unauthorized"), 10, 104, Color.getValue(Color.DARKER_GREY), false);
+                        ChatFormatting.GREEN + "Authorized" :
+                        ChatFormatting.RED + "Unauthorized"), 10, 104, Color.getValue(Color.DARKER_GREY), false);
             }
         }
     }
@@ -220,7 +220,7 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
 
             drawRightAligned(guiGraphics, Translations.Screen.PIPE_CONTROLLER_ROUTING_TABLE_SIZE, 110, 110);
 
-            String s = StringUtils.getStringWithSpacesFromLong(pipe.serverRoutingTableSize);
+            String s = TextUtil.formatNumberWithCommas(pipe.serverRoutingTableSize);
             guiGraphics.text(font, s, 130 - font.width(s) / 2, 110, 0xFF303030, false);
         }
 
@@ -232,7 +232,7 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
         }
 
         private void drawCount(GuiGraphicsExtractor guiGraphics, long count, int xCenter, int y) {
-            String s = StringUtils.getStringWithSpacesFromLong(count);
+            String s = TextUtil.formatNumberWithCommas(count);
             guiGraphics.text(font, s, xCenter - font.width(s) / 2, y, 0xFF303030, false);
         }
 

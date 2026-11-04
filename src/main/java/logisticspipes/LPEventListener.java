@@ -68,7 +68,6 @@ import logisticspipes.routing.item.ItemRoutingInformation;
 import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
-import logisticspipes.utils.string.ChatColor;
 import logisticspipes.world.attachment.LPAttachmentTypes;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
@@ -331,9 +330,9 @@ public class LPEventListener {
                     ItemRoutingInformation.restoreFromNBT(TagValueInput.create(ProblemReporter.DISCARDING,
                         event.getEntity().registryAccess(), tag.getCompoundOrEmpty(key)));
                 List<Component> list = event.getToolTip();
-                list.set(0, Component.literal(ChatColor.RED + "!!! " + ChatColor.WHITE)
+                list.set(0, Component.literal(ChatFormatting.RED + "!!! " + ChatFormatting.WHITE)
                     .append(list.get(0))
-                    .append(Component.literal(ChatColor.RED + " !!!" + ChatColor.WHITE)));
+                    .append(Component.literal(ChatFormatting.RED + " !!!" + ChatFormatting.WHITE)));
                 list.add(1,
                     Component.translatable(Translations.Tooltip.ROUTED_ITEM).withStyle(ChatFormatting.RED));
                 list.add(2,

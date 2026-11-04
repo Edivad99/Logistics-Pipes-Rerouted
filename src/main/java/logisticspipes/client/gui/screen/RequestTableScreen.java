@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
@@ -70,7 +71,6 @@ import logisticspipes.utils.gui.SmallGuiButton;
 import logisticspipes.utils.gui.extension.GuiExtension;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.string.ChatColor;
 import logisticspipes.world.inventory.RequestTableMenu;
 import logisticspipes.world.item.LPItems;
 
@@ -386,8 +386,8 @@ public class RequestTableScreen extends LogisticsBaseGuiScreen<RequestTableMenu>
                                     && yPos >= key.y() && yPos < key.y() + 18).forEach(key -> {
                                     IOrderInfoProvider order = ordererPosition.get(key);
                                     List<String> list = new ArrayList<>();
-                                    list.add(ChatColor.BLUE + "Request Type: " + ChatColor.YELLOW + order.getType().name());
-                                    list.add(ChatColor.BLUE + "Send to Router ID: " + ChatColor.YELLOW + order
+                                    list.add(ChatFormatting.BLUE + "Request Type: " + ChatFormatting.YELLOW + order.getType().name());
+                                    list.add(ChatFormatting.BLUE + "Send to Router ID: " + ChatFormatting.YELLOW + order
                                         .getRouterId());
                                     guiGraphics.setComponentTooltipForNextFrame(font,
                                         list.stream().map(Component::literal).collect(Collectors.toList()), xPos, yPos);

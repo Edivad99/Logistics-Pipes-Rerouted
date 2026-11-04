@@ -2,6 +2,7 @@ package logisticspipes.request.resources;
 
 import java.util.Objects;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -11,7 +12,6 @@ import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.routing.IRouter;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.string.ChatColor;
 
 public class ItemResource implements IResource {
 
@@ -110,11 +110,11 @@ public class ItemResource implements IResource {
     public String getDisplayText(ColorCode code) {
         StringBuilder builder = new StringBuilder();
         if (code != ColorCode.NONE) {
-            builder.append(code == ColorCode.MISSING ? ChatColor.RED : ChatColor.GREEN);
+            builder.append(code == ColorCode.MISSING ? ChatFormatting.RED : ChatFormatting.GREEN);
         }
         builder.append(stack.getFriendlyName());
         if (code != ColorCode.NONE) {
-            builder.append(ChatColor.WHITE);
+            builder.append(ChatFormatting.WHITE);
         }
         return builder.toString();
     }

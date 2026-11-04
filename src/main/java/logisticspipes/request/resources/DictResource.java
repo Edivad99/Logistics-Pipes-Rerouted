@@ -3,6 +3,7 @@ package logisticspipes.request.resources;
 import java.util.BitSet;
 import java.util.Objects;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,7 +16,6 @@ import logisticspipes.utils.FuzzyFlag;
 import logisticspipes.utils.FuzzyUtil;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.string.ChatColor;
 
 public class DictResource implements IResource {
 
@@ -148,31 +148,31 @@ public class DictResource implements IResource {
     @Override
     public String getDisplayText(ColorCode code) {
         StringBuilder builder = new StringBuilder();
-        builder.append(ChatColor.GRAY);
+        builder.append(ChatFormatting.GRAY);
         builder.append("{");
         if (code != ColorCode.NONE) {
-            builder.append(code == ColorCode.MISSING ? ChatColor.RED : ChatColor.GREEN);
+            builder.append(code == ColorCode.MISSING ? ChatFormatting.RED : ChatFormatting.GREEN);
         }
         builder.append(stack.getFriendlyName());
         if (code != ColorCode.NONE) {
-            builder.append(ChatColor.GRAY);
+            builder.append(ChatFormatting.GRAY);
         }
         builder.append(" [");
-        builder.append(useOreDict() ? ChatColor.GREEN : ChatColor.RED);
+        builder.append(useOreDict() ? ChatFormatting.GREEN : ChatFormatting.RED);
         builder.append("OreDict");
-        builder.append(ChatColor.GRAY);
+        builder.append(ChatFormatting.GRAY);
         builder.append(", ");
-        builder.append(useOreCategory() ? ChatColor.GREEN : ChatColor.RED);
+        builder.append(useOreCategory() ? ChatFormatting.GREEN : ChatFormatting.RED);
         builder.append("OreCat");
-        builder.append(ChatColor.GRAY);
+        builder.append(ChatFormatting.GRAY);
         builder.append(", ");
-        builder.append(ignoreDamage() ? ChatColor.GREEN : ChatColor.RED);
+        builder.append(ignoreDamage() ? ChatFormatting.GREEN : ChatFormatting.RED);
         builder.append("IgnDmg");
-        builder.append(ChatColor.GRAY);
+        builder.append(ChatFormatting.GRAY);
         builder.append(", ");
-        builder.append(ignoreNBT() ? ChatColor.GREEN : ChatColor.RED);
+        builder.append(ignoreNBT() ? ChatFormatting.GREEN : ChatFormatting.RED);
         builder.append("IgnNBT");
-        builder.append(ChatColor.GRAY);
+        builder.append(ChatFormatting.GRAY);
         return builder.append("]}").toString();
     }
 

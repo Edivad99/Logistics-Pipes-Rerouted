@@ -42,7 +42,6 @@ import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.laser.ILaserPainter;
 import logisticspipes.routing.laser.LaserData;
 import logisticspipes.routing.pathfinder.changedetection.IBlockEntityChangeListener;
-import logisticspipes.utils.OneList;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
 /**
@@ -235,7 +234,7 @@ public class PathFinder {
                     //If we are a FireWall pipe add our filter to the pipes
                     if (startPipe.isFirewallPipe()) {
                         powerNodes.add(new FilteredRoute<>((ILogisticsPowerProvider) tile,
-                            new OneList<>(startPipe.getFirewallFilter())));
+                            List.of(startPipe.getFirewallFilter())));
                     } else {
                         powerNodes.add(new FilteredRoute<>((ILogisticsPowerProvider) tile,
                             Collections.unmodifiableList(new ArrayList<>(0))));
@@ -247,7 +246,7 @@ public class PathFinder {
                     //If we are a FireWall pipe add our filter to the pipes
                     if (startPipe.isFirewallPipe()) {
                         subPowerProvider.add(new FilteredRoute<>((ISubSystemPowerProvider) tile,
-                            new OneList<>(startPipe.getFirewallFilter())));
+                            List.of(startPipe.getFirewallFilter())));
                     } else {
                         subPowerProvider.add(new FilteredRoute<>((ISubSystemPowerProvider) tile,
                             Collections.unmodifiableList(new ArrayList<>(0))));
@@ -382,7 +381,7 @@ public class PathFinder {
         //If we are a FireWall pipe add our filter to the pipes
         if (startPipe.isFirewallPipe() && root) {
             for (ExitRoute e : foundPipes.values()) {
-                e.filters = new OneList<>(startPipe.getFirewallFilter());
+                e.filters = List.of(startPipe.getFirewallFilter());
             }
         }
         return foundPipes;

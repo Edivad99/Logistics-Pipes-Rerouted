@@ -2,6 +2,7 @@ package logisticspipes.request.resources;
 
 import java.util.Objects;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,7 +15,6 @@ import logisticspipes.routing.IRouter;
 import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
-import logisticspipes.utils.string.ChatColor;
 
 public class FluidResource implements IResource {
 
@@ -100,13 +100,13 @@ public class FluidResource implements IResource {
     public String getDisplayText(ColorCode code) {
         StringBuilder builder = new StringBuilder();
         if (code != ColorCode.NONE) {
-            builder.append(code == ColorCode.MISSING ? ChatColor.RED : ChatColor.GREEN);
+            builder.append(code == ColorCode.MISSING ? ChatFormatting.RED : ChatFormatting.GREEN);
         }
         builder.append(amount);
         builder.append("mB ");
         builder.append(liquid.makeFluidStack(1).getHoverName().getString());
         if (code != ColorCode.NONE) {
-            builder.append(ChatColor.WHITE);
+            builder.append(ChatFormatting.WHITE);
         }
         return builder.toString();
     }

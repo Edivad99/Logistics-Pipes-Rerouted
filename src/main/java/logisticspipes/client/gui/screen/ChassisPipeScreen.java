@@ -17,9 +17,9 @@ import logisticspipes.modules.LogisticsModule;
 import logisticspipes.network.to_server.module.OpenChassisModuleGuiMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.pipes.PipeLogisticsChassis;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.utils.gui.LPGuiGraphics;
 import logisticspipes.utils.gui.SmallGuiButton;
-import logisticspipes.utils.string.StringUtils;
 import logisticspipes.world.inventory.ChassisMenu;
 import logisticspipes.world.item.ItemModule;
 
@@ -123,7 +123,7 @@ public class ChassisPipeScreen extends LogisticsBaseGuiScreen<ChassisMenu> {
         if (!hasUpgradeModuleUpgrade) {
             return name;
         }
-        return StringUtils.getWithMaxWidth(name, 100, font);
+        return TextUtil.getTrimmedString(name, 100, font);
     }
 
     @Override

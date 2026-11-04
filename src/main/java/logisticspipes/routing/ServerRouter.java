@@ -68,7 +68,6 @@ import logisticspipes.routing.pathfinder.changedetection.IBlockEntityChangeListe
 import logisticspipes.ticks.LPTickHandler;
 import logisticspipes.ticks.RoutingTableUpdateThread;
 import logisticspipes.utils.CacheHolder.CacheTypes;
-import logisticspipes.utils.OneList;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -912,7 +911,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
         while (simpleID >= routeTable.size()) {
             routeTable.add(null);
         }
-        routeTable.set(simpleID, new OneList<>(new ExitRoute(this, this, null, null, 0, EnumSet
+        routeTable.set(simpleID, List.of(new ExitRoute(this, this, null, null, 0, EnumSet
             .allOf(PipeRoutingConnectionType.class), 0)));
 
         for (ExitRoute node : routeCosts) {
@@ -934,7 +933,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
                 list.add(node);
                 routeTable.set(node.destination.getSimpleID(), Collections.unmodifiableList(list));
             } else {
-                routeTable.set(node.destination.getSimpleID(), new OneList<>(node));
+                routeTable.set(node.destination.getSimpleID(), List.of(node));
             }
         }
         debug.stepTwoDone();

@@ -8,7 +8,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 import logisticspipes.LPConstants;
 import logisticspipes.Translations;
-import logisticspipes.utils.string.StringUtils;
+import logisticspipes.utils.TextUtil;
 import logisticspipes.world.inventory.PowerProviderMenu;
 import logisticspipes.world.level.block.entity.LogisticsPowerProviderBlockEntity;
 
@@ -41,10 +41,10 @@ public class PowerProviderScreen extends LogisticsBaseGuiScreen<PowerProviderMen
         guiGraphics.text(minecraft.font, Component.translatable(Translations.Screen.STORED_ENERGY).append(":"), 40, 25,
             0xFF404040, false);
         guiGraphics.text(minecraft.font,
-            StringUtils.getStringWithSpacesFromInteger(junction.getDisplayPowerLevel()) + " FE", 40, 35, 0xFF404040,
+            TextUtil.formatNumberWithCommas(junction.getDisplayPowerLevel()) + " FE", 40, 35, 0xFF404040,
             false);
         guiGraphics.text(minecraft.font,
-            "/ " + StringUtils.getStringWithSpacesFromInteger(junction.getMaxStorage()) + " FE", 40, 45, 0xFF404040,
+            "/ " + TextUtil.formatNumberWithCommas(junction.getMaxStorage()) + " FE", 40, 45, 0xFF404040,
             false);
     }
 }
