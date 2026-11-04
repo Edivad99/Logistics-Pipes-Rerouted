@@ -17,6 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -92,7 +93,7 @@ public class PipeTransportLogistics {
 	private static final String TRAVELING_ITEMS_KEY = "travelingEntities";
 	private static final String BUFFER_KEY = "buffercontents";
 
-	private final int bufferTimeOut = 20 * 2; // 2 Seconds
+	private final int bufferTimeOut = SharedConstants.TICKS_PER_SECOND * 2; // 2 Seconds
 	/**
 	 * What is waiting to be retried. The client's copy, which {@link #setClientItemBuffer} fills for
 	 * display, only has the stacks: the tick loop that reads the rest is server-only.
