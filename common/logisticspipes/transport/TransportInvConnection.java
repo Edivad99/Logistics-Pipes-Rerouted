@@ -1,45 +1,39 @@
 package logisticspipes.transport;
 
-import java.util.Objects;
-
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
-
-import net.neoforged.neoforge.capabilities.Capabilities;
 
 import logisticspipes.pipes.PipeItemsInvSysConnector;
 import logisticspipes.routing.item.ItemRoutingInformation;
-import logisticspipes.utils.OrientationsUtil;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
+/**
+ * The transport of the Inventory System Connector: tells the connector about every item it puts
+ * into its inventory, so the connector can pick it up again on the far side of its channel.
+ */
 public class TransportInvConnection extends PipeTransportLogistics {
 
-	public TransportInvConnection() {
-		super(true);
-	}
+    public TransportInvConnection() {
+        super(true);
+    }
 
-	@Override
-	protected boolean isItemUnwanted(ItemIdentifierStack stack) {
-		return false;
-	}
+    /**
+     * Lets fluid containers and other items that may not stay in a normal inventory through: the
+     * inventory is only a bridge, and the connector at the other end of the channel takes them out
+     * again. Any other pipe destroys them instead of inserting them.
+     */
+    @Override
+    protected boolean isItemUnwanted(ItemIdentifierStack stack) {
+        return false;
+    }
 
-	@Override
-	protected void inventorySystemConnectorHook(ItemRoutingInformation info, BlockEntity tile) {
-		if (tile == null) {
-			return;
-		}
-
-		final Direction orientationOfTilewithTile = OrientationsUtil.getOrientationOfTilewithTile(getPipe().getContainer(), tile);
-		Objects.requireNonNull(orientationOfTilewithTile, "Could not get direction from pipe and tile entity");
-
-		var level = tile.getLevel();
-		if (level != null)
-		{
-			var itemHandler = level.getCapability(Capabilities.Item.BLOCK, tile.getBlockPos(), orientationOfTilewithTile.getOpposite());
-			if (itemHandler != null)
-			{
-				((PipeItemsInvSysConnector) container.pipe).handleItemEnterInv(info, tile);
-			}
-		}
-	}
+    /**
+     * Called once the item is in the inventory, so there is a handler there; the connector checks
+     * itself that the inventory is one it is connected to.
+     */
+    @Override
+    protected void inventorySystemConnectorHook(ItemRoutingInformation info, BlockEntity blockEntity) {
+        if (getPipe() instanceof PipeItemsInvSysConnector connector) {
+            connector.handleItemEnterInv(info, blockEntity);
+        }
+    }
 }

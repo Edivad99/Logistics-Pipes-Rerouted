@@ -597,11 +597,11 @@ public class PipeTransportLogistics {
 	/**
 	 * @return true, if every item has been inserted and otherwise false.
 	 */
-	private boolean insertArrivingItem(LPTravelingItemServer arrivingItem, BlockEntity tile, @Nullable Direction insertion) {
+	private boolean insertArrivingItem(LPTravelingItemServer arrivingItem, BlockEntity blockEntity, @Nullable Direction insertion) {
 		// A sneaky upgrade points at a side of its own choosing, which need not be the side the item
 		// arrived from -- and a block can expose an item handler on one face and not another. No
 		// handler there means nothing was inserted, so the caller moves on to the next side.
-		final ITransactor transactor = InventoryUtilFactory.get().getTransactor(tile, insertion);
+		final ITransactor transactor = InventoryUtilFactory.get().getTransactor(blockEntity, insertion);
 		if (transactor == null) {
 			return false;
 		}
@@ -624,7 +624,7 @@ public class PipeTransportLogistics {
 			info.getItem().setStackSize(added.getCount());
 		}
 
-		inventorySystemConnectorHook(info, tile);
+		inventorySystemConnectorHook(info, blockEntity);
 
 		// back to normal code, break if we've inserted everything, all items disposed of.
 		return !isSplitStack;
@@ -644,7 +644,7 @@ public class PipeTransportLogistics {
 		return false;
 	}
 
-	protected void inventorySystemConnectorHook(ItemRoutingInformation info, BlockEntity tile) {}
+	protected void inventorySystemConnectorHook(ItemRoutingInformation info, BlockEntity blockEntity) {}
 
 	public boolean canPipeConnect(BlockEntity tile, Direction side) {
 		return canPipeConnect_internal(tile, side);
