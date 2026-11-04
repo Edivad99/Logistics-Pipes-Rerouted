@@ -59,7 +59,8 @@ public class PowerJunctionScreen extends LogisticsBaseGuiScreen<PowerJunctionMen
             SmallGuiButton cheat = new SmallGuiButton(0,
                 leftPos + 140, topPos + 20, 20, 20, "+");
             cheat.setPressListener(b ->
-                ClientPacketDistributor.sendToServer(new PowerJunctionCheatMessage(junction.getBlockPos())));
+                ClientPacketDistributor.sendToServer(new PowerJunctionCheatMessage(junction.getBlockPos(),
+                    minecraft.hasShiftDown())));
             addRenderableWidget(cheat);
         }
     }
