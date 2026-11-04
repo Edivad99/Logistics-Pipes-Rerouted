@@ -16,7 +16,8 @@ import logisticspipes.interfaces.IItemAdvancedExistence;
 import logisticspipes.world.item.component.LPDataComponents;
 
 /**
- * A card carrying a frequency, written by an inventory system pipe.
+ * A card carrying a frequency, which pairs a system entrance pipe with a system destination pipe.
+ * Blank cards get one when they are blown up together with an ender pearl: see {@link ItemCardLinking}.
  *
  * <p>Until 1.12.2 this item was two cards in one, told apart by the stack's damage value the way
  * metadata used to work. The security card is {@link LogisticsSecurityCard} now: what a stack is
@@ -28,6 +29,13 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
         super(properties.stacksTo(64));
     }
 
+    /**
+     * The tooltip line of a card that carries no id yet.
+     */
+    protected String blankTooltip() {
+        return Translations.Tooltip.ITEM_CARD_BLANK;
+    }
+
     /** Extra lines shown while shift is held, after the id. */
     protected void appendDetails(ItemStack stack, UUID id, Consumer<Component> tooltipAdder) {
     }
@@ -37,7 +45,7 @@ public class LogisticsItemCard extends LogisticsItem implements IItemAdvancedExi
         Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag);
         if (!stack.has(LPDataComponents.UUID)) {
-            tooltipAdder.accept(Component.translatable(Translations.Tooltip.ITEM_CARD_INVALID)
+            tooltipAdder.accept(Component.translatable(blankTooltip())
                 .withStyle(ChatFormatting.GRAY));
             return;
         }

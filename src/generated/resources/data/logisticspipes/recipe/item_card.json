@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:paper",
+    "b": "#c:ender_pearls",
+    "c": "logisticspipes:chip_basic"
+  },
+  "pattern": [
+    "aba",
+    " c "
+  ],
+  "result": {
+    "id": "logisticspipes:item_card"
+  }
+}

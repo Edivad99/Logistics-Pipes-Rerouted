@@ -73,6 +73,7 @@ import logisticspipes.utils.FluidIdentifier;
 import logisticspipes.utils.ServerTickExecutor;
 import logisticspipes.world.attachment.LPAttachmentTypes;
 import logisticspipes.world.inventory.LPMenuTypes;
+import logisticspipes.world.item.ItemCardLinking;
 import logisticspipes.world.item.LPCreativeModeTabs;
 import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
@@ -185,6 +186,7 @@ public class LogisticsPipes {
         NeoForge.EVENT_BUS.register(new LPTickHandler());
         NeoForge.EVENT_BUS.register(new QueuedTasks());
         NeoForge.EVENT_BUS.register(new LPEventListener());
+        NeoForge.EVENT_BUS.register(new ItemCardLinking());
         NeoForge.EVENT_BUS.register(new BlockChangeListener());
         NeoForge.EVENT_BUS.register(Confirmations.INSTANCE);
         NeoForge.EVENT_BUS.register(FakePlayers.INSTANCE);

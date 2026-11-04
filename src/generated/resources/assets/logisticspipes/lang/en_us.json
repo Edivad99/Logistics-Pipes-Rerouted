@@ -415,6 +415,7 @@
   "screen.logisticspipes.yes": "Yes",
   "tooltip.logisticspipes.for_details": "for details",
   "tooltip.logisticspipes.hold": "Hold",
+  "tooltip.logisticspipes.item_card.blank": "Blank: blow it up with an ender pearl to link it",
   "tooltip.logisticspipes.item_card.invalid": "This is no valid Card",
   "tooltip.logisticspipes.logistics_programmer.empty.1": "No valid program loaded",
   "tooltip.logisticspipes.logistics_programmer.empty.2": "You need to flash a program",

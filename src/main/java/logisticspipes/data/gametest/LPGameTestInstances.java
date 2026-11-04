@@ -32,6 +32,7 @@ import logisticspipes.data.gametest.instances.FluidTestInstance;
 import logisticspipes.data.gametest.instances.FuzzyCraftingTestInstance;
 import logisticspipes.data.gametest.instances.InTransitReloadTestInstance;
 import logisticspipes.data.gametest.instances.InvSysConnectorTestInstance;
+import logisticspipes.data.gametest.instances.ItemCardLinkingTestInstance;
 import logisticspipes.data.gametest.instances.ItemSinkTestInstance;
 import logisticspipes.data.gametest.instances.MissingItemsTestInstance;
 import logisticspipes.data.gametest.instances.NetworkSplitTestInstance;
@@ -87,6 +88,7 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("crafter_cleanup", () -> CrafterCleanupTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("crafter_byproduct", () -> CrafterByproductTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("system_entrance", () -> SystemEntranceTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("item_card_linking", () -> ItemCardLinkingTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("sneaky_upgrade", () -> SneakyUpgradeTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("request_table", () -> RequestTableTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("inv_sys_connector", () -> InvSysConnectorTestInstance.CODEC);
@@ -135,6 +137,10 @@ public class LPGameTestInstances {
         for (var scenario : SystemEntranceTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "system_entrance/" + scenario.getSerializedName(),
                 info -> new SystemEntranceTestInstance(scenario, info));
+        }
+        for (var scenario : ItemCardLinkingTestInstance.Scenario.values()) {
+            registerTestInstance(bootstrap, "item_card_linking/" + scenario.getSerializedName(),
+                info -> new ItemCardLinkingTestInstance(scenario, info));
         }
         for (var scenario : SinkPriorityTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "sink_priority/" + scenario.getSerializedName(),

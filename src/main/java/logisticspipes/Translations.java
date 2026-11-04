@@ -27,6 +27,7 @@ public final class Translations {
         public static final String SHIFT = makeKey("tooltip", "shift");
         public static final String FOR_DETAILS = makeKey("tooltip", "for_details");
         public static final String ITEM_CARD_INVALID = makeKey("tooltip", "item_card.invalid");
+        public static final String ITEM_CARD_BLANK = makeKey("tooltip", "item_card.blank");
         public static final String PROGRAMMER_MODULE = makeKey("tooltip", "logistics_programmer.module");
         public static final String PROGRAMMER_UPGRADE = makeKey("tooltip", "logistics_programmer.upgrade");
         public static final String PROGRAMMER_PIPE = makeKey("tooltip", "logistics_programmer.pipe");

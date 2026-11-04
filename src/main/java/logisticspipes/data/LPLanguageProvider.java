@@ -228,6 +228,7 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Tooltip.SHIFT, "Shift");
         add(Tooltip.FOR_DETAILS, "for details");
         add(Tooltip.ITEM_CARD_INVALID, "This is no valid Card");
+        add(Tooltip.ITEM_CARD_BLANK, "Blank: blow it up with an ender pearl to link it");
         add(Tooltip.PROGRAMMER_MODULE, "Module program loaded");
         add(Tooltip.PROGRAMMER_UPGRADE, "Upgrade program loaded");
         add(Tooltip.PROGRAMMER_PIPE, "Pipe program loaded");

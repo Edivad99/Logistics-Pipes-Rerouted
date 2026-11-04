@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
+import logisticspipes.Translations;
 import logisticspipes.security.ClientAuthorizations;
 
 /**
@@ -27,6 +28,11 @@ public class LogisticsSecurityCard extends LogisticsItemCard {
         tooltipAdder.accept(Component.literal("Authorization: " +
                 (ClientAuthorizations.isAuthorized(id) ? "Authorized" : "Unauthorized"))
             .withStyle(ChatFormatting.GRAY));
+    }
+
+    @Override
+    protected String blankTooltip() {
+        return Translations.Tooltip.ITEM_CARD_INVALID;
     }
 
     @Override

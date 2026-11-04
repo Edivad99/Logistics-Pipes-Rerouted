@@ -80,6 +80,14 @@ public class LPRecipeProvider extends RecipeProvider {
     }
 
     private void buildMisc() {
+        shaped(RecipeCategory.MISC, LPItems.ITEM_CARD)
+            .pattern("aba")
+            .pattern(" c ")
+            .define('a', Items.PAPER)
+            .define('b', Tags.Items.ENDER_PEARLS)
+            .define('c', LPItems.CHIP_BASIC)
+            .unlockedBy(getHasName(LPItems.CHIP_BASIC), has(LPItems.CHIP_BASIC))
+            .save(output);
         shaped(RecipeCategory.MISC, LPItems.PIPE_CONTROLLER)
             .pattern("aba")
             .pattern("ced")
