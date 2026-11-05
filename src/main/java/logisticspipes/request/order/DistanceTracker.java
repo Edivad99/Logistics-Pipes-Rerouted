@@ -44,6 +44,6 @@ public class DistanceTracker implements IDistanceTracker {
 
     @Override
     public boolean isTimeout() {
-        return delay != 0 && delay <= LPTickHandler.getGlobalTick();
+        return delay != 0 && delay <= LPTickHandler.getServerTick();
     }
 }

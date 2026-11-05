@@ -692,13 +692,15 @@ public class PipeTransportLogistics {
 	}
 
 	private void moveSolids() {
+		// Only ever called from the block entity's tick, which needs a level to run.
+		int tick = LPTickHandler.getTick(Objects.requireNonNull(getWorld(), "Moving items in a pipe outside a level"));
 		items.flush();
 		items.scheduleAdd();
 		for (LPTravelingItem item : items) {
-			if (item.lastTicked >= LPTickHandler.getGlobalTick()) {
+			if (item.lastTicked >= tick) {
 				continue;
 			}
-			item.lastTicked = LPTickHandler.getGlobalTick();
+			item.lastTicked = tick;
 			item.addAge();
 			item.setPosition(item.getPosition() + item.getSpeed());
 			if (hasReachedEnd(item)) {
@@ -786,7 +788,7 @@ public class PipeTransportLogistics {
 			item.setSpeed(speed);
 			LPTravelingItem.clientList.put(travelId, new WeakReference<>(item));
 			// Prevent double-move only for newly created items (they haven't been ticked yet).
-			item.lastTicked = LPTickHandler.getGlobalTick();
+			item.lastTicked = LPTickHandler.getClientTick();
 		} else {
 			if (item.getContainer() instanceof LogisticsGenericPipeBlockEntity oldPipe) {
 				oldPipe.pipe.transport.items.scheduleRemoval(item);

@@ -1117,7 +1117,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
     }
 
     private void handleQueuedTasks(CoreRoutedPipe pipe) {
-        while (!queue.isEmpty() && queue.peek().dueTick() <= LPTickHandler.getGlobalTick()) {
+        while (!queue.isEmpty() && queue.peek().dueTick() <= LPTickHandler.getServerTick()) {
             queue.poll().task().call(pipe, this);
         }
     }
@@ -1360,7 +1360,7 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
     @Override
     public void queueTask(int i, IRouterQueuedTask callable) {
-        queue.add(new QueuedTask(i + LPTickHandler.getGlobalTick(), callable));
+        queue.add(new QueuedTask(i + LPTickHandler.getServerTick(), callable));
     }
 
     /**

@@ -62,7 +62,7 @@ public class ItemRoutingInformation {
     @Nullable
     public IAdditionalTargetInformation targetInfo;
 
-    private long delay = 640 + LPTickHandler.getGlobalTick();
+    private long delay = 640 + LPTickHandler.getServerTick();
 
     @Getter
     @Setter
@@ -93,18 +93,18 @@ public class ItemRoutingInformation {
 
     // how many ticks until this times out
     public long getTickToTimeOut() {
-        return delay - LPTickHandler.getGlobalTick();
+        return delay - LPTickHandler.getServerTick();
     }
 
     public void resetDelay() {
-        delay = 640 + LPTickHandler.getGlobalTick();
+        delay = 640 + LPTickHandler.getServerTick();
         if (tracker != null) {
             tracker.setDelay(delay);
         }
     }
 
     public void setItemTimedout() {
-        delay = LPTickHandler.getGlobalTick() - 1;
+        delay = LPTickHandler.getServerTick() - 1;
         if (tracker != null) {
             tracker.setDelay(delay);
         }

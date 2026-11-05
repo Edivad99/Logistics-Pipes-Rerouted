@@ -26,24 +26,40 @@ public class LPTickHandler {
 
 	public static int adjChecksDone = 0;
 
-	/**
-	 * Ticks since the game started, on whichever side is asking. Timers all over LP are expressed
-	 * as an offset from it, so it has to keep counting on both.
-	 */
-	@Getter
-	private static int globalTick;
+    /**
+     * Server ticks since the game started. Timers all over LP are expressed as an offset from it.
+     *
+     * <p>Each side has its own counter: in singleplayer both run in the same JVM, and a shared one
+     * went up by two every tick, once from each thread, so every timer ran twice as fast and an
+     * item could be moved twice in a tick.</p>
+     */
+    @Getter
+    private static int serverTick;
+
+    /**
+     * Client ticks since the game started; see {@link #serverTick}.
+     */
+    @Getter
+    private static int clientTick;
+
+    /**
+     * The tick counter of the side the level is on.
+     */
+    public static int getTick(Level level) {
+        return level.isClientSide() ? clientTick : serverTick;
+    }
 
 	@SubscribeEvent
 	public void clientTick(ClientTickEvent.Post event) {
 		FluidIdentifier.initFromNeoForge(true);
 		ClientTaskQueue.runQueued();
-		globalTick++;
+		clientTick++;
 	}
 
 	@SubscribeEvent
 	public void serverTick(ServerTickEvent.Post event) {
 		HudUpdateTick.tick();
-		globalTick++;
+		serverTick++;
 		LPTickHandler.adjChecksDone = 0;
 		ServerTickExecutor.INSTANCE.tick();
 	}
