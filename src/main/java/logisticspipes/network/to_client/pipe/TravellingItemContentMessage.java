@@ -1,6 +1,5 @@
 package logisticspipes.network.to_client.pipe;
 
-import java.lang.ref.WeakReference;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -35,14 +34,13 @@ public record TravellingItemContentMessage(int travelId, ItemIdentifierStack ite
     private static final int KEEP_TICKS = 10;
 
     public static void handle(TravellingItemContentMessage message, IPayloadContext context) {
-        final WeakReference<LPTravelingItemClient> ref = LPTravelingItem.clientList.get(message.travelId);
-        final LPTravelingItemClient known = ref != null ? ref.get() : null;
+        final LPTravelingItemClient known = LPTravelingItem.clientList.get(message.travelId);
         if (known != null) {
             known.setItem(message.item);
             return;
         }
         final LPTravelingItemClient item = new LPTravelingItemClient(message.travelId, message.item);
-        LPTravelingItem.clientList.put(message.travelId, new WeakReference<>(item));
+        LPTravelingItem.clientList.put(message.travelId, item);
         synchronized (LPTravelingItem.forceKeep) {
             LPTravelingItem.forceKeep.put(item, KEEP_TICKS);
         }

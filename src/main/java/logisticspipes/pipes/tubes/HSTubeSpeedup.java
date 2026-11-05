@@ -49,26 +49,26 @@ public class HSTubeSpeedup extends CoreMultiBlockPipe {
             }
 
             @Override
-            protected void handleTileReachedServer(LPTravelingItemServer arrivingItem, @Nullable BlockEntity tile,
-                @Nullable Direction dir) {
+            protected void handleBlockEntityReachedServer(LPTravelingItemServer arrivingItem,
+                @Nullable BlockEntity blockEntity, Direction dir) {
                 if (dir.getOpposite() == ((HSTubeSpeedup) getMultiPipe()).orientation.dir1) {
                     arrivingItem.setSpeed(LPConstants.PIPE_NORMAL_SPEED * 20);
-                    handleTileReachedServer_internal(arrivingItem, tile, dir);
+                    handleBlockEntityReachedServer_internal(arrivingItem, blockEntity, dir);
                 } else {
-                    super.handleTileReachedServer(arrivingItem, tile, dir);
+                    super.handleBlockEntityReachedServer(arrivingItem, blockEntity, dir);
                 }
             }
 
             @Override
-            protected void handleTileReachedClient(LPTravelingItemClient arrivingItem, @Nullable BlockEntity tile,
-                @Nullable Direction dir) {
+            protected void handleBlockEntityReachedClient(LPTravelingItemClient arrivingItem,
+                @Nullable BlockEntity blockEntity, Direction dir) {
                 if (dir.getOpposite() == ((HSTubeSpeedup) getMultiPipe()).orientation.dir1) {
-                    if (PipeInformationManager.isPipe(tile)) {
+                    if (PipeInformationManager.isPipe(blockEntity)) {
                         arrivingItem.setSpeed(LPConstants.PIPE_NORMAL_SPEED * 20);
-                        passToNextPipe(arrivingItem, tile);
+                        passToNextPipe(arrivingItem, blockEntity);
                     }
                 } else {
-                    super.handleTileReachedClient(arrivingItem, tile, dir);
+                    super.handleBlockEntityReachedClient(arrivingItem, blockEntity, dir);
                 }
             }
 

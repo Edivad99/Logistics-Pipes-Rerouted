@@ -1,6 +1,5 @@
 package logisticspipes.network.to_server.pipe;
 
-import java.lang.ref.WeakReference;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -33,11 +32,7 @@ public record RequestPipeContentMessage(int travelId) implements CustomPacketPay
             RequestPipeContentMessage::new);
 
     public static void handle(RequestPipeContentMessage message, IPayloadContext context) {
-        final WeakReference<LPTravelingItemServer> ref = LPTravelingItem.serverList.get(message.travelId);
-        if (ref == null) {
-            return;
-        }
-        final LPTravelingItemServer item = ref.get();
+        final LPTravelingItemServer item = LPTravelingItem.serverList.get(message.travelId);
         if (item != null) {
             if (context.player() instanceof ServerPlayer player) {
                 PacketDistributor.sendToPlayer(player,

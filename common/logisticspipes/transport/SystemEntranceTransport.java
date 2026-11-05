@@ -24,11 +24,11 @@ public class SystemEntranceTransport extends PipeTransportLogistics {
             && getPipe() instanceof PipeItemsSystemEntranceLogistics pipe) {
             UUID frequency = pipe.getLocalFreqUUID();
             if (frequency != null && pipe.useEnergy(5)) {
-                for (ExitRoute router : pipe.getRouter().getIRoutersByCost()) {
-                    if (!router.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
+                for (ExitRoute route : pipe.getRouter().getIRoutersByCost()) {
+                    if (!route.containsFlag(PipeRoutingConnectionType.CAN_ROUTE_TO)) {
                         continue;
                     }
-                    if (router.destination.getPipe() instanceof PipeItemsSystemDestinationLogistics destination
+                    if (route.destination.getPipe() instanceof PipeItemsSystemDestinationLogistics destination
                         && frequency.equals(destination.getTargetUUID())) {
                         data.setDestination(destination.getRouter().getSimpleID());
                         data.setArrived(false);

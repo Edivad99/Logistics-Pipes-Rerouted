@@ -46,6 +46,7 @@ import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.transport.PipeTransportLogistics.BufferedItem;
+import logisticspipes.utils.item.ItemIdentifierStack;
 import logisticspipes.utils.item.ItemStackRenderer;
 import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 
@@ -290,7 +291,8 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
                 break;
             }
 
-            if (item.getItemIdentifierStack() == null) {
+            ItemIdentifierStack itemStack = item.getItemIdentifierStack();
+            if (itemStack == null) {
                 continue;
             }
             if (!item.getContainer().getBlockPos().equals(lPipe.getContainer().getBlockPos())) {
@@ -315,7 +317,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
                     lPipe = nPipe;
                     item = item.renderCopy();
                     item.input = item.output;
-                    item.output = null;
+                    item.output = lPipe.transport.getFixedExit(item.input);
                 } else {
                     continue;
                 }
@@ -330,7 +332,7 @@ public class LogisticsRenderPipe implements BlockEntityRenderer<LogisticsGeneric
             double itemPitch = lPipe.getItemRenderPitch(fPos, item);
             double itemYawForPitch = lPipe.getItemRenderYaw(fPos, item);
 
-            ItemStack stack = item.getItemIdentifierStack().makeNormalStack();
+            ItemStack stack = itemStack.makeNormalStack();
             doRenderItem(stack, pipe.getContainer().getLevel(), lX + pos.x, lY + pos.y,
                 lZ + pos.z, 0.75F, boxScale, itemYaw, itemPitch, itemYawForPitch, partialTickTime,
                 poseStack, collector, packedLight, packedOverlay);

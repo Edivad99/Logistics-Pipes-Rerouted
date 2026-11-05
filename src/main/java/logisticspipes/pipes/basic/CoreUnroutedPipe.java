@@ -65,7 +65,7 @@ public abstract class CoreUnroutedPipe {
 
     public void setTile(BlockEntity blockEntity) {
         container = (LogisticsGenericPipeBlockEntity) blockEntity;
-        transport.setTile((LogisticsGenericPipeBlockEntity) blockEntity);
+        transport.setContainer((LogisticsGenericPipeBlockEntity) blockEntity);
     }
 
     public boolean blockActivated(Player entityplayer) {
@@ -306,6 +306,13 @@ public abstract class CoreUnroutedPipe {
         return false;
     }
 
+    /**
+     * Where to draw the item, relative to the pipe's corner, or null to hide it.
+     *
+     * <p>A client copy has no exit until the server's position packet tells it which one the item
+     * takes, often a tick after it entered the pipe. Past the middle it waits there meanwhile:
+     * hiding it made it blink at every pipe.</p>
+     */
     @Nullable
     public Vec3 getItemRenderPos(float fPos, LPTravelingItem travelItem) {
         Vec3 pos = new Vec3(0.5, 0.5, 0.5);
@@ -319,7 +326,7 @@ public abstract class CoreUnroutedPipe {
             pos = pos.relative(travelItem.input.getOpposite(), 0.5 - fPos);
         } else {
             if (travelItem.output == null) {
-                return null;
+                return pos;
             }
             if (!container.visualState.pipeConnectionMatrix.isConnected(travelItem.output)) {
                 return null;
