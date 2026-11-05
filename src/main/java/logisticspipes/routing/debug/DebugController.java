@@ -187,7 +187,6 @@ public class DebugController implements IRoutingDebugAdapter {
             thread.setDaemon(true);
             thread.setName("[%s] RoutingTable update debug Thread".formatted(LPConstants.NAME));
             thread.start();
-            return null;
         });
     }
 
@@ -272,7 +271,6 @@ public class DebugController implements IRoutingDebugAdapter {
             waiting = true;
             QueuedTasks.queueTask(() -> {
                 prompt(reason);
-                return null;
             });
             while (step == null) {
                 try {

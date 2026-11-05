@@ -268,7 +268,7 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
         fPipe.setPreventRemove(true);
         QueuedTasks.queueTask(() -> {
             if (!fPipe.preventRemove()) {
-                return null;
+                return;
             }
             boolean changed = false;
             if (!worldCache.getBlockState(posCache).is(LPBlocks.PIPE)) {
@@ -284,7 +284,6 @@ public class LogisticsGenericPipeBlock extends Block implements EntityBlock {
                     worldCache.getBlockState(posCache), worldCache.getBlockState(posCache), 3, 512);
             }
             fPipe.setPreventRemove(false);
-            return null;
         });
     }
 

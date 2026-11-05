@@ -41,7 +41,6 @@ public class BlockChangeListener {
         final BlockPos pos = event.getPos();
         QueuedTasks.queueTask(() -> {
             notifyAdjacentPipes(level, pos);
-            return null;
         });
     }
 
@@ -60,7 +59,6 @@ public class BlockChangeListener {
         final BlockPos pos = event.getPos();
         QueuedTasks.queueTask(() -> {
             notifyAdjacentPipes(level, pos);
-            return null;
         });
     }
 

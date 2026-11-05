@@ -191,7 +191,7 @@ public class LogisticsHUDRenderer {
 
     private static final Identifier CROSSHAIR_SPRITE = Identifier.withDefaultNamespace("hud/crosshair");
 
-    public void renderPlayerDisplay(long renderTicks, GuiGraphicsExtractor guiGraphics) {
+    public void renderPlayerDisplay(GuiGraphicsExtractor guiGraphics) {
         if (!displayRenderer()) {
             return;
         }

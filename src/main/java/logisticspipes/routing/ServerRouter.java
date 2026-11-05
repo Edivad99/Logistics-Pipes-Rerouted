@@ -402,7 +402,6 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
             getPipe().spawnParticle(Particles.LIGHT_RED_SPARKLE, 5);
         }
 
-        LPTickHandler.adjChecksDone++;
         boolean adjacentChanged = false;
         CoreRoutedPipe thisPipe = getPipe();
         if (thisPipe == null) {

@@ -12,7 +12,7 @@ import logisticspipes.LPConstants;
  * <p>Final on purpose: the constructor ends with {@code start()}, so from that point another
  * thread is running {@link #run()} on an object whose construction has not returned. That is safe
  * only because {@code run()} touches nothing but the static queue and average -- a subclass would
- * find its own fields still unset.
+ * find its own fields still unset.</p>
  */
 public final class RoutingTableUpdateThread extends Thread {
 
@@ -30,19 +30,19 @@ public final class RoutingTableUpdateThread extends Thread {
     }
 
     public static void add(Runnable run) {
-        RoutingTableUpdateThread.UPDATE_CALLS.add(run);
+        UPDATE_CALLS.add(run);
     }
 
     public static boolean remove(Runnable run) {
-        return RoutingTableUpdateThread.UPDATE_CALLS.remove(run);
+        return UPDATE_CALLS.remove(run);
     }
 
     public static int size() {
-        return RoutingTableUpdateThread.UPDATE_CALLS.size();
+        return UPDATE_CALLS.size();
     }
 
     public static long getAverage() {
-        return RoutingTableUpdateThread.AVERAGE.get();
+        return AVERAGE.get();
     }
 
     /**
@@ -52,7 +52,7 @@ public final class RoutingTableUpdateThread extends Thread {
      * reference and nothing calls {@code interrupt}. They are daemons, so the JVM exits without
      * waiting for them, and the loop below has no exit that is ever taken. The interrupt is
      * still handled rather than swallowed silently, so that a future shutdown path -- or a thread
-     * dump taken while debugging -- finds the flag where it belongs instead of lost.
+     * dump taken while debugging -- finds the flag where it belongs instead of lost.</p>
      */
     @Override
     @SuppressWarnings("InfiniteLoopStatement") // there is no shutdown; see above
@@ -60,12 +60,11 @@ public final class RoutingTableUpdateThread extends Thread {
         try {
             // take() blocks until something is available and never returns null
             while (true) {
-                Runnable item = RoutingTableUpdateThread.UPDATE_CALLS.take();
+                Runnable item = UPDATE_CALLS.take();
                 long startTime = System.nanoTime();
                 item.run();
                 long took = System.nanoTime() - startTime;
-                RoutingTableUpdateThread.AVERAGE.updateAndGet(
-                    current -> current == 0 ? took : ((current * 999L) + took) / 1000L);
+                AVERAGE.updateAndGet(current -> current == 0 ? took : ((current * 999L) + took) / 1000L);
             }
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();

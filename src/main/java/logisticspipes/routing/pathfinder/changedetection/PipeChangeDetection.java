@@ -32,7 +32,7 @@ public class PipeChangeDetection {
         }
 
         tile.activateChangeDetection();
-        if (LPTickHandler.getWorldInfo(level).getWorldTick() < 5) {
+        if (LPTickHandler.getLevelTick(level) < 5) {
             return;
         }
         QueuedTasks.queueTask(() -> {
@@ -59,7 +59,6 @@ public class PipeChangeDetection {
                     }
                 }
             }
-            return null;
         });
     }
 
@@ -96,7 +95,6 @@ public class PipeChangeDetection {
             for (IBlockEntityChangeListener listener : new ArrayList<>(tile.changeListeners)) {
                 listener.pipeRemoved(pos);
             }
-            return null;
         });
     }
 }
