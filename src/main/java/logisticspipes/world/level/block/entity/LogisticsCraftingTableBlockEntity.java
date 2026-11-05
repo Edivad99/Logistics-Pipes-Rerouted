@@ -12,6 +12,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.ContainerUser;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
@@ -35,10 +37,10 @@ import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;
+import logisticspipes.LPConstants;
 import logisticspipes.api.property.BitSetProperty;
 import logisticspipes.api.property.IBitSet;
 import logisticspipes.api.provider.IRoutedPowerProvider;
-import logisticspipes.entity.FakePlayers;
 import logisticspipes.interfaces.IBlockEntityMenuProvider;
 import logisticspipes.interfaces.ICraftingRecipeGrid;
 import logisticspipes.interfaces.IScreenOpenController;
@@ -71,8 +73,6 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
     public @Nullable ItemIdentifier targetType = null;
     @Nullable
     private RecipeHolder<CraftingRecipe> cache;
-    @Nullable
-    private ServerPlayer fake;
     @Nullable
     private PlayerIdentifier placedBy = null;
 
@@ -351,9 +351,8 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
         }
         craftingInput = CraftingInput.of(3, 3, crafter.getItems());
         result = recipe.value().assemble(craftingInput);
-        if (fake == null) {
-            fake = FakePlayers.of(level);
-        }
+        // Only the server crafts: a crafter pipe asks for this while it works.
+        ServerPlayer fake = FakePlayerFactory.get((ServerLevel) level, LPConstants.FAKE_GAMEPROFILE);
         result = result.copy();
         result.onCraftedBy(fake, result.getCount());
         NonNullList<ItemStack> remaining = recipe.value().getRemainingItems(craftingInput);
@@ -555,11 +554,5 @@ public class LogisticsCraftingTableBlockEntity extends LogisticsSolidBlockEntity
 
     public String getName() {
         return "LogisticsCraftingTable";
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        fake = null;
     }
 }

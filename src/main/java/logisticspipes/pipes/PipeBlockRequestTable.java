@@ -13,6 +13,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -29,16 +30,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
-import net.neoforged.neoforge.event.level.LevelEvent;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
 import logisticspipes.Translations;
-import logisticspipes.entity.FakePlayers;
 import logisticspipes.interfaces.ICraftingRecipeGrid;
 import logisticspipes.interfaces.IPipeMenuProvider;
 import logisticspipes.interfaces.IRequestWatcher;
@@ -88,7 +87,6 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     public @Nullable ItemIdentifier targetType = null;
     private final ResultContainer vanillaResult = new ResultContainer();
     private @Nullable RecipeHolder<CraftingRecipe> cache;
-    private @Nullable ServerPlayer fake;
     private int delay = 0;
     private int tick = 0;
     private int rotation;
@@ -445,9 +443,8 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
         }
         craftingInput = CraftingInput.of(3, 3, crafter.getItems());
         result = cache.value().assemble(craftingInput);
-        if (fake == null) {
-            fake = FakePlayers.of(getLevel());
-        }
+        // Only the server crafts: getResultForClick is the way in, and it checks.
+        ServerPlayer fake = FakePlayerFactory.get((ServerLevel) getLevel(), LPConstants.FAKE_GAMEPROFILE);
         result = result.copy();
 
         ResultSlot craftingSlot = new ResultSlot(fake, crafter, resultInv, 0, 0, 0);
@@ -635,13 +632,6 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     @Override
     public void setRotation(int rotation) {
         this.rotation = rotation;
-    }
-
-    @SubscribeEvent
-    public void onWorldUnload(LevelEvent.Unload worldEvent) {
-        if (fake != null && fake.level() == worldEvent.getLevel()) {
-            fake = null;
-        }
     }
 
     @Override

@@ -49,7 +49,6 @@ import logisticspipes.data.gametest.LPGameTestInstances;
 import logisticspipes.data.gametest.LPTestEnvironments;
 import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
-import logisticspipes.entity.FakePlayers;
 import logisticspipes.integrations.computercraft.ComputerCraftIntegration;
 import logisticspipes.integrations.tesseract.TesseractConnection;
 import logisticspipes.integrations.top.LPTopPlugin;
@@ -189,7 +188,6 @@ public class LogisticsPipes {
         NeoForge.EVENT_BUS.register(new ItemCardLinking());
         NeoForge.EVENT_BUS.register(new BlockChangeListener());
         NeoForge.EVENT_BUS.register(Confirmations.INSTANCE);
-        NeoForge.EVENT_BUS.register(FakePlayers.INSTANCE);
         NeoForge.EVENT_BUS.register(PropertyUpdaterEventListener.INSTANCE);
 
         for (int i = 0; i < LPConfigs.COMMON.MULTI_THREAD_NUMBER.getAsInt(); i++) {
