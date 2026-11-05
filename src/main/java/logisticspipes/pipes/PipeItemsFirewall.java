@@ -153,10 +153,10 @@ public class PipeItemsFirewall extends CoreRoutedPipe implements IPipeMenuProvid
                 }
 
                 @Override
-                public boolean isFilteredItem(IResource resultItem) {
+                public boolean isFilteredItem(IResource resource) {
                     for (SlotContent slot : inv.contents()) {
                         ItemIdentifierStack stack = slot.stack();
-                        if (stack != null && resultItem.matches(stack.getItem(), IResource.MatchSettings.NORMAL)) {
+                        if (stack != null && resource.matches(stack.getItem(), IResource.MatchSettings.NORMAL)) {
                             return true;
                         }
                     }

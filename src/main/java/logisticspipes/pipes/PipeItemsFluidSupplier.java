@@ -71,7 +71,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe
         }, item);
 
         throttleTime = 100;
-        dummyInventory.addListener(inventory -> markTileDirty());
+        dummyInventory.addListener(inventory -> markBlockEntityDirty());
     }
 
     /**
@@ -304,7 +304,7 @@ public class PipeItemsFluidSupplier extends CoreRoutedPipe
 
     public void setRequestingPartials(boolean value) {
         requestPartials = value;
-        markTileDirty();
+        markBlockEntityDirty();
     }
 
     @Override

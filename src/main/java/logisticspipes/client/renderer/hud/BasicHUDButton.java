@@ -62,7 +62,7 @@ public abstract class BasicHUDButton implements IHUDButton {
     }
 
     @Override
-    public boolean isblockFocused() {
+    public boolean isBlockFocused() {
         return focusedTimeStart == -1;
     }
 

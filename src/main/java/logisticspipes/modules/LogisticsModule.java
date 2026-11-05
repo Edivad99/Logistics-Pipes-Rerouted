@@ -212,7 +212,7 @@ public abstract class LogisticsModule implements ValueIOSerializable, PropertyHo
         if (service != null) {
             final Level level = getLevel();
             if (level != null && !level.isClientSide()) {
-                PropertyUtil.addObserver(getProperties(), _ -> service.markTileDirty());
+                PropertyUtil.addObserver(getProperties(), _ -> service.markBlockEntityDirty());
             }
         }
         initialized = true;

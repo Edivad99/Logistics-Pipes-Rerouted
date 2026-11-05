@@ -440,7 +440,7 @@ public class PipeItemsInvSysConnector extends CoreRoutedPipe
 
     public void setChannelFromClient(UUID fromString) {
         this.connectedChannel = fromString;
-        markTileDirty();
+        markBlockEntityDirty();
         sendChannelInformationToPlayers();
     }
 

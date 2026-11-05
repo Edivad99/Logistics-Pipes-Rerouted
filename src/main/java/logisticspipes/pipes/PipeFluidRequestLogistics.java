@@ -54,7 +54,7 @@ public class PipeFluidRequestLogistics extends FluidRoutedPipe implements IReque
     }
 
     @Override
-    public void sendFailed(FluidIdentifier value1, Integer value2) {
+    public void sendFailed(FluidIdentifier fluid, int amount) {
         //Request Pipe doesn't handle this.
     }
 

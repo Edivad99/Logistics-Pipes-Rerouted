@@ -12,6 +12,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.interfaces.routing.IProvideFluids;
@@ -247,7 +249,7 @@ public class PipeFluidProvider extends FluidRoutedPipe implements IProvideFluids
 
     @Override
     public IOrderInfoProvider fullFill(FluidPromise promise, IRequestFluid destination, ResourceType type,
-        IAdditionalTargetInformation info) {
+        @Nullable IAdditionalTargetInformation info) {
         return getFluidOrderManager().addOrder(promise, destination, type, info);
     }
 

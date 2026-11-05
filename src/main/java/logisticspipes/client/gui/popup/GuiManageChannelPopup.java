@@ -143,8 +143,8 @@ public class GuiManageChannelPopup extends SubGuiScreen implements IGUIChannelIn
     // Deferred: scroll wheel handling not wired
 
     @Override
-    public void handleChannelInformation(ChannelInformation channel, boolean flag) {
-        if (!flag) {
+    public void handleChannelInformation(ChannelInformation channel, boolean targeted) {
+        if (!targeted) {
             if (channel.getName() == null) {
                 channelList.removeIf(chan -> chan.getChannelIdentifier().equals(channel.getChannelIdentifier()));
             } else {

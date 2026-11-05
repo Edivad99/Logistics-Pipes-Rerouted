@@ -18,12 +18,12 @@ public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
     }
 
     @Override
-    public void renderHeadUpDisplay(HUDDrawContext context, double d, boolean day, boolean shifted, Minecraft minecraft,
-        HUDComponent config) {
+    public void renderHeadUpDisplay(HUDDrawContext context, double distance, boolean day, boolean shifted,
+        Minecraft minecraft, HUDComponent config) {
         for (IHUDButton button : buttons) {
             button.renderAlways(context, shifted);
             if (button.shouldRenderButton()) {
-                button.renderButton(context, button.isFocused(), button.isblockFocused(), shifted);
+                button.renderButton(context, button.isFocused(), button.isBlockFocused(), shifted);
             }
         }
     }
@@ -36,13 +36,13 @@ public abstract class BasicHUDGui implements IHeadUpDisplayRenderer {
             }
             if ((button.getX() - 1 < x && x < (button.getX() + button.sizeX() + 1)) && (button.getY() - 1 < y && y < (
                 button.getY() + button.sizeY() + 1))) {
-                if (!button.isFocused() && !button.isblockFocused()) {
+                if (!button.isFocused() && !button.isBlockFocused()) {
                     button.setFocused();
-                } else if (button.focusedTime() > 400 && !button.isblockFocused()) {
+                } else if (button.focusedTime() > 400 && !button.isBlockFocused()) {
                     button.clicked();
                     button.blockFocused();
                 }
-            } else if (button.isFocused() || button.isblockFocused()) {
+            } else if (button.isFocused() || button.isBlockFocused()) {
                 button.clearFocused();
             }
         }

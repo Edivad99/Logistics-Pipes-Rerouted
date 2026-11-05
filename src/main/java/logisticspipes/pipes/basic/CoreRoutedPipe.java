@@ -220,7 +220,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     }
 
     @Override
-    public void markTileDirty() {
+    public void markBlockEntityDirty() {
         if (getContainer() != null) {
             getContainer().setChanged();
         }
@@ -965,7 +965,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     }
 
     @Override
-    public void itemCouldNotBeSend(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
+    public void itemCouldNotBeSent(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
         if (this instanceof IRequireReliableTransport) {
             ((IRequireReliableTransport) this).itemLost(item, info);
         }
@@ -1495,7 +1495,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         if (isInitialized()) {
             final Level level = getLevel();
             if (level != null && !level.isClientSide() && this instanceof PropertyHolder) {
-                PropertyUtil.addObserver(((PropertyHolder) this).getProperties(), prop -> markTileDirty());
+                PropertyUtil.addObserver(((PropertyHolder) this).getProperties(), prop -> markBlockEntityDirty());
             }
 
             if (getLogisticsModule() != null) {

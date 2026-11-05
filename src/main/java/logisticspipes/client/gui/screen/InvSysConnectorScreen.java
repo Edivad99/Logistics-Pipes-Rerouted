@@ -213,8 +213,8 @@ public class InvSysConnectorScreen extends LogisticsBaseGuiScreen<InvSysConMenu>
     }
 
     @Override
-    public void handleChannelInformation(ChannelInformation channel, boolean flag) {
-        if (flag) {
+    public void handleChannelInformation(ChannelInformation channel, boolean targeted) {
+        if (targeted) {
             this.connectedChannel = channel;
         } else if (this.connectedChannel != null && this.connectedChannel.getChannelIdentifier()
             .equals(channel.getChannelIdentifier())) {

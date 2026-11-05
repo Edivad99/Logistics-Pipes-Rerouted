@@ -443,7 +443,7 @@ public class ModuleActiveSupplier extends LogisticsModule
     }
 
     @Override
-    public void itemCouldNotBeSend(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
+    public void itemCouldNotBeSent(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
         itemLost(item, info);
     }
 

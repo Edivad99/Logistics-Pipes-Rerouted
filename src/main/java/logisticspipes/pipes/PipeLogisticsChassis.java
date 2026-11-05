@@ -349,7 +349,7 @@ public class PipeLogisticsChassis extends CoreRoutedPipe
     }
 
     @Override
-    public int addToBuffer(ItemIdentifierStack item, IAdditionalTargetInformation info) {
+    public int addToBuffer(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
         if (!getLevel().isClientSide()) {
             if (info instanceof ChassiTargetInformation target) {
                 LogisticsModule module = getSubModule(target.moduleSlot);

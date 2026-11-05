@@ -112,7 +112,7 @@ public class PipeFluidSatellite extends FluidRoutedPipe
     }
 
     @Override
-    public void sendFailed(FluidIdentifier liquid, Integer amount) {
+    public void sendFailed(FluidIdentifier liquid, int amount) {
         liquidLost(liquid, amount);
     }
 

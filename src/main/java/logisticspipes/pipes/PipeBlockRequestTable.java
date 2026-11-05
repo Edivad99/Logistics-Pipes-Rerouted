@@ -497,7 +497,7 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     public void InventoryChanged(Container inventory) {
         if (inventory == matrix) {
             cacheRecipe();
-            markTileDirty();
+            markBlockEntityDirty();
         }
     }
 
@@ -568,14 +568,14 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     }
 
     @Override
-    public void handleOrderList(@Nullable IResource stack, OrderTree orders) {
+    public void handleOrderList(@Nullable IResource resource, OrderTree orders) {
         if (!getUpgradeManager().hasCraftingMonitoringUpgrade()) {
             return;
         }
         orders.setWatched();
-        watchedRequests.put(++localLastUsedWatcherId, new WatchedRequest(stack, orders));
+        watchedRequests.put(++localLastUsedWatcherId, new WatchedRequest(resource, orders));
         localGuiWatcher.send(new OrderWatchMessage(getPos(), localLastUsedWatcherId,
-            Optional.ofNullable(stack), orders));
+            Optional.ofNullable(resource), orders));
     }
 
     @Override
@@ -602,19 +602,19 @@ public class PipeBlockRequestTable extends PipeItemsRequestLogistics
     }
 
     @Override
-    public void handleClientSideListInfo(int id, IResource stack, OrderTree orders) {
+    public void handleClientSideListInfo(int watcherId, @Nullable IResource resource, OrderTree orders) {
         if (getLevel().isClientSide()) {
-            watchedRequests.put(id, new WatchedRequest(stack, orders));
+            watchedRequests.put(watcherId, new WatchedRequest(resource, orders));
         }
     }
 
     @Override
-    public void handleClientSideRemove(int id) {
+    public void handleClientSideRemove(int watcherId) {
         if (getLevel().isClientSide()) {
-            if (id == -1) {
+            if (watcherId == -1) {
                 watchedRequests.clear();
             } else {
-                watchedRequests.remove(id);
+                watchedRequests.remove(watcherId);
             }
         }
     }

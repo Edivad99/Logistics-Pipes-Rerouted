@@ -48,12 +48,12 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe
     public PipeFluidSupplierMk2(Item item) {
         super(item);
         throttleTime = 100;
-        dummyInventory.addListener(inventory -> markTileDirty());
+        dummyInventory.addListener(inventory -> markBlockEntityDirty());
     }
 
     @Override
-    public void sendFailed(FluidIdentifier value1, Integer value2) {
-        liquidLost(value1, value2);
+    public void sendFailed(FluidIdentifier fluid, int amount) {
+        liquidLost(fluid, amount);
     }
 
     @Override
@@ -250,7 +250,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe
 
     public void setRequestingPartials(boolean value) {
         requestPartials = value;
-        markTileDirty();
+        markBlockEntityDirty();
     }
 
     public MinMode getMinMode() {
@@ -259,7 +259,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe
 
     public void setMinMode(MinMode value) {
         bucketMinimum = value;
-        markTileDirty();
+        markBlockEntityDirty();
     }
 
     @Override
@@ -289,7 +289,7 @@ public class PipeFluidSupplierMk2 extends FluidRoutedPipe
         if (amount <= 0) {
             amount = 0;
         }
-        markTileDirty();
+        markBlockEntityDirty();
         if (player instanceof ServerPlayer serverPlayer) {
             PacketDistributor.sendToPlayer(serverPlayer, new FluidSupplierAmountMessage(getPos(), amount));
         }

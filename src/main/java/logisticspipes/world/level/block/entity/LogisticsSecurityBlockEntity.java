@@ -366,11 +366,11 @@ public class LogisticsSecurityBlockEntity extends LogisticsSolidBlockEntity
     }
 
     @Override
-    public boolean getAllowCC(int id) {
+    public boolean getAllowCC(int computerId) {
         if (!useEnergy(10)) {
             return false;
         }
-        return allowCC != excludedCC.contains(id);
+        return allowCC != excludedCC.contains(computerId);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class ItemOrder extends Order {
         if (destination == null) {
             return;
         }
-        destination.itemCouldNotBeSend(getResource().stack, getInformation());
+        destination.itemCouldNotBeSent(getResource().stack, getInformation());
     }
 
     @Override

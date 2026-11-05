@@ -114,7 +114,7 @@ public class HudChassisPipe extends BasicHUDGui {
                 for (IHUDButton button : moduleHandler.getHUDRenderer().getButtons()) {
                     button.renderAlways(context, shifted);
                     if (button.shouldRenderButton()) {
-                        button.renderButton(context, button.isFocused(), button.isblockFocused(), shifted);
+                        button.renderButton(context, button.isFocused(), button.isBlockFocused(), shifted);
                     }
                     if (!button.buttonEnabled() || !button.shouldRenderButton()) {
                         continue;
@@ -122,13 +122,13 @@ public class HudChassisPipe extends BasicHUDGui {
                     if ((button.getX() - 1 < (xCursor - 11) && (xCursor - 11) < (button.getX() + button.sizeX() + 1))
                         && (button.getY() - 1 < (yCursor - 5) && (yCursor - 5) < (button.getY() + button.sizeY()
                         + 1))) {
-                        if (!button.isFocused() && !button.isblockFocused()) {
+                        if (!button.isFocused() && !button.isBlockFocused()) {
                             button.setFocused();
-                        } else if (button.focusedTime() > 400 && !button.isblockFocused()) {
+                        } else if (button.focusedTime() > 400 && !button.isBlockFocused()) {
                             button.clicked();
                             button.blockFocused();
                         }
-                    } else if (button.isFocused() || button.isblockFocused()) {
+                    } else if (button.isFocused() || button.isBlockFocused()) {
                         button.clearFocused();
                     }
                 }
