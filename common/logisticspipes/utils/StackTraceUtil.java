@@ -9,9 +9,13 @@ import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.LogisticsPipes;
-
 public class StackTraceUtil {
+
+	/**
+	 * Whether to trace at all. Off unless asked for with {@code -Dlogisticspipes.traceTicks=true}:
+	 * every pipe tick records its stack frame, which takes most of the time LP spends ticking.
+	 */
+	private static final boolean ENABLED = Boolean.getBoolean("logisticspipes.traceTicks");
 
 	private static final Map<Thread, LinkedList<TracedFrame>> informationMap = new HashMap<>();
 
@@ -34,7 +38,7 @@ public class StackTraceUtil {
 	}
 
 	public static Info addTraceInformation(final Supplier<String> informationSupplier, Info... infos) {
-		if (!LogisticsPipes.isDEBUG()) {
+		if (!ENABLED) {
 			return new DummyInfo();
 		}
 		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
@@ -43,7 +47,7 @@ public class StackTraceUtil {
 	}
 
 	public static Info addSuperTraceInformation(final Supplier<String> informationSupplier, Info... infos) {
-		if (!LogisticsPipes.isDEBUG()) {
+		if (!ENABLED) {
 			return new DummyInfo();
 		}
 		StackTraceElement[] trace = Thread.currentThread().getStackTrace();
