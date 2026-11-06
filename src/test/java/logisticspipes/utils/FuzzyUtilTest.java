@@ -1,5 +1,7 @@
 package logisticspipes.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.BitSet;
 
 import net.minecraft.core.component.DataComponents;
@@ -15,8 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import logisticspipes.TestBootstrap;
 import logisticspipes.utils.item.ItemIdentifier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FuzzyUtilTest {
 

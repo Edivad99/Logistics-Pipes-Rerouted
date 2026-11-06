@@ -1,5 +1,9 @@
 package logisticspipes.client.model.pipe;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -19,10 +23,6 @@ import logisticspipes.client.model.mesh.MeshTransforms;
 import logisticspipes.client.model.mesh.ObjMesh;
 import logisticspipes.client.model.mesh.ObjModel;
 import logisticspipes.client.model.mesh.ObjParser;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Runs the part assembly against the real {@code pipe_model_moved.obj}.

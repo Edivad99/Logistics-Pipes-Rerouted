@@ -334,4 +334,3 @@ public class ModuleItemSink extends LogisticsModule
     }
 
 }
-

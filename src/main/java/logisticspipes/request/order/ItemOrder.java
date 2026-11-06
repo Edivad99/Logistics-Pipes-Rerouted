@@ -1,7 +1,6 @@
 package logisticspipes.request.order;
 
 import lombok.Getter;
-
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;

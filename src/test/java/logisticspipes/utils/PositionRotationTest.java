@@ -1,10 +1,10 @@
 package logisticspipes.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import net.minecraft.core.BlockPos;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PositionRotationTest {
 

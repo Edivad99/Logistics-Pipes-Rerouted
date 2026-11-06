@@ -18,4 +18,3 @@ public class LPParticleProvider extends ParticleDescriptionProvider {
         this.spriteSet(LPParticleTypes.SPARKLE.get(), LPConstants.rl("sparkle"), 4, false);
     }
 }
-

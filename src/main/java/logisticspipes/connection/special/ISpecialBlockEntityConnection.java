@@ -8,11 +8,11 @@ import logisticspipes.routing.item.IRoutedItem;
 
 public interface ISpecialBlockEntityConnection {
 
-	boolean isType(BlockEntity blockEntity);
+    boolean isType(BlockEntity blockEntity);
 
-	Collection<BlockEntity> getConnections(BlockEntity blockEntity);
+    Collection<BlockEntity> getConnections(BlockEntity blockEntity);
 
-	boolean needsInformationTransition();
+    boolean needsInformationTransition();
 
-	void transmit(BlockEntity blockEntity, IRoutedItem arrivingItem);
+    void transmit(BlockEntity blockEntity, IRoutedItem arrivingItem);
 }

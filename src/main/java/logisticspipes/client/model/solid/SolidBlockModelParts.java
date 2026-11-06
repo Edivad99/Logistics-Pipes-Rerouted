@@ -8,7 +8,6 @@ import java.util.Map;
 
 import net.minecraft.core.Direction;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Matrix4f;

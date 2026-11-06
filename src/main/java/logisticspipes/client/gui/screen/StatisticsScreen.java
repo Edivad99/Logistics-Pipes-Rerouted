@@ -1,9 +1,10 @@
 package logisticspipes.client.gui.screen;
 
-import java.io.IOException;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.pow;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

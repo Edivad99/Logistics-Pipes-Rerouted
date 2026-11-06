@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-
 import net.minecraft.network.chat.Component;
+
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.Translations;

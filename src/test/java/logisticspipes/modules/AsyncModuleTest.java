@@ -1,8 +1,12 @@
 package logisticspipes.modules;
 
-import java.lang.reflect.Proxy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import logisticspipes.connection.NoAdjacent;
+import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -10,18 +14,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.jspecify.annotations.Nullable;
 
-import logisticspipes.interfaces.IPipeServiceProvider;
 import logisticspipes.api.property.Property;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import logisticspipes.connection.NoAdjacent;
+import logisticspipes.interfaces.IPipeServiceProvider;
 
 /**
  * The tick lifecycle every async module relies on: plan off the server thread, apply on it, one

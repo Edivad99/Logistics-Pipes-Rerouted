@@ -13,6 +13,7 @@ import java.util.function.UnaryOperator;
 
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
 import org.jspecify.annotations.Nullable;
 
 public abstract class ListProperty<T> implements IListProperty<T> {

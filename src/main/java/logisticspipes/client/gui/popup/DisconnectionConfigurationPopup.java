@@ -6,8 +6,8 @@ import java.util.Optional;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.BlockPos;
-
 import net.minecraft.network.chat.Component;
+
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.Translations;

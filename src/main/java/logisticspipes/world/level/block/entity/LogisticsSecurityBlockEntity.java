@@ -28,12 +28,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import lombok.Getter;
-
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import com.google.common.collect.Iterables;
 import com.mojang.authlib.GameProfile;
+import lombok.Getter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.Translations;

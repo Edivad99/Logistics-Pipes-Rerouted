@@ -17,7 +17,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import lombok.Getter;
-
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.routing.FilteredRoute;

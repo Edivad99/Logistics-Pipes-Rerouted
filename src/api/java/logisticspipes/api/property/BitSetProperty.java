@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
 import org.jspecify.annotations.Nullable;
 
 public class BitSetProperty implements IBitSet, Property<BitSet> {

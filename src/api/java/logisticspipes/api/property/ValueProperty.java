@@ -1,9 +1,9 @@
 package logisticspipes.api.property;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import org.jspecify.annotations.Nullable;
 
 public abstract class ValueProperty<V extends @Nullable Object> implements Property<V> {
 

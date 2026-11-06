@@ -1,5 +1,9 @@
 package logisticspipes.routing.sink;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -14,10 +18,6 @@ import org.junit.jupiter.api.Test;
 import logisticspipes.TestBootstrap;
 import logisticspipes.routing.ServerRouter;
 import logisticspipes.utils.item.ItemIdentifier;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * How the search for a destination behaves when there is nowhere to send anything, and the order it

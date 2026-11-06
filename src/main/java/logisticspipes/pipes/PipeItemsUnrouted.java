@@ -8,13 +8,13 @@ import logisticspipes.transport.PipeTransportLogistics;
 
 public class PipeItemsUnrouted extends CoreUnroutedPipe {
 
-	public PipeItemsUnrouted(Item item) {
-		super(new PipeTransportLogistics(false), item);
-	}
+    public PipeItemsUnrouted(Item item) {
+        super(new PipeTransportLogistics(false), item);
+    }
 
-	@Override
-	public int getTextureIndex() {
-		return PipeTexture.BASIC_TRANSPORT.ordinal();
-	}
+    @Override
+    public int getTextureIndex() {
+        return PipeTexture.BASIC_TRANSPORT.ordinal();
+    }
 
 }

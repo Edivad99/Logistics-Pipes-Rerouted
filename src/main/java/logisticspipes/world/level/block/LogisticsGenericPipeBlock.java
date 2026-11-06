@@ -1,5 +1,8 @@
 package logisticspipes.world.level.block;
 
+import static logisticspipes.LPConstants.PIPE_MAX_POS;
+import static logisticspipes.LPConstants.PIPE_MIN_POS;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -48,8 +51,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import org.jspecify.annotations.Nullable;
 
-import static logisticspipes.LPConstants.PIPE_MAX_POS;
-import static logisticspipes.LPConstants.PIPE_MIN_POS;
 import logisticspipes.LogisticsPipes;
 import logisticspipes.interfaces.IRotationProvider;
 import logisticspipes.interfaces.ITubeOrientation;

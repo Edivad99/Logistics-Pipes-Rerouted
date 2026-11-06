@@ -58,10 +58,10 @@ import logisticspipes.ticks.ClientTaskQueue;
 import logisticspipes.transport.LPTravelingItem;
 import logisticspipes.transport.PipeFluidTransportLogistics;
 import logisticspipes.transport.PipeTransportLogistics;
+import logisticspipes.utils.BlockEntityBuffer;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
-import logisticspipes.utils.BlockEntityBuffer;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.world.level.block.entity.pipe.PipePowerLasers;
@@ -566,14 +566,14 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
         this.pipe = pipe;
 
-		/*
-		for (Direction o : Direction.values()) {
-			BlockEntity tile = getTile(o);
+        /*
+        for (Direction o : Direction.values()) {
+            BlockEntity tile = getTile(o);
 
-			if (tile instanceof LogisticsTileGenericPipe) {
-				((LogisticsTileGenericPipe) tile).scheduleNeighborChange();
-			}
-		}*/
+            if (tile instanceof LogisticsTileGenericPipe) {
+                ((LogisticsTileGenericPipe) tile).scheduleNeighborChange();
+            }
+        }*/
 
         bindPipe();
 

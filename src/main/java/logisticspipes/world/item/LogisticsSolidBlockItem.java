@@ -2,7 +2,6 @@ package logisticspipes.world.item;
 
 import net.minecraft.world.item.BlockItem;
 
-
 import logisticspipes.world.level.block.LogisticsSolidBlock;
 
 public class LogisticsSolidBlockItem extends BlockItem {

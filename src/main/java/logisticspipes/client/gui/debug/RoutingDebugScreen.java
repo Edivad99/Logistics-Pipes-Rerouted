@@ -18,30 +18,30 @@ import logisticspipes.routing.debug.ClientViewController;
  */
 public class RoutingDebugScreen extends ScrollingTextScreen {
 
-	private RoutingDebugScreen() {
-		super(Component.literal("Routing table debug"));
-	}
+    private RoutingDebugScreen() {
+        super(Component.literal("Routing table debug"));
+    }
 
-	public static void open() {
-		Minecraft.getInstance().setScreen(new RoutingDebugScreen());
-	}
+    public static void open() {
+        Minecraft.getInstance().setScreen(new RoutingDebugScreen());
+    }
 
-	@Override
-	protected List<Component> lines() {
-		return ClientViewController.instance().candidateLines();
-	}
+    @Override
+    protected List<Component> lines() {
+        return ClientViewController.instance().candidateLines();
+    }
 
-	@Override
-	protected List<Button> footerButtons() {
-		return List.of(
-				step("Next", "one", 50),
-				step("Rest", "all", 50),
-				step("Stop", "stop", 50));
-	}
+    @Override
+    protected List<Button> footerButtons() {
+        return List.of(
+                step("Next", "one", 50),
+                step("Rest", "all", 50),
+                step("Stop", "stop", 50));
+    }
 
-	private Button step(String label, String argument, int width) {
-		return Button.builder(Component.literal(label),
-						ignored -> runCommand(LPConstants.ID + " debug step " + argument))
-				.width(width).build();
-	}
+    private Button step(String label, String argument, int width) {
+        return Button.builder(Component.literal(label),
+                        ignored -> runCommand(LPConstants.ID + " debug step " + argument))
+                .width(width).build();
+    }
 }

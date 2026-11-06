@@ -1,9 +1,9 @@
 package logisticspipes.api.property.layer;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.property.Property;
 

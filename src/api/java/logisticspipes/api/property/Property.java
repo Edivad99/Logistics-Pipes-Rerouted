@@ -1,10 +1,10 @@
 package logisticspipes.api.property;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import net.neoforged.neoforge.common.util.ValueIOSerializable;
+
+import org.jspecify.annotations.Nullable;
 
 /**
  * Properties follow a standard observer pattern by notifying on every write access.

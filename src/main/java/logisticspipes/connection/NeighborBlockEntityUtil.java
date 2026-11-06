@@ -3,6 +3,7 @@ package logisticspipes.connection;
 import java.util.Optional;
 
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.api.connection.NeighborBlockEntity;

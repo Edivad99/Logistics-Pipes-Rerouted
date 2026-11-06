@@ -1,5 +1,8 @@
 package logisticspipes.client.model.mesh;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -8,9 +11,6 @@ import java.util.Objects;
 
 import org.joml.Matrix4f;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Covers the mesh engine that replaces the CodeChickenLib-derived {@code LPModel3DImpl} /

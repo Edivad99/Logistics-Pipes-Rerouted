@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+
 import org.jspecify.annotations.Nullable;
 
 public class NullableEnumProperty<E extends Enum<E>> extends ValueProperty<@Nullable E> {

@@ -392,13 +392,13 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
             causedBy.clear();
         }
         if (getPipe() != null) {
-			/*
-			if (getPipe().getDebug() != null && getPipe().getDebug().debugThisPipe) {
-				Info info = StackTraceUtil.addTraceInformation("(" + getPipe().getX() + ", " + getPipe().getY() + ", " + getPipe().getZ() + ")");
-				StackTraceUtil.printTrace();
-				info.end();
-			}
-			*/
+            /*
+            if (getPipe().getDebug() != null && getPipe().getDebug().debugThisPipe) {
+                Info info = StackTraceUtil.addTraceInformation("(" + getPipe().getX() + ", " + getPipe().getY() + ", " + getPipe().getZ() + ")");
+                StackTraceUtil.printTrace();
+                info.end();
+            }
+            */
             getPipe().spawnParticle(Particles.LIGHT_RED_SPARKLE, 5);
         }
 

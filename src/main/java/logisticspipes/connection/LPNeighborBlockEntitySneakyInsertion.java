@@ -2,6 +2,7 @@ package logisticspipes.connection;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
+
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.interfaces.ISlotUpgradeManager;

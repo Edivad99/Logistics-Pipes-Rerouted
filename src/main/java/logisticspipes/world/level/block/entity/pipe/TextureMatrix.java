@@ -7,9 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import io.netty.buffer.ByteBuf;
-
 import lombok.Getter;
-
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConfigs;

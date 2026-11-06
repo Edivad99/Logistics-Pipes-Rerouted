@@ -20,10 +20,9 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
-import lombok.Setter;
-
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import lombok.Setter;
 import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LPConstants;
