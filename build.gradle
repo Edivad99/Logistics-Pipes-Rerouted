@@ -316,7 +316,7 @@ def lastCommit = providers.exec {
 
 def penultimateTag = () -> {
     providers.exec {
-        commandLine 'git', 'describe', '--abbrev=0', '--tags', 'HEAD~'
+        commandLine 'git', 'describe', '--abbrev=0', '--tags', '--exclude', '*-*', '--exclude', mod_version, 'HEAD~'
     }.standardOutput.asText.get().trim()
 }
 
