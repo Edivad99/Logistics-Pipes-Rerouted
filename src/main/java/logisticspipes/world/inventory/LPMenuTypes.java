@@ -132,9 +132,6 @@ public class LPMenuTypes {
                 new HudSettingsMenu(containerId, inventory, buffer.readVarInt()),
             FeatureFlags.DEFAULT_FLAGS));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<LogicControllerMenu>> LOGIC_CONTROLLER =
-        deferredRegister.register("logic_controller",
-            () -> blockEntityMenu(LogisticsGenericPipeBlockEntity.class, LogicControllerMenu::new));
 
     public static final DeferredHolder<MenuType<?>, MenuType<AdvancedExtractorMenu>> ADVANCED_EXTRACTOR =
         deferredRegister.register("advanced_extractor", () -> new MenuType<>(

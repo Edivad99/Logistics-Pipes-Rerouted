@@ -179,8 +179,6 @@ public final class Translations {
         public static final String PIPE_CONTROLLER_DISCONNECTION_TITLE =
             makeKey("screen", "pipe_controller.disconnection_title");
         public static final String PIPE_CONTROLLER_SNEAKY_TITLE = makeKey("screen", "pipe_controller.sneaky_title");
-        public static final String PIPE_CONTROLLER_EDIT_LOGIC =
-            makeKey("screen", "pipe_controller.edit_logic");
 
         public static final String SATELLITE_NAME = makeKey("screen", "satellite_pipe.name");
 

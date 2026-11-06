@@ -42,8 +42,6 @@ import logisticspipes.client.model.pipe.PipeModelProperties;
 import logisticspipes.client.model.tube.TubeKey;
 import logisticspipes.client.model.tube.TubeMeshes;
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.logic.LogicController;
-import logisticspipes.logic.interfaces.ILogicControllerTile;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.UpdateTagPayload;
 import logisticspipes.network.to_client.pipe.PipeRenderUpdateMessage;
@@ -69,8 +67,7 @@ import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.world.level.block.entity.pipe.PipePowerLasers;
 import logisticspipes.world.level.block.entity.pipe.PipeVisualState;
 
-public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPipeInformationProvider,
-    ILogicControllerTile {
+public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPipeInformationProvider {
 
     private static final String NBT_PIPE_ID = "pipeIdName";
     /**
@@ -84,7 +81,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     private final EnumMap<Direction, ItemInsertionHandler> itemInsertionHandlers = new EnumMap<>(Direction.class);
     public int statePacketId = 0;
     public Set<BlockPos> subMultiBlock = new HashSet<>();
-    public LogicController logicController = new LogicController();
     public boolean[] pipeConnectionsBuffer = new boolean[6];
     @Nullable
     public CoreUnroutedPipe pipe;
@@ -340,8 +336,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         } else if (coreState.pipeIdName != null && !coreState.pipeIdName.isEmpty()) {
             output.putString(NBT_PIPE_ID, coreState.pipeIdName);
         }
-
-        output.putChild("logicController", logicController);
     }
 
     @Override
@@ -377,7 +371,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
                 getBlockPos(), savedPipeId);
         }
 
-        logicController.deserialize(input.childOrEmpty("logicController"));
     }
 
     public boolean canPipeConnect(@Nullable BlockEntity with, Direction side) {
@@ -775,11 +768,6 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
             return false;
         }
         return super.isRemoved();
-    }
-
-    @Override
-    public LogicController getLogicController() {
-        return logicController;
     }
 
     @Override

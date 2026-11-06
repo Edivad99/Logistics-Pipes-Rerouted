@@ -205,7 +205,6 @@ public class LPLanguageProvider extends LanguageProvider {
         addItem(LPItems.UPGRADE_CRAFTING_MONITORING, "Crafting Monitoring Upgrade");
         addItem(LPItems.UPGRADE_OPAQUE, "Opaque Upgrade");
         addItem(LPItems.UPGRADE_CRAFTING_CLEANUP, "Crafting Cleanup Upgrade");
-        addItem(LPItems.UPGRADE_LOGIC_CONTROLLER, "Logic Controller Upgrade");
         addItem(LPItems.UPGRADE_MODULE_UPGRADE, "Module Upgrade");
         addItem(LPItems.UPGRADE_ACTION_SPEED, "Action Speed Upgrade");
         addItem(LPItems.UPGRADE_ITEM_EXTRACTION, "Item Extraction Upgrade");
@@ -422,7 +421,6 @@ public class LPLanguageProvider extends LanguageProvider {
         add(Screen.PIPE_CONTROLLER_ROUTING_TABLE_SIZE, "RoutingTableSize");
         add(Screen.PIPE_CONTROLLER_DISCONNECTION_TITLE, "Disconnection Configuration");
         add(Screen.PIPE_CONTROLLER_SNEAKY_TITLE, "Sneaky Configuration");
-        add(Screen.PIPE_CONTROLLER_EDIT_LOGIC, "Edit Logic Controller");
 
         add(Screen.SATELLITE_NAME, "Satellite Name");
 

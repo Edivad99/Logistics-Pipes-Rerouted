@@ -63,7 +63,6 @@ import logisticspipes.client.renderer.item.properties.FluidTint;
 import logisticspipes.client.renderer.item.properties.HasFluid;
 import logisticspipes.client.renderer.pip.SideConfigSceneRenderer;
 import logisticspipes.client.renderer.pip.SideConfigSceneState;
-import logisticspipes.logic.gui.LogicLayoutGui;
 import logisticspipes.particle.LPParticleTypes;
 import logisticspipes.textures.TextureRegistrar;
 import logisticspipes.ticks.RenderTickHandler;
@@ -180,7 +179,6 @@ public class ClientManager {
         event.register(LPMenuTypes.STRING_BASED_ITEM_SINK.get(), StringBasedItemSinkScreen::new);
         event.register(LPMenuTypes.ADVANCED_EXTRACTOR.get(), AdvancedExtractorScreen::new);
         event.register(LPMenuTypes.HUD_SETTINGS.get(), HUDSettingsScreen::new);
-        event.register(LPMenuTypes.LOGIC_CONTROLLER.get(), LogicLayoutGui::new);
         event.register(LPMenuTypes.FLUID_SUPPLIER.get(), FluidSupplierPipeScreen::new);
         event.register(LPMenuTypes.FLUID_SUPPLIER_MK2.get(), FluidSupplierMk2PipeScreen::new);
     }

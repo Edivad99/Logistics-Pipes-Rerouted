@@ -25,7 +25,6 @@ public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
 	private int buttonNextFreeId = 0;
 
 	private final List<TabSubGui> tabList = new ArrayList<>();
-	private final List<Slot> hiddenSlots = new ArrayList<>();
 
 	public LogisticsBaseTabGuiScreen(T container, int xSize, int ySize) {
 		super(container, xSize, ySize, 0, 0);
@@ -133,7 +132,6 @@ public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
 
 	@Override
 	protected boolean shouldRenderSlot(Slot slot) {
-		if (hiddenSlots.contains(slot)) return false;
 		for (int i = 0; i < tabList.size(); i++) {
 			if (tabList.get(i).isSlotForTab(slot)) {
 				if (current_Tab != i || !tabList.get(i).showSlot(slot)) {
@@ -163,11 +161,6 @@ public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
 
 	protected void addTab(TabSubGui gui) {
 		tabList.add(gui);
-	}
-
-	protected Slot addHiddenSlot(Slot slot) {
-		hiddenSlots.add(slot);
-		return slot;
 	}
 
 	protected abstract class TabSubGui {

@@ -74,7 +74,6 @@ import logisticspipes.pipes.upgrades.FuzzyUpgrade;
 import logisticspipes.pipes.upgrades.IPipeUpgrade;
 import logisticspipes.pipes.upgrades.ItemExtractionUpgrade;
 import logisticspipes.pipes.upgrades.ItemStackExtractionUpgrade;
-import logisticspipes.pipes.upgrades.LogicControllerUpgrade;
 import logisticspipes.pipes.upgrades.OpaqueUpgrade;
 import logisticspipes.pipes.upgrades.PatternUpgrade;
 import logisticspipes.pipes.upgrades.PowerTransportationUpgrade;
@@ -325,8 +324,6 @@ public class LPItems {
         registerUpgrade(OpaqueUpgrade.getName(), OpaqueUpgrade::new);
     public static final DeferredItem<ItemUpgrade> UPGRADE_CRAFTING_CLEANUP =
         registerUpgrade(CraftingCleanupUpgrade.getName(), CraftingCleanupUpgrade::new);
-    public static final DeferredItem<ItemUpgrade> UPGRADE_LOGIC_CONTROLLER =
-        registerUpgrade(LogicControllerUpgrade.getName(), LogicControllerUpgrade::new);
     public static final DeferredItem<ItemUpgrade> UPGRADE_MODULE_UPGRADE =
         registerUpgrade(UpgradeModuleUpgrade.getName(), UpgradeModuleUpgrade::new);
     public static final DeferredItem<ItemUpgrade> UPGRADE_ACTION_SPEED =

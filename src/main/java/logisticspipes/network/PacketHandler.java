@@ -87,7 +87,6 @@ import logisticspipes.network.to_client.security.SecurityStationFlagsMessage;
 import logisticspipes.network.to_client.security.SecurityStationIdMessage;
 import logisticspipes.network.to_client.security.SecurityStationSettingsMessage;
 import logisticspipes.network.to_server.block.BlockHudWatchMessage;
-import logisticspipes.network.to_server.block.OpenLogicControllerMessage;
 import logisticspipes.network.to_server.block.PowerJunctionCheatMessage;
 import logisticspipes.network.to_server.block.RequestBlockRotationMessage;
 import logisticspipes.network.to_server.block.RequestRunningCraftingTasksMessage;
@@ -297,8 +296,6 @@ public class PacketHandler {
                 SetGhostSlotMessage.STREAM_CODEC, SetGhostSlotMessage::handle);
         registrar.playToServer(PowerJunctionCheatMessage.TYPE,
                 PowerJunctionCheatMessage.STREAM_CODEC, PowerJunctionCheatMessage::handle);
-        registrar.playToServer(OpenLogicControllerMessage.TYPE,
-                OpenLogicControllerMessage.STREAM_CODEC, OpenLogicControllerMessage::handle);
         registrar.playToServer(OpenChassisModuleGuiMessage.TYPE,
                 OpenChassisModuleGuiMessage.STREAM_CODEC, OpenChassisModuleGuiMessage::handle);
         registrar.playToServer(RequestChannelSelectMessage.TYPE,

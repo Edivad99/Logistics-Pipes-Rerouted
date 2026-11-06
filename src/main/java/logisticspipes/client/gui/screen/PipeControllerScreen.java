@@ -14,13 +14,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.Translations;
-import logisticspipes.network.to_server.block.OpenLogicControllerMessage;
 import logisticspipes.network.to_server.pipe.OpenUpgradeConfigMessage;
 import logisticspipes.network.to_server.pipe.PipeOrderWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
@@ -49,8 +47,6 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
         Upgrades upgrades = new Upgrades(menu);
         Security security = new Security(menu);
         Statistics statistics = new Statistics();
-        //Logic logic = new Logic();
-        addHiddenSlot(menu.getDiskSlot()); //Keep it for now, but hidden. Maybe it will be used again later
         Tasks tasks = new Tasks();
 
         //Here order doesn't matter/can be changed to reorganise tabs
@@ -58,13 +54,11 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
             addTab(upgrades);
             addTab(security);
             addTab(statistics);
-            //addTab(logic);
             addTab(tasks);
         } else {
             addTab(statistics);
             addTab(upgrades);
             addTab(security);
-            //addTab(logic);
             addTab(tasks);
         }
     }
@@ -245,51 +239,6 @@ public class PipeControllerScreen extends LogisticsBaseTabGuiScreen<PipeControll
         private void drawRightAligned(GuiGraphicsExtractor guiGraphics, String key, int right, int y) {
             Component text = Component.translatable(key).append(":");
             guiGraphics.text(font, text, right - font.width(text), y, 0xFF303030, false);
-        }
-    }
-
-    private class Logic extends TabSubGui {
-
-        private AbstractButton editButton;
-
-        @Override
-        public void initTab() {
-            editButton = addRenderableWidget(
-                new SmallGuiButton(0, leftPos + 10, topPos + 70, 160, 20,
-                    Component.translatable(Translations.Screen.PIPE_CONTROLLER_EDIT_LOGIC)));
-        }
-
-        @Override
-        public void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y) {
-            // A redstone torch, the icon this tab had before the port.
-            guiGraphics.item(Blocks.REDSTONE_TORCH.asItem().getDefaultInstance(), x, y);
-        }
-
-        @Override
-        public void buttonClicked(AbstractButton button) {
-            if (button == editButton) {
-                ClientPacketDistributor.sendToServer(
-                    new OpenLogicControllerMessage(pipe.getContainer().getBlockPos()));
-            }
-        }
-
-        @Override
-        public void renderBackgroundContent(GuiGraphicsExtractor guiGraphics) {
-            guiGraphics.fill(leftPos + 12, topPos + 34, leftPos + 32, topPos + 54, Color.getValue(Color.BLACK));
-            guiGraphics.fill(leftPos + 14, topPos + 36, leftPos + 30, topPos + 52, Color.getValue(Color.DARKER_GREY));
-        }
-
-        @Override
-        public void checkButton(AbstractButton button, boolean isTabActive) {
-            if (isTabActive) {
-                button.active = !pipe.getContainer().logicController.diskInv.getItem(0).isEmpty();
-            }
-            super.checkButton(button, isTabActive);
-        }
-
-        @Override
-        public void renderForegroundContent(GuiGraphicsExtractor guiGraphics) {
-
         }
     }
 

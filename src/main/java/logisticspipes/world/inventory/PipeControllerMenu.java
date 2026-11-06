@@ -25,8 +25,8 @@ import logisticspipes.world.item.LPItems;
 import logisticspipes.world.item.component.LPDataComponents;
 
 /**
- * The pipe controller: the pipe's own upgrades, its sneaky upgrades, its security card and the
- * disk slot, spread over tabs that the screen shows one at a time.
+ * The pipe controller: the pipe's own upgrades, its sneaky upgrades, and its security card,
+ * spread over tabs that the screen shows one at a time.
  *
  * <p>Every slot lives here rather than in the tabs, so that both sides agree on their order --
  * which is what the slot indices in the protocol mean -- and on where they are drawn.
@@ -42,9 +42,6 @@ public class PipeControllerMenu extends DummyMenu {
 
     @Getter
     private final Slot securitySlot;
-
-    @Getter
-    private final Slot diskSlot;
 
     public PipeControllerMenu(int containerId, Inventory inventory, CoreRoutedPipe pipe) {
         super(LPMenuTypes.PIPE_CONTROLLER.get(), containerId, inventory.player, null);
@@ -68,8 +65,6 @@ public class PipeControllerMenu extends DummyMenu {
 
         securitySlot = addStaticRestrictedSlot(0, upgrades.secInv, 10, 42,
             stack -> isAuthorizedCard(stack, pipe), 1);
-        // Kept but hidden; it may be used again once the logic controller tab comes back.
-        diskSlot = addRestrictedSlot(0, pipe.getContainer().logicController.diskInv, 14, 36, LPItems.DISK.get());
 
         if (inventory.player instanceof ServerPlayer) {
             upgrades.getGuiController().screenOpenedByPlayer(inventory.player);

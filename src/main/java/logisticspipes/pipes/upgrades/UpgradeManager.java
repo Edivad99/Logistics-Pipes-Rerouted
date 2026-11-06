@@ -61,7 +61,6 @@ public class UpgradeManager
     private boolean hasCraftingMonitoringUpgrade = false;
     private boolean hasOpaqueUpgrade = false;
     private int craftingCleanup = 0;
-    private boolean hasLogicControl = false;
     private boolean hasUpgradeModuleUpgrade = false;
     private int actionSpeedUpgrade = 0;
     private int itemExtractionUpgrade = 0;
@@ -146,7 +145,6 @@ public class UpgradeManager
         hasCraftingMonitoringUpgrade = false;
         hasOpaqueUpgrade = false;
         craftingCleanup = 0;
-        hasLogicControl = false;
         hasUpgradeModuleUpgrade = false;
         actionSpeedUpgrade = 0;
         itemExtractionUpgrade = 0;
@@ -185,8 +183,6 @@ public class UpgradeManager
                 hasOpaqueUpgrade = true;
             } else if (upgrade instanceof CraftingCleanupUpgrade) {
                 craftingCleanup += inv.getItem(i).getCount();
-            } else if (upgrade instanceof LogicControllerUpgrade) {
-                hasLogicControl = true;
             } else if (upgrade instanceof UpgradeModuleUpgrade) {
                 hasUpgradeModuleUpgrade = true;
             } else if (upgrade instanceof ActionSpeedUpgrade) {
