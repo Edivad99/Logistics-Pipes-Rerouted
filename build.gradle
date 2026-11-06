@@ -20,7 +20,7 @@ if (!isRelease) {
 }
 
 version = "$minecraft_version-$mod_version"
-group = 'network.rs485'
+group = mod_group_id
 
 // Local copy: inside the `runs` container an unqualified `mod_id` would resolve to a run
 // configuration of that name instead of to the project property.
@@ -219,12 +219,12 @@ dependencies {
 spotless {
     java {
         target 'src/*/java/**/*.java'
-        /*importOrder('\\#', 'java|javax|org|com|')
+        importOrder('java|javax', 'net.minecraft', 'net.neoforged', '', 'logisticspipes')
 
         endWithNewline()
         trimTrailingWhitespace()
         removeUnusedImports()
-        leadingTabsToSpaces(4)*/
+        leadingTabsToSpaces(4)
     }
 }
 
