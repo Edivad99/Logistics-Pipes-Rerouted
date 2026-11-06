@@ -1,0 +1,36 @@
+package logisticspipes.utils.gui;
+
+import net.minecraft.world.Container;
+
+import logisticspipes.api.property.IBitSet;
+import logisticspipes.interfaces.IFuzzySlot;
+
+public class FuzzyUnmodifiableSlot extends UnmodifiableSlot implements IFuzzySlot {
+
+    private IBitSet fuzzyFlags;
+
+    public FuzzyUnmodifiableSlot(Container par1iInventory, int par2, int par3, int par4, IBitSet fuzzyFlags) {
+        super(par1iInventory, par2, par3, par4);
+        this.fuzzyFlags = fuzzyFlags;
+    }
+
+    @Override
+    public IBitSet getFuzzyFlags() {
+        return fuzzyFlags;
+    }
+
+    @Override
+    public int getX() {
+        return x;
+    }
+
+    @Override
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public int getSlotId() {
+        return this.index;
+    }
+}

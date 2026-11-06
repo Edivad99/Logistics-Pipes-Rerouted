@@ -49,7 +49,6 @@ sourceSets {
     main {
         compileClasspath += api.output
         runtimeClasspath += api.output
-        java { srcDirs += 'common' }
         resources {
             srcDir 'src/generated/resources'
             exclude '**/*.bbmodel'
@@ -231,7 +230,6 @@ spotless {
 
 tasks.register('generatePackageInfos') {
     def srcDirs = [
-        layout.projectDirectory.dir("common"),
         layout.projectDirectory.dir("src/main/java"),
         layout.projectDirectory.dir("src/api/java")
     ]

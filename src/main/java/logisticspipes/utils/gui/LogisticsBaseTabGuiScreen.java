@@ -1,0 +1,234 @@
+package logisticspipes.utils.gui;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+
+import logisticspipes.client.gui.screen.LogisticsBaseGuiScreen;
+
+public class LogisticsBaseTabGuiScreen<T extends AbstractContainerMenu>
+    extends LogisticsBaseGuiScreen<T> {
+
+    private int current_Tab;
+
+    private final List<TabSubGui> tabList = new ArrayList<>();
+
+    public LogisticsBaseTabGuiScreen(T container, int xSize, int ySize) {
+        super(container, xSize, ySize, 0, 0);
+    }
+
+    public LogisticsBaseTabGuiScreen(T container, Inventory inventory, Component title,
+        int xSize, int ySize, int xCenterOffset, int yCenterOffset) {
+        super(container, inventory, title, xSize, ySize, xCenterOffset, yCenterOffset);
+    }
+
+    @Override
+    public void init() {
+        super.init();
+        clearWidgets();
+        tabList.forEach(TabSubGui::initTab);
+    }
+
+    @Override
+    public void closeGui() throws IOException {
+        super.closeGui();
+
+        init();
+    }
+
+    @Override
+    protected void extractGuiBackground(GuiGraphicsExtractor guiGraphics, int mouse_x, int mouse_y, float f) {
+        for (int i = 0; i < tabList.size(); i++) {
+            LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * i) + 2, topPos - 2, leftPos + 27 + (25 * i),
+                topPos + 35, 0.0f, false, true, true, false, true);
+        }
+        LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos, topPos + 20, right, bottom, 0.0f, true);
+        LPGuiGraphics.drawGuiBackGround(guiGraphics, leftPos + (25 * current_Tab) + 2, topPos - 2,
+            leftPos + 27 + (25 * current_Tab), topPos + 38, 0.0f, true, true, true, false, true);
+        LPGuiGraphics.drawPlayerInventoryBackground(guiGraphics, leftPos + 11, topPos + 136);
+
+        int x = 6;
+        for (TabSubGui aTabList : tabList) {
+            aTabList.renderIcon(guiGraphics, leftPos + x, topPos + 3);
+            x += 25;
+        }
+
+        for (int i = 0; i < tabList.size(); i++) {
+            if (current_Tab == i) {
+                tabList.get(i).renderBackgroundContent(guiGraphics);
+            }
+        }
+
+        super.extractGuiBackground(guiGraphics, mouse_x, mouse_y, f);
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double par1 = event.x();
+        double par2 = event.y();
+        int par3 = event.button();
+        if (par3 == 0 && par1 > leftPos && par1 < leftPos + 220 && par2 > topPos && par2 < topPos + 20) {
+            par1 -= leftPos + 3;
+            int select = Math.max(0, Math.min((int) (par1 / 25), tabList.size() - 1));
+            if (current_Tab != select) {
+                tabList.get(current_Tab).leavingTab();
+                tabList.get(select).enteringTab();
+            }
+            current_Tab = select;
+            return true;
+        } else {
+            for (int i = 0; i < tabList.size(); i++) {
+                if (current_Tab == i) {
+                    if (tabList.get(i).handleClick((int) par1, (int) par2, par3)) {
+                        return true;
+                    }
+                }
+            }
+            return super.mouseClicked(event, doubleClick);
+        }
+    }
+
+    @Override
+    public boolean charTyped(CharacterEvent event) {
+        char p_73869_1_ = (char) event.codepoint();
+        int p_73869_2_ = 0 /* CharacterEvent carries no modifiers in 26.1.2 */;
+        for (int i = 0; i < tabList.size(); i++) {
+            if (current_Tab == i) {
+                if (tabList.get(i).handleKey(p_73869_2_, p_73869_1_)) {
+                    return true;
+                }
+            }
+        }
+        if (p_73869_2_ == 1) {
+            tabList.forEach(TabSubGui::guiClose);
+        }
+        return super.charTyped(event);
+    }
+
+    @Override
+    protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+        super.extractLabels(guiGraphics, mouseX, mouseY);
+        for (int i = 0; i < tabList.size(); i++) {
+            if (current_Tab == i) {
+                tabList.get(i).renderForegroundContent(guiGraphics);
+            }
+        }
+    }
+
+    @Override
+    protected boolean shouldRenderSlot(Slot slot) {
+        for (int i = 0; i < tabList.size(); i++) {
+            if (tabList.get(i).isSlotForTab(slot)) {
+                if (current_Tab != i || !tabList.get(i).showSlot(slot)) {
+                    return false;
+                }
+            }
+        }
+        return super.shouldRenderSlot(slot);
+    }
+
+    // isMouseOverSlot needs no override: the per-tab filter reaches it through shouldRenderSlot/isHovering.
+
+    @Override
+    protected void checkButtons() {
+        super.checkButtons();
+        for (AbstractWidget widget : buttonList) {
+            if (!(widget instanceof AbstractButton button)) {
+                continue;
+            }
+            for (int i = 0; i < tabList.size(); i++) {
+                if (tabList.get(i).isButtonFromGui(button)) {
+                    tabList.get(i).checkButton(button, current_Tab == i);
+                }
+            }
+        }
+    }
+
+    protected void addTab(TabSubGui gui) {
+        tabList.add(gui);
+    }
+
+    protected abstract class TabSubGui {
+
+        private final List<Slot> TAB_SLOTS = new ArrayList<>();
+        private final List<AbstractButton> TAB_BUTTONS = new ArrayList<>();
+
+        public abstract void renderIcon(GuiGraphicsExtractor guiGraphics, int x, int y);
+
+        public abstract void renderBackgroundContent(GuiGraphicsExtractor guiGraphics);
+
+        public abstract void renderForegroundContent(GuiGraphicsExtractor guiGraphics);
+
+        public boolean isSlotForTab(Slot slot) {
+            return TAB_SLOTS.contains(slot);
+        }
+
+        public Slot addSlot(Slot slot) {
+            TAB_SLOTS.add(slot);
+            return slot;
+        }
+
+        /**
+         * Adds a button to this tab, and routes its press to {@link #buttonClicked}.
+         *
+         * <p>Tabs answer their buttons in one place rather than one listener each -- that used to
+         * be {@code actionPerformed}, which 1.20.1 replaced with per-button listeners. Nothing
+         * called {@code buttonClicked} after the port, so every tab button that relied on it did
+         * nothing at all. A button that brought its own listener keeps it; both run.
+         */
+        public AbstractButton addRenderableWidget(AbstractButton button) {
+            if (button instanceof SmallGuiButton smallButton) {
+                smallButton.setPressListener(smallButton.getPressListener().andThen(this::buttonClicked));
+            }
+            TAB_BUTTONS.add(LogisticsBaseTabGuiScreen.this.addRenderableWidget(button));
+            return button;
+        }
+
+        public boolean isButtonFromGui(AbstractButton button) {
+            return TAB_BUTTONS.contains(button);
+        }
+
+        public void initTab() {
+        }
+
+        public void checkButton(AbstractButton button, boolean isTabActive) {
+            if (TAB_BUTTONS.contains(button)) {
+                button.visible = isTabActive;
+            }
+        }
+
+        public void buttonClicked(AbstractButton button) {
+        }
+
+        public boolean handleClick(int x, int y, int type) {
+            return false;
+        }
+
+        public boolean handleKey(int code, char c) {
+            return false;
+        }
+
+        public void guiClose() {
+        }
+
+        public boolean showSlot(Slot slot) {
+            return true;
+        }
+
+        public void leavingTab() {
+        }
+
+        public void enteringTab() {
+        }
+    }
+}

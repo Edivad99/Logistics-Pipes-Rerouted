@@ -36,7 +36,7 @@ public class AdvancedExtractorScreen extends ModuleBaseScreen<AdvancedExtractorM
     public void init() {
         super.init();
         //Default item toggle:
-        addRenderableWidget(new GuiStringHandlerButton(0, width / 2 + 20, height / 2 - 34, 60, 20,
+        addRenderableWidget(new GuiStringHandlerButton(width / 2 + 20, height / 2 - 34, 60, 20,
             () -> Component.translatable(
                 itemsIncludedOverlay.get() ? Translations.Screen.INCLUDED : Translations.Screen.EXCLUDED),
             () -> itemsIncludedOverlay.write(BooleanProperty::toggle)));

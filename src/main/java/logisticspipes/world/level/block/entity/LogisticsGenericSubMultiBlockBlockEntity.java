@@ -31,7 +31,7 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.ISubMultiBlockPipeInformationProvider;
 import logisticspipes.ticks.ClientTaskQueue;
-import logisticspipes.utils.TileBuffer;
+import logisticspipes.utils.BlockEntityBuffer;
 import logisticspipes.world.level.block.LogisticsGenericSubMultiBlockBlock;
 
 public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
@@ -40,7 +40,7 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
     private Set<BlockPos> mainPipePos = new HashSet<>();
     private @Nullable List<LogisticsGenericPipeBlockEntity> mainPipe;
     private List<CoreMultiBlockPipe.SubBlockTypeForShare> subTypes = new ArrayList<>();
-    private TileBuffer @Nullable [] tileBuffer;
+    private BlockEntityBuffer @Nullable [] blockEntityBuffer;
     private volatile @Nullable ShapeUnion shapeUnion;
 
     /** A union {@link #unionOf} built, with the shapes it was built from. */
@@ -289,12 +289,12 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
 
     @Nullable
     public BlockEntity getBlockEntity(Direction to, boolean force) {
-        TileBuffer[] cache = getTileCache();
+        BlockEntityBuffer[] cache = getBlockEntityCache();
         if (cache != null) {
             if (force) {
                 cache[to.ordinal()].refresh();
             }
-            return cache[to.ordinal()].getTile();
+            return cache[to.ordinal()].getBlockEntity();
         } else {
             return null;
         }
@@ -302,7 +302,7 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
 
     @Nullable
     public Block getBlock(Direction to) {
-        TileBuffer[] cache = getTileCache();
+        BlockEntityBuffer[] cache = getBlockEntityCache();
         if (cache != null) {
             return cache[to.ordinal()].getBlock();
         } else {
@@ -310,23 +310,23 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
         }
     }
 
-    public TileBuffer @Nullable [] getTileCache() {
-        if (tileBuffer == null) {
-            tileBuffer = TileBuffer.makeBuffer(getLevel(), getBlockPos(), true);
+    public BlockEntityBuffer @Nullable [] getBlockEntityCache() {
+        if (blockEntityBuffer == null) {
+            blockEntityBuffer = BlockEntityBuffer.makeBuffer(getLevel(), getBlockPos(), true);
         }
-        return tileBuffer;
+        return blockEntityBuffer;
     }
 
     @Override
     public void setRemoved() {
         super.setRemoved();
-        tileBuffer = null;
+        blockEntityBuffer = null;
     }
 
     @Override
     public void onLoad() {
         super.onLoad();
-        tileBuffer = null;
+        blockEntityBuffer = null;
         // The controller is only ever set by the server-side placement path, so a sub block that
         // reaches the world without one is a bug there.
         if (!level.isClientSide() && mainPipePos.isEmpty()) {
@@ -335,7 +335,7 @@ public class LogisticsGenericSubMultiBlockBlockEntity extends BlockEntity
     }
 
     public void scheduleNeighborChange() {
-        tileBuffer = null;
+        blockEntityBuffer = null;
     }
 
     public void addSubTypeTo(CoreMultiBlockPipe.SubBlockTypeForShare type) {

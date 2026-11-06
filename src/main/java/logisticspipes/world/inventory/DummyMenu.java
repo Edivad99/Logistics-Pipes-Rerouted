@@ -43,7 +43,7 @@ import logisticspipes.utils.gui.DummySlot;
 import logisticspipes.utils.gui.FluidSlot;
 import logisticspipes.utils.gui.FuzzyDummySlot;
 import logisticspipes.utils.gui.FuzzyUnmodifiableSlot;
-import logisticspipes.utils.gui.HandelableSlot;
+import logisticspipes.utils.gui.HandleableSlot;
 import logisticspipes.utils.gui.IJeiScreenHolder;
 import logisticspipes.utils.gui.ModuleSlot;
 import logisticspipes.utils.gui.RestrictedSlot;
@@ -105,7 +105,7 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
         }
         Slot slot = this.slots.get(i);
         if (slot instanceof DummySlot || slot instanceof UnmodifiableSlot || slot instanceof FluidSlot
-            || slot instanceof ColorSlot || slot instanceof HandelableSlot || !slot.hasItem()) {
+            || slot instanceof ColorSlot || slot instanceof HandleableSlot || !slot.hasItem()) {
             return ItemStack.EMPTY;
         }
         if (transferTop.contains(slot)) {
@@ -208,9 +208,9 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
         if (carried.isEmpty() && input == ContainerInput.PICKUP_ALL) {
             return;
         }
-        if (slot instanceof HandelableSlot handelable) {
+        if (slot instanceof HandleableSlot handleable) {
             if (carried.isEmpty()) {
-                setCarried(handelable.getProvidedStack());
+                setCarried(handleable.getProvidedStack());
             }
             return;
         }
@@ -229,7 +229,7 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
             return;
         }
         final Slot slot = slots.get(slotId);
-        if (!isGhostSlot(slot) || slot instanceof UnmodifiableSlot || slot instanceof HandelableSlot) {
+        if (!isGhostSlot(slot) || slot instanceof UnmodifiableSlot || slot instanceof HandleableSlot) {
             return;
         }
         editGhostSlot(slot, slotId, stack, mouseButton, ContainerInput.PICKUP, player);
@@ -237,7 +237,7 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
 
     private static boolean isGhostSlot(Slot slot) {
         return slot instanceof DummySlot || slot instanceof UnmodifiableSlot || slot instanceof FluidSlot
-            || slot instanceof ColorSlot || slot instanceof HandelableSlot;
+            || slot instanceof ColorSlot || slot instanceof HandleableSlot;
     }
 
     private void editGhostSlot(Slot slot, int slotId, ItemStack carried, int mouseButton, ContainerInput input,
@@ -375,7 +375,7 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
     @Override
     public boolean canDragTo(Slot slot) {
         if (slot instanceof UnmodifiableSlot || slot instanceof FluidSlot || slot instanceof ColorSlot
-            || slot instanceof HandelableSlot) {
+            || slot instanceof HandleableSlot) {
             return false;
         }
         final boolean firstOfThisDrag = lastDragLookup <= lastClicked;
@@ -469,7 +469,7 @@ public abstract class DummyMenu extends AbstractContainerMenu implements IJeiScr
     /** A slot whose click is answered by the pipe rather than by moving the stack. */
     protected Slot addCallableSlotHandler(int slotId, Container inventory, int xCoord, int yCoord,
         ISlotClick handler) {
-        return addSlot(new HandelableSlot(inventory, slotId, xCoord, yCoord, handler));
+        return addSlot(new HandleableSlot(inventory, slotId, xCoord, yCoord, handler));
     }
 
     /** A slot holding one of a pipe's sneaky upgrades, which live in their own inventory. */

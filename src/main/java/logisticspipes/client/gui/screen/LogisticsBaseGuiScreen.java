@@ -169,8 +169,6 @@ public abstract class LogisticsBaseGuiScreen<T extends AbstractContainerMenu>
 
         xCenter = (right + leftPos) / 2;
         yCenter = (bottom + topPos) / 2;
-        extensionControllerLeft.setMaxBottom(bottom);
-        extensionControllerRight.setMaxBottom(bottom);
     }
 
     @Override

@@ -61,7 +61,7 @@ import logisticspipes.transport.PipeTransportLogistics;
 import logisticspipes.utils.CacheHolder;
 import logisticspipes.utils.StackTraceUtil;
 import logisticspipes.utils.StackTraceUtil.Info;
-import logisticspipes.utils.TileBuffer;
+import logisticspipes.utils.BlockEntityBuffer;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.world.level.block.LogisticsGenericPipeBlock;
 import logisticspipes.world.level.block.entity.pipe.PipePowerLasers;
@@ -93,7 +93,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     private boolean sendInitPacket = true;
     @Getter
     private boolean initialized = false;
-    private TileBuffer @Nullable [] tileBuffer;
+    private BlockEntityBuffer @Nullable [] blockEntityBuffer;
     private boolean sendClientUpdate = false;
     private boolean blockNeighborChange = false;
     private boolean refreshRenderState = false;
@@ -151,17 +151,17 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         // adjacency rescan it triggers loads neighbor chunks — during shutdown that deadlocks the save.
         if (chunkUnloading) {
             initialized = false;
-            tileBuffer = null;
+            blockEntityBuffer = null;
             super.setRemoved();
             return;
         }
         if (pipe == null) {
             initialized = false;
-            tileBuffer = null;
+            blockEntityBuffer = null;
             super.setRemoved();
         } else if (!pipe.preventRemove()) {
             initialized = false;
-            tileBuffer = null;
+            blockEntityBuffer = null;
             pipe.invalidate();
             super.setRemoved();
             PipeChangeDetection.invalidate(this);
@@ -173,7 +173,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         super.onLoad();
         chunkUnloading = false;
         initialized = false;
-        tileBuffer = null;
+        blockEntityBuffer = null;
         bindPipe();
         if (pipe != null) {
             pipe.validate();
@@ -695,12 +695,12 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         sendClientUpdate = true;
     }
 
-    public TileBuffer @Nullable [] getTileCache() {
-        if (tileBuffer == null && pipe != null) {
-            tileBuffer = TileBuffer.makeBuffer(this.level, this.worldPosition,
+    public BlockEntityBuffer @Nullable [] getBlockEntityCache() {
+        if (blockEntityBuffer == null && pipe != null) {
+            blockEntityBuffer = BlockEntityBuffer.makeBuffer(this.level, this.worldPosition,
                 pipe.transport.delveIntoUnloadedChunks());
         }
-        return tileBuffer;
+        return blockEntityBuffer;
     }
 
     @Override
@@ -719,12 +719,12 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     @Nullable
     public BlockEntity getBlockEntity(Direction to, boolean force) {
-        TileBuffer[] cache = getTileCache();
+        BlockEntityBuffer[] cache = getBlockEntityCache();
         if (cache != null) {
             if (force) {
                 cache[to.ordinal()].refresh();
             }
-            return cache[to.ordinal()].getTile();
+            return cache[to.ordinal()].getBlockEntity();
         } else {
             return null;
         }
@@ -732,7 +732,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     @Nullable
     public Block getBlock(Direction to) {
-        TileBuffer[] cache = getTileCache();
+        BlockEntityBuffer[] cache = getBlockEntityCache();
         if (cache != null) {
             return cache[to.ordinal()].getBlock();
         } else {
@@ -741,16 +741,16 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     }
 
     private void computeConnections() {
-        TileBuffer[] cache = getTileCache();
+        BlockEntityBuffer[] cache = getBlockEntityCache();
         if (cache == null) {
             return;
         }
 
         for (Direction side : Direction.values()) {
-            TileBuffer t = cache[side.ordinal()];
+            BlockEntityBuffer t = cache[side.ordinal()];
             t.refresh();
 
-            pipeConnectionsBuffer[side.ordinal()] = canPipeConnect(t.getTile(), side);
+            pipeConnectionsBuffer[side.ordinal()] = canPipeConnect(t.getBlockEntity(), side);
         }
     }
 
@@ -796,7 +796,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
 
     @Override
     public void refreshNeighborCache(Direction side) {
-        TileBuffer[] cache = getTileCache();
+        BlockEntityBuffer[] cache = getBlockEntityCache();
         if (cache != null) {
             cache[side.ordinal()].refresh();
         }

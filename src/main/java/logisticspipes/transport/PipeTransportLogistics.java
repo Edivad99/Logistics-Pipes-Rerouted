@@ -792,7 +792,7 @@ public class PipeTransportLogistics {
             return PipeInformationManager.isPipe(blockEntity);
         }
         if (blockEntity instanceof ILogisticsPowerProvider || blockEntity instanceof ISubSystemPowerProvider) {
-            Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, blockEntity);
+            Direction ori = OrientationsUtil.getOrientation(container, blockEntity);
             if (ori != null) {
                 boolean sideOnly = blockEntity instanceof LogisticsPowerJunctionBlockEntity
                     || blockEntity instanceof ISubSystemPowerProvider;

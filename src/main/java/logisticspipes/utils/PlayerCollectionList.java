@@ -1,0 +1,121 @@
+package logisticspipes.utils;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+
+import net.neoforged.neoforge.network.PacketDistributor;
+
+import org.jspecify.annotations.Nullable;
+
+public class PlayerCollectionList {
+
+    private List<EqualWeakReference<Player>> players = new ArrayList<>();
+    private boolean checkingPlayers = false;
+
+    public void checkPlayers() {
+        checkingPlayers = true;
+        Iterator<EqualWeakReference<Player>> iPlayers = players.iterator();
+        while (iPlayers.hasNext()) {
+            EqualWeakReference<Player> playerReference = iPlayers.next();
+            // One read of the referent: it is a weak reference, and the collector can clear it between
+            // the null check and the next call.
+            final Player referenced = playerReference.get();
+            boolean remove = false;
+            if (referenced == null) {
+                remove = true;
+            } else if (referenced.isDeadOrDying()) {
+                remove = true;
+            } else if (referenced instanceof ServerPlayer serverPlayer) {
+                if (!serverPlayer.connection.getConnection().isConnected()) {
+                    remove = true;
+                }
+            }
+            if (remove) {
+                iPlayers.remove();
+            }
+        }
+        checkingPlayers = false;
+    }
+
+    public Iterable<Player> players() {
+        checkPlayers();
+        return () -> new Itr(players.iterator());
+    }
+
+    /**
+     * Sends a payload to every player on this list.
+     *
+     * <p>Server-side only in practice: the list holds whoever is watching something, and only a
+     * {@link ServerPlayer} has a connection to send down. A client-side list is empty, so this is
+     * a no-op there rather than an error.
+     */
+    public void send(CustomPacketPayload payload) {
+        players().forEach(player -> {
+            if (player instanceof ServerPlayer serverPlayer) {
+                PacketDistributor.sendToPlayer(serverPlayer, payload);
+            }
+        });
+    }
+
+    public int size() {
+        if (!checkingPlayers) {
+            checkPlayers();
+        }
+        return players.size();
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    public boolean isEmptyWithoutCheck() {
+        return players.size() == 0;
+    }
+
+    public void add(Player player) {
+        players.add(new EqualWeakReference<>(player));
+    }
+
+    public boolean remove(Player player) {
+        if (contains(player) && players.size() > 0) {
+            return players.remove(new EqualWeakReference<>(player));
+        } else {
+            return false;
+        }
+    }
+
+    public boolean contains(Player player) {
+        checkPlayers();
+        return players.contains(new EqualWeakReference<>(player));
+    }
+
+    private static class Itr implements Iterator<Player> {
+
+        private final Iterator<EqualWeakReference<Player>> iterator;
+
+        private Itr(Iterator<EqualWeakReference<Player>> source) {
+            iterator = source;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public @Nullable Player next() {
+            EqualWeakReference<Player> reference = iterator.next();
+            return reference.get();
+        }
+
+        @Override
+        public void remove() {
+            iterator.remove();
+        }
+    }
+}

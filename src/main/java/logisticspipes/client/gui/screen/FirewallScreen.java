@@ -24,15 +24,15 @@ public class FirewallScreen extends LogisticsBaseGuiScreen<FirewallMenu> {
         super.init();
         final Component blocked = Component.translatable(Translations.Screen.FIREWALL_BLOCKED);
         final Component allowed = Component.translatable(Translations.Screen.FIREWALL_ALLOWED);
-        addRenderableWidget(new GuiStringHandlerButton(0, width / 2 + 23, height / 2 + 27 - 139, 60, 20,
+        addRenderableWidget(new GuiStringHandlerButton(width / 2 + 23, height / 2 + 27 - 139, 60, 20,
             () -> pipe.isBlocking() ? blocked : allowed, () -> pipe.setBlocking(!pipe.isBlocking())));
-        addRenderableWidget(new GuiStringHandlerButton(1, width / 2 + 23, height / 2 + 60 - 139, 60, 20,
+        addRenderableWidget(new GuiStringHandlerButton(width / 2 + 23, height / 2 + 60 - 139, 60, 20,
             () -> pipe.isBlockProvider() ? blocked : allowed, () -> pipe.setBlockProvider(!pipe.isBlockProvider())));
-        addRenderableWidget(new GuiStringHandlerButton(2, width / 2 + 23, height / 2 + 93 - 139, 60, 20,
+        addRenderableWidget(new GuiStringHandlerButton(width / 2 + 23, height / 2 + 93 - 139, 60, 20,
             () -> pipe.isBlockCrafter() ? blocked : allowed, () -> pipe.setBlockCrafter(!pipe.isBlockCrafter())));
-        addRenderableWidget(new GuiStringHandlerButton(3, width / 2 + 23, height / 2 + 126 - 139, 60, 20,
+        addRenderableWidget(new GuiStringHandlerButton(width / 2 + 23, height / 2 + 126 - 139, 60, 20,
             () -> pipe.isBlockSorting() ? blocked : allowed, () -> pipe.setBlockSorting(!pipe.isBlockSorting())));
-        addRenderableWidget(new GuiStringHandlerButton(4, width / 2 + 23, height / 2 + 160 - 139, 60, 20,
+        addRenderableWidget(new GuiStringHandlerButton(width / 2 + 23, height / 2 + 160 - 139, 60, 20,
             () -> pipe.isBlockPower() ? blocked : allowed, () -> pipe.setBlockPower(!pipe.isBlockPower())));
     }
 

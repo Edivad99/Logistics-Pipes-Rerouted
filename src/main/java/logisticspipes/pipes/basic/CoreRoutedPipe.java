@@ -986,7 +986,7 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
 
     @Override
     public final boolean canPipeConnect(BlockEntity tile, Direction dir, boolean ignoreSystemDisconnection) {
-        Direction side = OrientationsUtil.getOrientationOfTilewithTile(getContainer(), tile);
+        Direction side = OrientationsUtil.getOrientation(getContainer(), tile);
         if (isSideBlocked(side, ignoreSystemDisconnection)) {
             return false;
         }

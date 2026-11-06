@@ -35,11 +35,11 @@ public class PipeItemsBasicLogistics extends CoreRoutedPipe {
                     return true;
                 }
                 if (tile instanceof LogisticsSecurityBlockEntity) {
-                    Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
+                    Direction ori = OrientationsUtil.getOrientation(container, tile);
                     return ori != null && ori != Direction.DOWN && ori != Direction.UP;
                 }
                 if (tile instanceof LogisticsProgramCompilerBlockEntity) {
-                    Direction ori = OrientationsUtil.getOrientationOfTilewithTile(container, tile);
+                    Direction ori = OrientationsUtil.getOrientation(container, tile);
                     return ori != null && ori != Direction.DOWN;
                 }
                 return false;
