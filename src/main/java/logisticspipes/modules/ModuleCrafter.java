@@ -833,13 +833,24 @@ public class ModuleCrafter extends LogisticsModule
         }
 
         final boolean guiOpened = service.getAvailableAdjacent().neighbors().keySet().stream()
-            .filter(neighbor -> neighbor.canHandleItems() || CraftingRecipeProviders.get().stream()
-                .anyMatch(provider -> provider.canOpenScreen(neighbor.getBlockEntity())))
-            .anyMatch(neighbor -> BlockMenus.openFor(serverPlayer, neighbor.getBlockEntity().getBlockPos()));
+            .anyMatch(neighbor -> openNeighborScreen(serverPlayer, neighbor.getBlockEntity(),
+                neighbor.canHandleItems()));
         if (!guiOpened) {
             LogisticsPipes.LOG.warn("Ignored open attached GUI request at {} @ {}", player.level(), getBlockPos());
         }
         return guiOpened;
+    }
+
+    /**
+     * Opens the screen of a neighbor, letting the first recipe provider that knows the block open it.
+     */
+    private static boolean openNeighborScreen(ServerPlayer player, BlockEntity blockEntity, boolean handlesItems) {
+        for (ICraftingRecipeProvider provider : CraftingRecipeProviders.get()) {
+            if (provider.canOpenScreen(blockEntity)) {
+                return provider.openScreen(player, blockEntity);
+            }
+        }
+        return handlesItems && BlockMenus.openFor(player, blockEntity.getBlockPos());
     }
 
     public void enabledUpdateEntity() {
