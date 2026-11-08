@@ -41,6 +41,7 @@ import logisticspipes.client.model.pipe.PipeGeometryKey;
 import logisticspipes.client.model.pipe.PipeModelProperties;
 import logisticspipes.client.model.tube.TubeKey;
 import logisticspipes.client.model.tube.TubeMeshes;
+import logisticspipes.integrations.buildcraft.BuildCraftPipes;
 import logisticspipes.interfaces.routing.IFilter;
 import logisticspipes.network.TargetLookup;
 import logisticspipes.network.UpdateTagPayload;
@@ -82,6 +83,10 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     public int statePacketId = 0;
     public Set<BlockPos> subMultiBlock = new HashSet<>();
     public boolean[] pipeConnectionsBuffer = new boolean[6];
+    /**
+     * The connected sides whose neighbour is a BuildCraft pipe, drawn with BuildCraft's narrower arm.
+     */
+    private final boolean[] pipeBCConnectionsBuffer = new boolean[6];
     @Nullable
     public CoreUnroutedPipe pipe;
     /**
@@ -260,6 +265,7 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
         // Pipe connections;
         for (Direction o : Direction.values()) {
             visualState.pipeConnectionMatrix.setConnected(o, pipeConnectionsBuffer[o.ordinal()]);
+            visualState.pipeConnectionMatrix.setBCConnected(o, pipeBCConnectionsBuffer[o.ordinal()]);
         }
         visualState.textureMatrix.refreshStates(pipe);
     }
@@ -751,6 +757,8 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
             t.refresh();
 
             pipeConnectionsBuffer[side.ordinal()] = canPipeConnect(t.getBlockEntity(), side);
+            pipeBCConnectionsBuffer[side.ordinal()] =
+                pipeConnectionsBuffer[side.ordinal()] && BuildCraftPipes.isPipe(t.getBlockEntity());
         }
     }
 
