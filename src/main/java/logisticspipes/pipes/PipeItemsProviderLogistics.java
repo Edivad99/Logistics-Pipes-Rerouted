@@ -20,23 +20,26 @@ import logisticspipes.interfaces.IHeadUpDisplayRenderer;
 import logisticspipes.interfaces.IHeadUpDisplayRendererProvider;
 import logisticspipes.interfaces.IOrderManagerContentReceiver;
 import logisticspipes.interfaces.routing.IAdditionalTargetInformation;
+import logisticspipes.interfaces.routing.ICraftItems;
 import logisticspipes.interfaces.routing.IFilter;
-import logisticspipes.interfaces.routing.IProvideItems;
 import logisticspipes.interfaces.routing.IRequestItems;
 import logisticspipes.modules.LogisticsModule;
 import logisticspipes.modules.ModuleProvider;
 import logisticspipes.network.to_server.pipe.PipeHudWatchMessage;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
+import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
 import logisticspipes.request.order.Order;
+import logisticspipes.request.promise.IPromise;
 import logisticspipes.request.promise.ItemPromise;
+import logisticspipes.request.resources.IResource;
 import logisticspipes.textures.PipeTexture;
 import logisticspipes.utils.item.ItemIdentifier;
 import logisticspipes.utils.item.ItemIdentifierStack;
 
 public class PipeItemsProviderLogistics extends CoreRoutedPipe
-    implements IProvideItems, IHeadUpDisplayRendererProvider, IChestContentReceiver, IOrderManagerContentReceiver {
+    implements ICraftItems, IHeadUpDisplayRendererProvider, IChestContentReceiver, IOrderManagerContentReceiver {
 
     public final LinkedList<@Nullable ItemIdentifierStack> itemListOrderer = new LinkedList<>();
     protected final ModuleProvider providerModule = new ModuleProvider();
@@ -82,6 +85,44 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe
             return;
         }
         providerModule.getAllItems(items, filters);
+    }
+
+    /* Crafting through an autocrafting system behind the inventory, see ModuleProvider */
+
+    @Override
+    public @Nullable ICraftingTemplate addCrafting(IResource toCraft) {
+        if (!isEnabled()) {
+            return null;
+        }
+        return providerModule.addCrafting(toCraft);
+    }
+
+    @Override
+    public boolean canCraft(IResource toCraft) {
+        return isEnabled() && providerModule.canCraft(toCraft);
+    }
+
+    @Override
+    public List<ItemIdentifierStack> getCraftedItems() {
+        return providerModule.getCraftedItems();
+    }
+
+    @Override
+    public void registerExtras(IPromise promise) {
+        providerModule.registerExtras(promise);
+    }
+
+    @Override
+    public int getTodo() {
+        return providerModule.getTodo();
+    }
+
+    @Override
+    public void itemLost(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
+    }
+
+    @Override
+    public void itemArrived(ItemIdentifierStack item, @Nullable IAdditionalTargetInformation info) {
     }
 
     @Override
@@ -153,6 +194,7 @@ public class PipeItemsProviderLogistics extends CoreRoutedPipe
                     .flatMap(invUtil -> invUtil.getItems().stream())
                     .filter(item -> !providerModule.filterBlocksItem(item))
                     .toList());
+            itemIdentifiers.addAll(providerModule.craftableItems());
         } else {
             providerModule.collectSpecificInterests(itemIdentifiers);
         }

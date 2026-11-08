@@ -184,6 +184,9 @@ dependencies {
     implementation "curse.maven:patchouli-306770:$patchouli_id"
 
     compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version:api"
+    // The full jar too, for the one internal class used: AECraftingCalculation runs AE2's own crafting
+    // calculation to the end, which the API only offers spread over ticks.
+    compileOnly "org.appliedenergistics:appliedenergistics2:$ae2_version"
     localRuntime "org.appliedenergistics:appliedenergistics2:$ae2_version"
 
     compileOnly("com.refinedmods.refinedstorage:refinedstorage-neoforge:$rs_version") {

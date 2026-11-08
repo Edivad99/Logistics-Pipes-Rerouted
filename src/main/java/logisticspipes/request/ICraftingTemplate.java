@@ -37,6 +37,22 @@ public interface ICraftingTemplate extends Comparable<ICraftingTemplate> {
     int compareCrafter(ICraftItems crafter);
 
     /**
+     * How many of {@code wanted} crafting sets the crafter can actually make, for a crafter that
+     * brings its own ingredients and so can run short of them outside the network.
+     */
+    default int getMaxCraftingSets(int wanted) {
+        return wanted;
+    }
+
+    /**
+     * What the crafter itself lacks to make {@code sets} crafting sets, shown as missing when a
+     * request fails. Only for crafters that bring their own ingredients.
+     */
+    default List<IResource> getMissingFor(int sets) {
+        return List.of();
+    }
+
+    /**
      * One thing a crafting set needs, and where in the crafter it has to go.
      */
     record Requirement(IResource resource, @Nullable IAdditionalTargetInformation info) {}
