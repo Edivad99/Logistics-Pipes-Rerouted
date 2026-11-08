@@ -49,6 +49,8 @@ import logisticspipes.data.gametest.LPGameTestInstances;
 import logisticspipes.data.gametest.LPTestEnvironments;
 import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
+import logisticspipes.integrations.buildcraft.AutoWorkbenchProgressProvider;
+import logisticspipes.integrations.buildcraft.AutoWorkbenchRecipeProvider;
 import logisticspipes.integrations.computercraft.ComputerCraftIntegration;
 import logisticspipes.integrations.tesseract.TesseractConnection;
 import logisticspipes.integrations.top.LPTopPlugin;
@@ -159,6 +161,9 @@ public class LogisticsPipes {
         event.enqueueWork(() -> {
             RegisterProgressProvidersEvent progressProviders = new RegisterProgressProvidersEvent();
             progressProviders.register(new FurnaceProgressProvider());
+            if (ModList.get().isLoaded(LPConstants.BUILDCRAFT_FACTORY_MOD_ID)) {
+                progressProviders.register(new AutoWorkbenchProgressProvider());
+            }
             ModLoader.postEvent(progressProviders);
             MachineProgressProvider.load(progressProviders);
 
@@ -177,6 +182,9 @@ public class LogisticsPipes {
 
             RegisterCraftingRecipeProvidersEvent recipeProviders = new RegisterCraftingRecipeProvidersEvent();
             recipeProviders.register(new LogisticsCraftingTableRecipeProvider());
+            if (ModList.get().isLoaded(LPConstants.BUILDCRAFT_FACTORY_MOD_ID)) {
+                recipeProviders.register(new AutoWorkbenchRecipeProvider());
+            }
             ModLoader.postEvent(recipeProviders);
             CraftingRecipeProviders.load(recipeProviders);
         });

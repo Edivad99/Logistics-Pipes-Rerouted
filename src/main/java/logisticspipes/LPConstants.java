@@ -30,4 +30,5 @@ public class LPConstants {
     public static final String TOP_MOD_ID = "theoneprobe";
     public static final String TESSERACT_MOD_ID = "tesseract";
     public static final String COMPUTERCRAFT_MOD_ID = "computercraft";
+    public static final String BUILDCRAFT_FACTORY_MOD_ID = "buildcraftfactory";
 }
