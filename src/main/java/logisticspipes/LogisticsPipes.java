@@ -49,6 +49,7 @@ import logisticspipes.data.gametest.LPGameTestInstances;
 import logisticspipes.data.gametest.LPTestEnvironments;
 import logisticspipes.data.models.LPModelProvider;
 import logisticspipes.data.recipes.LPRecipeProvider;
+import logisticspipes.integrations.buildcraft.AssemblyTableRecipeProvider;
 import logisticspipes.integrations.buildcraft.AutoWorkbenchProgressProvider;
 import logisticspipes.integrations.buildcraft.AutoWorkbenchRecipeProvider;
 import logisticspipes.integrations.computercraft.ComputerCraftIntegration;
@@ -184,6 +185,9 @@ public class LogisticsPipes {
             recipeProviders.register(new LogisticsCraftingTableRecipeProvider());
             if (ModList.get().isLoaded(LPConstants.BUILDCRAFT_FACTORY_MOD_ID)) {
                 recipeProviders.register(new AutoWorkbenchRecipeProvider());
+            }
+            if (ModList.get().isLoaded(LPConstants.BUILDCRAFT_SILICON_MOD_ID)) {
+                recipeProviders.register(new AssemblyTableRecipeProvider());
             }
             ModLoader.postEvent(recipeProviders);
             CraftingRecipeProviders.load(recipeProviders);

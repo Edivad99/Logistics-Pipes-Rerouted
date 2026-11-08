@@ -13,14 +13,11 @@ import buildcraft.factory.tile.TileAutoWorkbenchBase;
 import buildcraft.lib.tile.item.ItemHandlerSimple;
 import org.jspecify.annotations.Nullable;
 
-import logisticspipes.LogisticsPipes;
-
 /**
  * What Logistics Pipes reads from a BuildCraft Auto Workbench.
  *
  * <p>BuildCraft's public API has no access to the workbench, so this reads its internal block
- * entity. Those internals can change in any BuildCraft release: every call into them goes through
- * {@link #read}, and the first {@link LinkageError} turns all of it off instead of crashing the game.
+ * entity. Every call into it goes through {@link #read}, which {@link InternalAccess} guards.
  *
  * <p>The workbench itself is recognised by its block entity type, which does not depend on
  * BuildCraft's classes and so keeps working after that.
@@ -30,7 +27,7 @@ final class AutoWorkbench {
     private static final Identifier TYPE =
         Identifier.fromNamespaceAndPath("buildcraftfactory", "entity_autoworkbench_item");
 
-    private static boolean disabled;
+    private static final InternalAccess ACCESS = new InternalAccess("the Auto Workbench");
 
     private AutoWorkbench() {
     }
@@ -43,7 +40,7 @@ final class AutoWorkbench {
      * Whether {@code blockEntity} is a workbench whose internals can still be read.
      */
     static boolean isReadable(BlockEntity blockEntity) {
-        return !disabled && is(blockEntity);
+        return !ACCESS.isDisabled() && is(blockEntity);
     }
 
     /**
@@ -52,17 +49,7 @@ final class AutoWorkbench {
      * @return what it read, or null when the internals no longer match and reading is now turned off
      */
     static <T> @Nullable T read(Supplier<T> reader) {
-        if (disabled) {
-            return null;
-        }
-        try {
-            return reader.get();
-        } catch (LinkageError e) {
-            disabled = true;
-            LogisticsPipes.LOG.warn("This BuildCraft version changed the Auto Workbench in a way Logistics "
-                + "Pipes does not know; reading it from Logistics Pipes is turned off", e);
-            return null;
-        }
+        return ACCESS.read(reader);
     }
 
     static int slotSize(BlockEntity blockEntity) {
