@@ -115,6 +115,12 @@ public class PathFinder {
     public @Nullable List<FilteredRoute<ILogisticsPowerProvider>> powerNodes;
     public @Nullable List<FilteredRoute<ISubSystemPowerProvider>> subPowerProvider;
     public HashMap<CoreRoutedPipe, ExitRoute> result = new HashMap<>();
+    /**
+     * Whether the search ran into a pipe that has not had its first tick yet, and so could not look
+     * past it. A pipe in a chunk that has just loaded is one; the search should be run again once it
+     * has ticked.
+     */
+    public boolean foundUninitializedPipe;
 
     public @Nullable IBlockEntityChangeListener changeListener;
     public Set<List<IBlockEntityChangeListener>> listenedPipes = new HashSet<>();
@@ -292,6 +298,10 @@ public class PathFinder {
             }
 
             IPipeInformationProvider currentPipe = PipeInformationManager.getInformationProviderFor(tile);
+
+            if (currentPipe != null && !currentPipe.isRouterInitialized()) {
+                foundUninitializedPipe = true;
+            }
 
             if (currentPipe != null && currentPipe.isRouterInitialized() && (isDirectConnection
                 || PipeInformationManager.canConnect(startPipe, currentPipe, direction, true))) {

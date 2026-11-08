@@ -69,6 +69,10 @@ import logisticspipes.world.level.block.entity.LogisticsGenericPipeBlockEntity;
 public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
     public static final int REFRESH_TIME = 20;
+    /**
+     * Ticks before looking again for a neighbour that had not had its first tick yet, the first time.
+     */
+    private static final int UNINITIALIZED_RECHECK_MIN_DELAY = 5;
 
     protected static final ReentrantReadWriteLock SharedLSADatabaseLock = new ReentrantReadWriteLock();
     protected static final Lock SharedLSADatabasereadLock = ServerRouter.SharedLSADatabaseLock.readLock();
@@ -121,6 +125,16 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
     private @Nullable WeakReference<CoreRoutedPipe> myPipeCache = null;
     private final PriorityQueue<QueuedTask> queue = new PriorityQueue<>(Comparator.comparingInt(QueuedTask::dueTick));
     int connectionNeedsChecking = 0;
+    /**
+     * Ticks until the adjacency is checked again because the last check ran into a pipe that had not
+     * had its first tick yet; 0 when there is nothing to wait for.
+     */
+    private int uninitializedRecheckIn = 0;
+    /**
+     * How long the next such wait is. It doubles while the pipe is still not ready, so a router next
+     * to a chunk that does not tick stops searching every few ticks.
+     */
+    private int uninitializedRecheckDelay = UNINITIALIZED_RECHECK_MIN_DELAY;
     private final List<BlockPos> causedBy = new LinkedList<>();
     private boolean isDestroyed = false;
     /**
@@ -433,13 +447,15 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
             .forEach(list -> list.remove(localChangeListener));
         listenedPipes = finder.listenedPipes;
 
-        for (CoreRoutedPipe pipe : adjacent.keySet()) {
-            if (pipe.stillNeedReplace()) {
-                // A neighbour that has not had its first tick yet, as after a chunk load: look again
-                // once it has, or it stays out of this router's adjacency until the next full refresh.
-                connectionNeedsChecking = 1;
-                return false;
-            }
+        // A pipe that has not had its first tick yet, as after a chunk load, is left out of the search
+        // and would stay out of this router's adjacency until the next full refresh: look again soon.
+        if (finder.foundUninitializedPipe) {
+            uninitializedRecheckIn = uninitializedRecheckDelay;
+            uninitializedRecheckDelay = Math.min(uninitializedRecheckDelay * 2,
+                LPConfigs.COMMON.LOGISTICS_DETECTION_FREQUENCY.getAsInt());
+        } else {
+            uninitializedRecheckIn = 0;
+            uninitializedRecheckDelay = UNINITIALIZED_RECHECK_MIN_DELAY;
         }
 
         boolean[] oldSideDisconnected = sideDisconnected;
@@ -1064,6 +1080,12 @@ public class ServerRouter implements IRouter, Comparable<ServerRouter> {
 
     @Override
     public void update(boolean doFullRefresh, CoreRoutedPipe pipe) {
+        if (uninitializedRecheckIn > 0) {
+            uninitializedRecheckIn--;
+            if (uninitializedRecheckIn == 0 && connectionNeedsChecking == 0) {
+                connectionNeedsChecking = 1;
+            }
+        }
         if (lsaWrittenAsync) {
             lsaWrittenAsync = false;
             act(new BitSet(ServerRouter.getBiggestSimpleID()), new flagForLSAUpdate());
