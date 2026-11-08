@@ -541,6 +541,15 @@ public class RequestTreeNode {
     }
 
     private int getSubRequests(int nCraftingSets, ICraftingTemplate template) {
+        int craftable = template.getMaxCraftingSets(nCraftingSets);
+        if (craftable < nCraftingSets) {
+            // The crafter is short of its own ingredients: remember it to report what it lacks.
+            lastCrafterTried = template;
+            if (craftable <= 0) {
+                return 0;
+            }
+            nCraftingSets = craftable;
+        }
         boolean failed = false;
         List<Requirement> stacks = template.getComponents(nCraftingSets);
         int workSetsAvailable = nCraftingSets;
@@ -612,6 +621,10 @@ public class RequestTreeNode {
 
         for (Requirement stack : stacks) {
             new RequestTreeNode(template, stack.resource(), this, RequestTree.defaultRequestFlags, stack.info());
+        }
+        // What the crafter lacks outside the network: nodes that ask nobody, so they stay missing.
+        for (IResource missing : template.getMissingFor(nCraftingSetsNeeded)) {
+            new RequestTreeNode(template, missing, this, EnumSet.noneOf(ActiveRequestType.class), null);
         }
 
         addPromise(template.generatePromise(nCraftingSetsNeeded));
