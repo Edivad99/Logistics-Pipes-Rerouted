@@ -6,6 +6,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -301,5 +303,27 @@ public abstract class FluidRoutedPipe extends CoreRoutedPipe {
     @Override
     public OrderManager<?, ?> getOrderManager() {
         return getFluidOrderManager();
+    }
+
+    @Override
+    public void serialize(ValueOutput output) {
+        super.serialize(output);
+        if (orderFluidManager != null) {
+            orderFluidManager.serialize(output);
+        }
+    }
+
+    @Override
+    public void deserialize(ValueInput input) {
+        super.deserialize(input);
+        getFluidOrderManager().deserialize(input);
+    }
+
+    @Override
+    protected void restoreSavedOrders() {
+        super.restoreSavedOrders();
+        if (orderFluidManager != null) {
+            orderFluidManager.restoreSavedOrders();
+        }
     }
 }

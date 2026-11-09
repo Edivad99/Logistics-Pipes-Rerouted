@@ -2,7 +2,6 @@ package logisticspipes.modules;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -12,6 +11,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -63,6 +63,7 @@ import logisticspipes.request.ICraftingTemplate;
 import logisticspipes.request.ItemCraftingTemplate;
 import logisticspipes.request.RequestTree;
 import logisticspipes.request.RequestTreeNode;
+import logisticspipes.request.order.ExternalCraftingOrder;
 import logisticspipes.request.order.IOrderInfoProvider.ResourceType;
 import logisticspipes.request.order.ItemOrder;
 import logisticspipes.request.order.ItemOrderManager;
@@ -93,6 +94,12 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     IClientInformationProvider, IHUDModuleHandler, IModuleWatchReceiver, IModuleInventoryReceive,
     IModuleMenuProvider, ICraftItems {
 
+    /**
+     * How long a crafting order read back from the saved world, whose request the autocrafting
+     * system had not taken on yet, waits for the system to be ready again before it fails.
+     */
+    private static final int RESTART_PATIENCE_TICKS = SharedConstants.TICKS_PER_MINUTE;
+
     public final ArrayList<@Nullable ItemIdentifierStack> displayList = new ArrayList<>();
     public final ItemIdentifierInventoryProperty filterInventory = new ItemIdentifierInventoryProperty(
         new ItemIdentifierInventory(9, "Items to provide (or empty for all)", 1), "filterInv");
@@ -114,10 +121,10 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
     private final PlayerCollectionList localModeWatchers = new PlayerCollectionList();
     private final IHUDModuleRenderer HUD = new HUDProviderModule(this);
     /**
-     * The request handed to the autocrafting system for each crafting order still open. Not saved:
-     * like every other order, these are lost when the world is reloaded.
+     * How many ticks this module has run, to know when the autocrafting system has had time to
+     * come back after loading.
      */
-    private final Map<ItemOrder, IExternalCrafter.Job> craftingJobs = new IdentityHashMap<>();
+    private int ticksRun = 0;
 
     public ModuleProvider() {
     }
@@ -186,6 +193,9 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
         if (service.isNthTick(6)) {
             checkUpdate(null);
         }
+        if (ticksRun < RESTART_PATIENCE_TICKS) {
+            ticksRun++;
+        }
         int itemsLeft = itemsToExtract();
         int stacksLeft = stacksToExtract();
         ItemOrder firstOrder = null;
@@ -214,17 +224,24 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
      */
     private void tickCraftingOrders(IPipeServiceProvider service, int itemsLeft, int stacksLeft) {
         ItemOrderManager orderManager = service.getItemOrderManager();
-        craftingJobs.keySet().removeIf(Order::isFinished);
         ItemOrder firstDeferred = null;
         while (itemsLeft > 0 && stacksLeft > 0) {
             ItemOrder order = orderManager.peekAtTopRequest(ResourceType.CRAFTING);
             if (order == null || order == firstDeferred) {
                 break;
             }
-            IExternalCrafter.Job job = craftingJobs.get(order);
-            IExternalCrafter.State state = job == null ? IExternalCrafter.State.FAILED : job.poll();
+            IExternalCrafter.Job job = isOwn(order) ? jobOf((ExternalCraftingOrder) order) : null;
+            if (job == null) {
+                // Another module's order, such as a crafter's in the same chassis, or one of ours
+                // whose autocrafting system is not back yet after loading.
+                if (firstDeferred == null) {
+                    firstDeferred = order;
+                }
+                orderManager.deferSend();
+                continue;
+            }
+            IExternalCrafter.State state = job.poll();
             if (state == IExternalCrafter.State.FAILED) {
-                craftingJobs.remove(order);
                 orderManager.sendFailed();
                 continue;
             }
@@ -246,6 +263,40 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
             stacksLeft -= 1;
             itemsLeft -= sent;
         }
+    }
+
+    private boolean isOwn(ItemOrder order) {
+        return order instanceof ExternalCraftingOrder external && external.getOwnerSlot() == getPositionInt();
+    }
+
+    /**
+     * The request behind one of this provider's crafting orders. An order read back from the saved
+     * world has none yet: when the system had taken it on, it is still making it, since the system
+     * saves its jobs too; otherwise it is handed to the system again once that is ready, or failed
+     * when it does not come back.
+     *
+     * @return the request, or null while the order has to wait for the system
+     */
+    private IExternalCrafter.@Nullable Job jobOf(ExternalCraftingOrder order) {
+        IExternalCrafter.Job job = order.getJob();
+        if (job != null) {
+            return job;
+        }
+        if (order.isAccepted()) {
+            job = IExternalCrafter.SettledJob.ACCEPTED;
+        } else {
+            ItemIdentifier item = order.getResource().getItem();
+            IExternalCrafter crafter = findCrafterFor(item);
+            if (crafter != null) {
+                job = crafter.startCrafting(item, order.getAmount());
+            } else if (ticksRun >= RESTART_PATIENCE_TICKS) {
+                job = IExternalCrafter.SettledJob.FAILED;
+            } else {
+                return null;
+            }
+        }
+        order.setJob(job);
+        return job;
     }
 
     /**
@@ -276,11 +327,26 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
         if (service == null) {
             return;
         }
-        while (service.getItemOrderManager().hasOrders(ResourceType.PROVIDER, ResourceType.CRAFTING)) {
-            service.getItemOrderManager().sendFailed();
+        ItemOrderManager orderManager = service.getItemOrderManager();
+        ItemOrder firstSkipped = null;
+        while (true) {
+            ItemOrder order = orderManager.peekAtTopRequest(ResourceType.PROVIDER, ResourceType.CRAFTING);
+            if (order == null || order == firstSkipped) {
+                break;
+            }
+            if (order.getType() == ResourceType.CRAFTING && !isOwn(order)) {
+                // Another module's crafting order: it fails it itself.
+                if (firstSkipped == null) {
+                    firstSkipped = order;
+                }
+                orderManager.deferSend();
+                continue;
+            }
+            if (order instanceof ExternalCraftingOrder external && external.getJob() != null) {
+                external.getJob().cancel();
+            }
+            orderManager.sendFailed();
         }
-        craftingJobs.values().forEach(IExternalCrafter.Job::cancel);
-        craftingJobs.clear();
     }
 
     public Stream<IInventoryUtil> inventoriesWithMode() {
@@ -331,15 +397,14 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
         }
         this.service.spawnParticle(Particles.WHITE_SPARKLE, 2);
         if (promise.type == ResourceType.CRAFTING) {
-            ItemOrder order = this.service.getItemOrderManager()
-                .addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
-                    ResourceType.CRAFTING, info);
             IExternalCrafter crafter = findCrafterFor(promise.item);
-            if (crafter != null) {
-                craftingJobs.put(order, crafter.startCrafting(promise.item, promise.numberOfItems));
-            }
-            // Without a crafter the order has no job, and the next tick turns it down.
-            return order;
+            // Without a crafter the order fails on the next tick.
+            IExternalCrafter.Job job = crafter == null
+                ? IExternalCrafter.SettledJob.FAILED
+                : crafter.startCrafting(promise.item, promise.numberOfItems);
+            return this.service.getItemOrderManager().addExternalCraftingOrder(
+                new ItemIdentifierStack(promise.item, promise.numberOfItems), destination, info, getPositionInt(),
+                job);
         }
         return this.service.getItemOrderManager()
             .addOrder(new ItemIdentifierStack(promise.item, promise.numberOfItems), destination,
@@ -416,7 +481,7 @@ public class ModuleProvider extends LogisticsModule implements SneakyDirection, 
         }
         int todo = 0;
         for (ItemOrder order : service.getItemOrderManager()) {
-            if (order.getType() == ResourceType.CRAFTING) {
+            if (isOwn(order)) {
                 todo += order.getAmount();
             }
         }

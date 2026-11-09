@@ -59,9 +59,43 @@ public interface IExternalCrafter {
         State poll();
 
         /**
+         * Where the request stood at the last {@link #poll}, without moving it along.
+         */
+        State state();
+
+        /**
          * Withdraws the request if the system has not taken it on yet.
          */
         void cancel();
+    }
+
+    /**
+     * A request whose outcome is already settled, such as one the system took on before the world
+     * was saved: it keeps its job across the reload, so there is nothing left to follow.
+     */
+    enum SettledJob implements Job {
+        ACCEPTED(State.ACCEPTED),
+        FAILED(State.FAILED);
+
+        private final State state;
+
+        SettledJob(State state) {
+            this.state = state;
+        }
+
+        @Override
+        public State poll() {
+            return state;
+        }
+
+        @Override
+        public State state() {
+            return state;
+        }
+
+        @Override
+        public void cancel() {
+        }
     }
 
     enum State {

@@ -22,6 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import logisticspipes.LogisticsPipes;
 import logisticspipes.inventory.IExternalCrafter;
+import logisticspipes.inventory.IExternalCrafter.SettledJob;
 import logisticspipes.utils.item.ItemIdentifier;
 
 /**
@@ -37,7 +38,8 @@ import logisticspipes.utils.item.ItemIdentifier;
  * <p>Jobs are submitted the way a player's request from a terminal is, with no requesting machine:
  * the network puts the result in its storage, where the provider facing the interface picks it up.
  * That spares Logistics Pipes from joining the grid, at the price of not hearing when a job is
- * cancelled from a terminal.</p>
+ * cancelled from a terminal. AE2 saves the job with the world, so a request survives a reload as
+ * long as the provider remembers the order it belongs to.</p>
  */
 public final class AECrafter implements IExternalCrafter {
 
@@ -104,11 +106,11 @@ public final class AECrafter implements IExternalCrafter {
     public Job startCrafting(ItemIdentifier item, int amount) {
         AEItemKey key = AEItemKey.of(item.makeNormalStack(1));
         if (key == null || amount <= 0) {
-            return FixedJob.FAILED;
+            return SettledJob.FAILED;
         }
         ICraftingPlan plan = calculateNow(key, amount, CalculationStrategy.REPORT_MISSING_ITEMS);
         if (plan != null) {
-            return submit(plan) ? FixedJob.ACCEPTED : FixedJob.FAILED;
+            return submit(plan) ? SettledJob.ACCEPTED : SettledJob.FAILED;
         }
         Future<ICraftingPlan> later = crafting.beginCraftingCalculation(level, () -> source, key, amount,
             CalculationStrategy.REPORT_MISSING_ITEMS);
@@ -157,29 +159,6 @@ public final class AECrafter implements IExternalCrafter {
     }
 
     /**
-     * A job settled when it was started.
-     */
-    private enum FixedJob implements Job {
-        ACCEPTED(State.ACCEPTED),
-        FAILED(State.FAILED);
-
-        private final State state;
-
-        FixedJob(State state) {
-            this.state = state;
-        }
-
-        @Override
-        public State poll() {
-            return state;
-        }
-
-        @Override
-        public void cancel() {
-        }
-    }
-
-    /**
      * A job whose calculation is left to AE2's tick handler, when it could not be run on the spot.
      */
     private final class PendingJob implements Job {
@@ -211,6 +190,11 @@ public final class AECrafter implements IExternalCrafter {
             } catch (ExecutionException | RuntimeException e) {
                 return null;
             }
+        }
+
+        @Override
+        public State state() {
+            return state;
         }
 
         @Override

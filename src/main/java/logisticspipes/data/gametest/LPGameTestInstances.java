@@ -23,6 +23,7 @@ import logisticspipes.LogisticsPipes;
 import logisticspipes.data.gametest.instances.ChainedCraftingTestInstance;
 import logisticspipes.data.gametest.instances.CrafterByproductTestInstance;
 import logisticspipes.data.gametest.instances.CrafterCleanupTestInstance;
+import logisticspipes.data.gametest.instances.DeepCraftingTestInstance;
 import logisticspipes.data.gametest.instances.ExtractorTestInstance;
 import logisticspipes.data.gametest.instances.FEPowerSupplierTestInstance;
 import logisticspipes.data.gametest.instances.FirewallTestInstance;
@@ -77,6 +78,7 @@ public class LPGameTestInstances {
         TEST_INSTANCE_TYPES.register("in_transit_reload", () -> InTransitReloadTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("supplier", () -> SupplierTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("chained_crafting", () -> ChainedCraftingTestInstance.CODEC);
+        TEST_INSTANCE_TYPES.register("deep_crafting", () -> DeepCraftingTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("sink_variants", () -> SinkVariantsTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("provider_options", () -> ProviderOptionsTestInstance.CODEC);
         TEST_INSTANCE_TYPES.register("firewall", () -> FirewallTestInstance.CODEC);
@@ -162,6 +164,7 @@ public class LPGameTestInstances {
             registerTestInstance(bootstrap, "chained_crafting/" + scenario.getSerializedName(), 800,
                 info -> new ChainedCraftingTestInstance(scenario, info));
         }
+        registerTestInstance(bootstrap, "deep_crafting", 1200, DeepCraftingTestInstance::new);
         for (var scenario : CrafterByproductTestInstance.Scenario.values()) {
             registerTestInstance(bootstrap, "crafter_byproduct/" + scenario.getSerializedName(),
                 info -> new CrafterByproductTestInstance(scenario, info));

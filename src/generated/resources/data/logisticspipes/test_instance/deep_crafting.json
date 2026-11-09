@@ -1,0 +1,7 @@
+{
+  "type": "logisticspipes:deep_crafting",
+  "environment": "logisticspipes:default",
+  "max_ticks": 1200,
+  "sky_access": true,
+  "structure": "logisticspipes:test/platform_9x9"
+}
