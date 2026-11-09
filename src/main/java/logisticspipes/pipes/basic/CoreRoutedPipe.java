@@ -89,6 +89,7 @@ import logisticspipes.pipes.basic.debug.StatusEntry;
 import logisticspipes.pipes.signs.IPipeSign;
 import logisticspipes.pipes.signs.PipeSignType;
 import logisticspipes.pipes.upgrades.UpgradeManager;
+import logisticspipes.request.order.FluidOrderManager;
 import logisticspipes.request.order.IOrderInfoProvider;
 import logisticspipes.request.order.ItemOrderManager;
 import logisticspipes.request.order.OrderManager;
@@ -424,6 +425,9 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
         getRouter().update(doFullRefresh, this);
         recheckConnections = false;
+        if (!getLevel().isClientSide()) {
+            restoreSavedOrders();
+        }
         getOriginalUpgradeManager().securityTick();
         super.updateEntity();
 
@@ -697,6 +701,10 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         output.putChild("upgradeManager", upgradeManager);
         output.putChild("powerHandler", powerHandler);
 
+        if (orderItemManager != null) {
+            orderItemManager.serialize(output);
+        }
+
         ValueOutput.ValueOutputList sendqueue = output.childrenList(SEND_QUEUE_KEY);
         for (QueuedItem p : sendQueue) {
             ValueOutput tagentry = sendqueue.addChild();
@@ -721,11 +729,23 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
     }
 
     /**
-     * Drops the send queue from a copy of the saved data meant for a client: its items are server
-     * items, and the client only sees them once they are in a pipe.
+     * Drops the send queue and the orders from a copy of the saved data meant for a client: the
+     * queue's items are server items, which the client only sees once they are in a pipe, and the
+     * orders point at routers only the server knows.
      */
     public static void removeServerOnlyData(CompoundTag tag) {
         tag.remove(SEND_QUEUE_KEY);
+        tag.remove(ItemOrderManager.SAVE_KEY);
+        tag.remove(FluidOrderManager.SAVE_KEY);
+    }
+
+    /**
+     * Turns the orders read back from the saved world into live ones, as the pipes they go to load.
+     */
+    protected void restoreSavedOrders() {
+        if (orderItemManager != null) {
+            orderItemManager.restoreSavedOrders();
+        }
     }
 
     @Override
@@ -745,6 +765,8 @@ public abstract class CoreRoutedPipe extends CoreUnroutedPipe
         }
         upgradeManager.deserialize(input.childOrEmpty("upgradeManager"));
         powerHandler.deserialize(input.childOrEmpty("powerHandler"));
+
+        getItemOrderManager().deserialize(input);
 
         sendQueue.clear();
         for (ValueInput tagentry : input.childrenListOrEmpty(SEND_QUEUE_KEY)) {

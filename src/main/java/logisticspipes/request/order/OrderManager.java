@@ -27,7 +27,7 @@ public abstract class OrderManager<T extends Order, I> implements Iterable<T> {
     protected final OrderQueue<T, I> orders;
     protected @Nullable IChangeListener listener = null;
     protected PlayerCollectionList watchingPlayers = new PlayerCollectionList();
-    private final ILPPositionProvider pos;
+    protected final ILPPositionProvider pos;
 
     public OrderManager(OrderQueue<T, I> orders, ILPPositionProvider pos) {
         this.orders = orders;

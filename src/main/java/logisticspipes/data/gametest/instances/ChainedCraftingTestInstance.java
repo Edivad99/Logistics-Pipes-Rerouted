@@ -30,7 +30,9 @@ import logisticspipes.world.level.block.entity.LogisticsCraftingTableBlockEntity
 
 /**
  * A chest requested from a network that holds logs: one crafting pipe turns logs into planks, the
- * other planks into the chest. Planks already in stock are used before any log is crafted.
+ * other planks into the chest. Planks already in stock are used before any log is crafted. Every
+ * pipe can be reloaded right after the request, as leaving the world and coming back would: the
+ * orders are saved with the pipes, so the chest still arrives.
  */
 public class ChainedCraftingTestInstance extends GameTestInstance {
 
@@ -99,6 +101,13 @@ public class ChainedCraftingTestInstance extends GameTestInstance {
                     ? "The request for a chest should have been accepted"
                     : "The request for a chest should have been refused"));
             });
+        if (scenario.reload) {
+            sequence = sequence.thenExecute(() -> {
+                for (int x = 1; x <= REQUESTER.getX(); x++) {
+                    LPTestHelper.reload(helper, new BlockPos(x, 1, 1));
+                }
+            });
+        }
 
         if (scenario.mustSucceed) {
             sequence = sequence.thenWaitUntil(
@@ -137,6 +146,10 @@ public class ChainedCraftingTestInstance extends GameTestInstance {
          */
         FROM_LOGS(0, 2, true, 0, 0),
         /**
+         * As {@link #FROM_LOGS}, with every pipe reloaded right after the request.
+         */
+        RELOADED(0, 2, true, 0, 0, true),
+        /**
          * Four planks in stock, so one log is crafted for the other four.
          */
         STOCK_FIRST(4, 3, true, 0, 2),
@@ -152,13 +165,19 @@ public class ChainedCraftingTestInstance extends GameTestInstance {
         final boolean mustSucceed;
         final int planksLeft;
         final int logsLeft;
+        final boolean reload;
 
         Scenario(int planks, int logs, boolean mustSucceed, int planksLeft, int logsLeft) {
+            this(planks, logs, mustSucceed, planksLeft, logsLeft, false);
+        }
+
+        Scenario(int planks, int logs, boolean mustSucceed, int planksLeft, int logsLeft, boolean reload) {
             this.planks = planks;
             this.logs = logs;
             this.mustSucceed = mustSucceed;
             this.planksLeft = planksLeft;
             this.logsLeft = logsLeft;
+            this.reload = reload;
         }
 
         @Override
