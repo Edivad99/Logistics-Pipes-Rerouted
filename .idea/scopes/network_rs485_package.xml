@@ -1,3 +1,0 @@
-<component name="DependencyValidationManager">
-  <scope name="network.rs485 package" pattern="network.rs485..*" />
-</component>
