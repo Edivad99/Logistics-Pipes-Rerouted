@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -320,18 +321,22 @@ public class LPEventListener {
 
     @SubscribeEvent
     public void onItemStackToolTip(ItemTooltipEvent event) {
+        HolderLookup.Provider registries = event.getContext().registries();
+        if (registries == null) {
+            return;
+        }
         CompoundTag tag = event.getItemStack()
             .getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
             .copyTag();
 
         for (String key : tag.keySet()) {
             if (key.startsWith(LPConstants.rl("routingdata").toString())) {
-                ItemRoutingInformation info =
-                    ItemRoutingInformation.restoreFromNBT(TagValueInput.create(ProblemReporter.DISCARDING,
-                        event.getEntity().registryAccess(), tag.getCompoundOrEmpty(key)));
+                ItemRoutingInformation info = new ItemRoutingInformation();
+                info.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries,
+                    tag.getCompoundOrEmpty(key)));
                 List<Component> list = event.getToolTip();
                 list.set(0, Component.literal(ChatFormatting.RED + "!!! " + ChatFormatting.WHITE)
-                    .append(list.get(0))
+                    .append(list.getFirst())
                     .append(Component.literal(ChatFormatting.RED + " !!!" + ChatFormatting.WHITE)));
                 list.add(1,
                     Component.translatable(Translations.Tooltip.ROUTED_ITEM).withStyle(ChatFormatting.RED));
