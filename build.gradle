@@ -212,7 +212,7 @@ dependencies {
     //localRuntime "maven.modrinth:supermartijn642s-config-lib:$sm_config_lib_version"
 
     compileOnly "maven.modrinth:buildcraft-community-edition:$bcce_version"
-    localRuntime "maven.modrinth:buildcraft-community-edition:$bcce_version"
+    //localRuntime "maven.modrinth:buildcraft-community-edition:$bcce_version"
 
     //localRuntime "curse.maven:mekanism-268560:7904058"
     localRuntime "curse.maven:storagedrawers-unofficial-port-1639713:8758761"
