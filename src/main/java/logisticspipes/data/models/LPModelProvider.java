@@ -163,16 +163,23 @@ public class LPModelProvider extends ModelProvider {
     /**
      * The fluid container swaps to a filled model when it holds something. Was a numeric predicate
      * plus a model override; a boolean {@code minecraft:condition} says the same thing in 1.21.4.
-     * Both models are hand-written -- the filled one is tinted per fluid -- so this only emits the
-     * definition that chooses between them.
+     *
+     * <p>The filled model lays a stencil over the empty container, and only the stencil takes the
+     * fluid's tint.
      */
     private static void fluidContainer(ItemModelGenerators itemModels) {
         Item container = LPItems.FLUID_CONTAINER.get();
+        Material empty = new Material(LPConstants.rl("items/liquids/empty"));
+        Material stencil = new Material(LPConstants.rl("items/liquids/stencil"));
+        Identifier emptyModel = ModelTemplates.FLAT_ITEM.create(container,
+            TextureMapping.layer0(empty), itemModels.modelOutput);
+        Identifier filledModel = ModelTemplates.TWO_LAYERED_ITEM.create(
+            ModelLocationUtils.getModelLocation(container, "_filled"),
+            TextureMapping.layered(empty, stencil), itemModels.modelOutput);
         itemModels.itemModelOutput.accept(container, ItemModelUtils.conditional(
             HasFluid.INSTANCE,
-            ItemModelUtils.tintedModel(ModelLocationUtils.getModelLocation(container, "_filled"),
-                ItemModelUtils.constantTint(-1), FluidTint.INSTANCE),
-            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(container))));
+            ItemModelUtils.tintedModel(filledModel, ItemModelUtils.constantTint(-1), FluidTint.INSTANCE),
+            ItemModelUtils.plainModel(emptyModel)));
     }
 
     /**
