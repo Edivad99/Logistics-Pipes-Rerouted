@@ -34,7 +34,7 @@ final class InternalAccess {
      *
      * @return what it read, or null when the internals no longer match and reading is now turned off
      */
-    <T> @Nullable T read(Supplier<T> reader) {
+    <T extends @Nullable Object> @Nullable T read(Supplier<T> reader) {
         if (disabled) {
             return null;
         }

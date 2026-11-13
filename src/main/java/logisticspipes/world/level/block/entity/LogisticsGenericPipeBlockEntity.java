@@ -52,6 +52,8 @@ import logisticspipes.pipes.basic.CoreMultiBlockPipe;
 import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.pipes.basic.CoreUnroutedPipe;
 import logisticspipes.pipes.basic.ItemInsertionHandler;
+import logisticspipes.routing.item.ItemRoutingInformation;
+import logisticspipes.routing.item.RoutedItemStacks;
 import logisticspipes.routing.pathfinder.IPipeInformationProvider;
 import logisticspipes.routing.pathfinder.changedetection.IBlockEntityChangeListener;
 import logisticspipes.routing.pathfinder.changedetection.PipeChangeDetection;
@@ -536,14 +538,13 @@ public class LogisticsGenericPipeBlockEntity extends BlockEntity implements IPip
     public int injectItem(ItemStack payload, boolean doAdd, Direction from) {
         if (LogisticsGenericPipeBlock.isValid(pipe) && pipe.transport != null && isPipeConnectedCached(from)) {
             if (doAdd && !getLevel().isClientSide()) {
-                ItemStack leftStack = payload.copy();
-                int lastIterLeft;
-                do {
-                    lastIterLeft = leftStack.getCount();
-                    var travelingItem = new LPTravelingItem.LPTravelingItemServer(leftStack);
-                    leftStack.setCount(pipe.transport.injectItem(travelingItem, from.getOpposite()));
-                } while (leftStack.getCount() != lastIterLeft && leftStack.getCount() != 0);
-                return payload.getCount() - leftStack.getCount();
+                ItemStack stack = payload.copy();
+                // An item that crossed another mod's pipes goes on to where it was headed
+                ItemRoutingInformation info = RoutedItemStacks.detach(stack, getLevel().registryAccess());
+                var travelingItem = info != null
+                    ? new LPTravelingItem.LPTravelingItemServer(info)
+                    : new LPTravelingItem.LPTravelingItemServer(stack);
+                return payload.getCount() - pipe.transport.injectItem(travelingItem, from.getOpposite());
             }
         }
         return 0;
