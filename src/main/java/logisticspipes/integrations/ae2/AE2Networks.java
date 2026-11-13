@@ -19,7 +19,8 @@ import appeng.api.storage.MEStorage;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Finds the Applied Energistics network behind a block, shared by the item and fluid handlers.
+ * Finds the Applied Energistics network behind a block, shared by the item and fluid handlers and
+ * the autocrafting bridge.
  *
  * <p>Every class here touches {@code appeng} types, so it must only be loaded once AE2 is known to
  * be present -- see {@code SpecialInventoryHandlerManager}.</p>
@@ -34,6 +35,19 @@ public final class AE2Networks {
      */
     @Nullable
     public static MEStorage findStorage(BlockEntity blockEntity, @Nullable Direction dir) {
+        IGrid grid = AE2Networks.findActiveGrid(blockEntity, dir);
+        if (grid == null) {
+            return null;
+        }
+        IStorageService storageService = grid.getStorageService();
+        return storageService.getInventory();
+    }
+
+    /**
+     * The network behind the ME Interface or null when there is none to talk to.
+     */
+    @Nullable
+    public static IGrid findActiveGrid(BlockEntity blockEntity, @Nullable Direction dir) {
         if (!(blockEntity instanceof IInWorldGridNodeHost host)) {
             return null;
         }
@@ -43,9 +57,7 @@ public final class AE2Networks {
         if (node == null || !node.isActive()) {
             return null;
         }
-        IGrid grid = node.getGrid();
-        IStorageService storageService = grid.getStorageService();
-        return storageService.getInventory();
+        return node.getGrid();
     }
 
     @Nullable

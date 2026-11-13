@@ -126,3 +126,6 @@ repo/
 !**/src/**/repo/
 /.kotlin
 /CHANGELOG.md
+
+### IntelliJ IDEA ###
+.idea/

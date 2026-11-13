@@ -5,6 +5,8 @@ import java.util.Set;
 
 import net.minecraft.world.item.ItemStack;
 
+import org.jspecify.annotations.Nullable;
+
 import logisticspipes.utils.item.ItemIdentifier;
 
 public interface IInventoryUtil {
@@ -45,4 +47,11 @@ public interface IInventoryUtil {
     ItemStack getItem(int slot);
 
     ItemStack removeItem(int slot, int amount);
+
+    /**
+     * The autocrafting system behind this inventory, or null when there is none to ask.
+     */
+    default @Nullable IExternalCrafter getExternalCrafter() {
+        return null;
+    }
 }

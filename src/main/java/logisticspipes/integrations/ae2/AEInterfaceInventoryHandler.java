@@ -9,9 +9,11 @@ import java.util.Set;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import appeng.api.config.Actionable;
+import appeng.api.networking.IGrid;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.AEItemKey;
 import appeng.api.stacks.AEKey;
@@ -19,6 +21,7 @@ import appeng.api.storage.MEStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.inventory.IExternalCrafter;
 import logisticspipes.inventory.ProviderMode;
 import logisticspipes.inventory.SpecialInventoryHandler;
 import logisticspipes.utils.item.ItemIdentifier;
@@ -26,6 +29,9 @@ import logisticspipes.utils.item.ItemIdentifier;
 /**
  * Exposes the contents of an Applied Energistics 2 network to Logistics Pipes, so that a provider
  * pipe placed against an ME Interface, block or part, can see and supply what the network stores.
+ *
+ * <p>When the network has autocrafting, it is offered through {@link #getExternalCrafter()}, so the
+ * provider can also have the network make what it does not hold.</p>
  *
  * <p>Reads, extracts and inserts. Insertion is not optional: {@code InventoryUtilFactory} consults
  * the special handlers <i>before</i> falling back to the block's {@code IItemHandler} capability, for
@@ -52,15 +58,22 @@ public class AEInterfaceInventoryHandler extends SpecialInventoryHandler impleme
      * stack" and "leave one per type" collapse to leaving one of each type.
      */
     private final int reservePerType;
+    /**
+     * The network's autocrafting, or null when it has none to offer or this is the factory.
+     */
+    @Nullable
+    private final IExternalCrafter crafter;
 
     public AEInterfaceInventoryHandler() {
-        this(null, IActionSource.empty(), 0);
+        this(null, IActionSource.empty(), 0, null);
     }
 
-    private AEInterfaceInventoryHandler(@Nullable MEStorage storage, IActionSource source, int reservePerType) {
+    private AEInterfaceInventoryHandler(@Nullable MEStorage storage, IActionSource source, int reservePerType,
+        @Nullable IExternalCrafter crafter) {
         this.storage = storage;
         this.source = source;
         this.reservePerType = reservePerType;
+        this.crafter = crafter;
     }
 
     /* Factory */
@@ -79,7 +92,17 @@ public class AEInterfaceInventoryHandler extends SpecialInventoryHandler impleme
             return null;
         }
         int reserve = mode.isHideOnePerStack() || mode.isHideOnePerType() ? 1 : 0;
-        return new AEInterfaceInventoryHandler(found, AE2Networks.actionSource(blockEntity), reserve);
+        IActionSource source = AE2Networks.actionSource(blockEntity);
+        IGrid grid = AE2Networks.findActiveGrid(blockEntity, direction);
+        Level level = blockEntity.getLevel();
+        IExternalCrafter crafter = grid != null && level != null ? new AECrafter(grid, level, source) : null;
+        return new AEInterfaceInventoryHandler(found, source, reserve, crafter);
+    }
+
+    @Nullable
+    @Override
+    public IExternalCrafter getExternalCrafter() {
+        return crafter;
     }
 
     /* Queries */
