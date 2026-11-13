@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -28,8 +29,8 @@ public class ItemRoutingInformation {
 
         @Override
         public int compare(ItemRoutingInformation o1, ItemRoutingInformation o2) {
-            return (int) (o2.getTimeOut()
-                - o1.getTimeOut()); // cast will never overflow because the delta is in 1/20ths of a second.
+            // cast will never overflow because the delta is in 1/20ths of a second.
+            return (int) (o2.getTimeOut() - o1.getTimeOut());
         }
     }
 
@@ -69,7 +70,7 @@ public class ItemRoutingInformation {
     private ItemIdentifierStack item;
 
     public void deserialize(ValueInput input) {
-        input.getString("destinationUUID").ifPresent(raw -> destinationUUID = UUID.fromString(raw));
+        destinationUUID = input.read("destinationUUID", UUIDUtil.LENIENT_CODEC).orElse(null);
         arrived = input.getBooleanOr("arrived", false);
         bufferCounter = input.getIntOr("bufferCounter", 0);
         transportMode = TransportMode.values()[input.getIntOr("transportMode", 0)];
@@ -77,9 +78,7 @@ public class ItemRoutingInformation {
     }
 
     public void serialize(ValueOutput output) {
-        if (destinationUUID != null) {
-            output.putString("destinationUUID", destinationUUID.toString());
-        }
+        output.storeNullable("destinationUUID", UUIDUtil.CODEC, destinationUUID);
         output.putBoolean("arrived", arrived);
         output.putInt("bufferCounter", bufferCounter);
         output.putInt("transportMode", transportMode.ordinal());
