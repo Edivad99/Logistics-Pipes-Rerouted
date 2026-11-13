@@ -67,6 +67,7 @@ import logisticspipes.pipes.basic.CoreRoutedPipe;
 import logisticspipes.routing.ClientRouterManager;
 import logisticspipes.routing.RouterManager;
 import logisticspipes.routing.item.ItemRoutingInformation;
+import logisticspipes.routing.item.RoutedItemStacks;
 import logisticspipes.util.PipeConfigTools;
 import logisticspipes.utils.PlayerCollectionList;
 import logisticspipes.utils.QuickSortChestMarkerStorage;
@@ -115,7 +116,7 @@ public class LPEventListener {
             }
             CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
             for (String key : tag.keySet()) {
-                if (key.startsWith(LPConstants.rl("routingdata").toString())) {
+                if (key.startsWith(RoutedItemStacks.KEY)) {
                     ItemRoutingInformation info =
                         ItemRoutingInformation.restoreFromNBT(TagValueInput.create(ProblemReporter.DISCARDING,
                             event.getLevel().registryAccess(), tag.getCompoundOrEmpty(key)));
@@ -331,7 +332,7 @@ public class LPEventListener {
             .copyTag();
 
         for (String key : tag.keySet()) {
-            if (key.startsWith(LPConstants.rl("routingdata").toString())) {
+            if (key.startsWith(RoutedItemStacks.KEY)) {
                 ItemRoutingInformation info = new ItemRoutingInformation();
                 info.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries,
                     tag.getCompoundOrEmpty(key)));

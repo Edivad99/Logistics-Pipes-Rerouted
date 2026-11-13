@@ -310,7 +310,8 @@ public class PipeTransportLogistics {
      * Puts the item into the pipe, coming in towards {@code inputOrientation}. On the server this
      * picks where it goes, which may instead buffer or drop it.
      *
-     * @return how many of the item were taken
+     * @return how many of the item did not go in: all of it when an unrouted pipe has nowhere to
+     *     send it, otherwise none, since the pipe now carries, buffers or has dropped the item
      */
     public int injectItem(LPTravelingItem item, @Nullable Direction inputOrientation) {
         if (item.isCorrupted()) {
@@ -319,7 +320,6 @@ public class PipeTransportLogistics {
         }
         pipe().triggerDebug();
 
-        int originalCount = stackSize(item);
         item.input = inputOrientation;
 
         if (!level().isClientSide()) {
@@ -329,7 +329,8 @@ public class PipeTransportLogistics {
             RoutingResult result = resolveDestination(serverItem);
             item.output = result.face();
             if (!result.hasRoute()) {
-                return 0;
+                // A routed pipe has buffered or destroyed the item; an unrouted one has left it alone
+                return isRouted ? 0 : stackSize(item);
             }
             pipe().debug.log("Injected Item: [" + item.input + ", " + item.output + "] (" + infoBefore);
         } else {
@@ -357,7 +358,7 @@ public class PipeTransportLogistics {
                 sendItemPacket((LPTravelingItemServer) item);
             }
         }
-        return originalCount - stackSize(item);
+        return 0;
     }
 
     /**

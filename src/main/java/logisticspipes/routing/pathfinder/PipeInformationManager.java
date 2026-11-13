@@ -5,6 +5,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import org.jspecify.annotations.Nullable;
 
+import logisticspipes.integrations.buildcraft.BuildCraftPipes;
+
 public final class PipeInformationManager {
 
     private PipeInformationManager() {
@@ -14,7 +16,8 @@ public final class PipeInformationManager {
         return switch (tile) {
             case IPipeInformationProvider provider -> provider;
             case ISubMultiBlockPipeInformationProvider subBlock -> subBlock.getMainTile();
-            case null, default -> null;
+            case null -> null;
+            default -> BuildCraftPipes.informationFor(tile);
         };
     }
 
@@ -51,16 +54,17 @@ public final class PipeInformationManager {
     }
 
     /**
-     * Whether {@code tile} is a pipe itself; the other blocks of a multiblock pipe are not.
+     * Whether {@code tile} is a pipe itself; the other blocks of a multiblock pipe are not. A
+     * BuildCraft item pipe counts.
      */
     public static boolean isPipe(@Nullable BlockEntity tile) {
-        return tile instanceof IPipeInformationProvider;
+        return tile instanceof IPipeInformationProvider || BuildCraftPipes.informationFor(tile) != null;
     }
 
     /**
      * Whether {@code tile} is no part of a pipe, not even of a multiblock one.
      */
     public static boolean isNotAPipe(BlockEntity tile) {
-        return !(tile instanceof IPipeInformationProvider || tile instanceof ISubMultiBlockPipeInformationProvider);
+        return !(isPipe(tile) || tile instanceof ISubMultiBlockPipeInformationProvider);
     }
 }
