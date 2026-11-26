@@ -50,7 +50,7 @@ public class LPRecipeProvider extends RecipeProvider {
         shaped(RecipeCategory.MISC, LPItems.CHIP_BASIC_RAW, 2)
             .pattern("ab")
             .pattern("ba")
-            .define('a', Tags.Items.SANDS)
+            .define('a', Tags.BlockItems.SANDS.item())
             .define('b', Tags.Items.INGOTS_COPPER)
             .unlockedBy(getHasName(Items.COPPER_INGOT), has(Items.COPPER_INGOT))
             .save(output);
@@ -65,7 +65,7 @@ public class LPRecipeProvider extends RecipeProvider {
             .pattern("aca")
             .pattern("bdb")
             .pattern("aea")
-            .define('a', Tags.Items.SANDS)
+            .define('a', Tags.BlockItems.SANDS.item())
             .define('b', Tags.Items.INGOTS_GOLD)
             .define('c', Tags.Items.GEMS_DIAMOND)
             .define('d', Tags.Items.DUSTS_REDSTONE)
@@ -104,7 +104,7 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('b', LPItems.CHIP_BASIC)
             .define('c', Tags.Items.DUSTS_REDSTONE)
             .define('d', Tags.Items.GEMS_LAPIS)
-            .define('e', Tags.Items.GLASS_BLOCKS)
+            .define('e', Tags.BlockItems.GLASS_BLOCKS.item())
             .unlockedBy(getHasName(LPItems.CHIP_BASIC), has(LPItems.CHIP_BASIC))
             .save(output);
         shaped(RecipeCategory.MISC, LPItems.PIPE_MANAGER)
@@ -115,7 +115,7 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('b', LPItems.CHIP_BASIC)
             .define('c', Tags.Items.DUSTS_REDSTONE)
             .define('d', Tags.Items.GEMS_LAPIS)
-            .define('e', Tags.Items.GLASS_BLOCKS)
+            .define('e', Tags.BlockItems.GLASS_BLOCKS.item())
             .unlockedBy(getHasName(LPItems.CHIP_BASIC), has(LPItems.CHIP_BASIC))
             .save(output);
         shaped(RecipeCategory.MISC, LPItems.LOGISTICS_PROGRAMMER)
@@ -146,7 +146,7 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('b', Tags.Items.INGOTS_GOLD)
             .define('c', Tags.Items.DUSTS_REDSTONE)
             .define('d', Tags.Items.GEMS_LAPIS)
-            .define('e', Tags.Items.GLASS_BLOCKS)
+            .define('e', Tags.BlockItems.GLASS_BLOCKS.item())
             .unlockedBy(getHasName(LPItems.CHIP_ADVANCED), has(LPItems.CHIP_ADVANCED))
             .save(output);
         ColorCollection.VALUES.forEach(color -> {
@@ -588,7 +588,7 @@ public class LPRecipeProvider extends RecipeProvider {
             .define('b', Tags.Items.DUSTS_REDSTONE)
             .define('c', LPItems.ITEM_FRAME)
             .define('d', Tags.Items.INGOTS_IRON)
-            .define('e', Tags.Items.STORAGE_BLOCKS_REDSTONE)
+            .define('e', Tags.BlockItems.STORAGE_BLOCKS_REDSTONE.item())
             .unlockedBy(getHasName(LPItems.ITEM_FRAME), has(LPItems.ITEM_FRAME))
             .save(output);
         shaped(RecipeCategory.MISC, LPItems.ITEM_SECURITY_STATION)
@@ -670,7 +670,7 @@ public class LPRecipeProvider extends RecipeProvider {
             .pattern("aba")
             .define('a', Tags.Items.INGOTS_IRON)
             .define('b', Tags.Items.DUSTS_REDSTONE)
-            .define('c', Tags.Items.GLASS_BLOCKS)
+            .define('c', Tags.BlockItems.GLASS_BLOCKS.item())
             .unlockedBy(getHasName(Items.REDSTONE), has(Items.REDSTONE))
             .save(output);
         shaped(RecipeCategory.MISC, LPItems.PIPE_BASIC)
