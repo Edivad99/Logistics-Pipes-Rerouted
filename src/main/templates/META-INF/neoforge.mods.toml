@@ -19,6 +19,9 @@ maintained by Edivad99 and distributed under the MMPL-1.0.1.
 authors = "Edivad99, NoZeroG (NeoForge 1.20 port), RS485 & LP Team (original 1.12.2), Krapht (original concept)"
 modUrl = "https://www.curseforge.com/minecraft/mc-mods/logistics-pipes-rerouted"
 
+[modproperties.logisticspipes]
+beta = "${mod_beta}"
+
 [[dependencies.logisticspipes]]
 type = "required"
 modId = "neoforge"
