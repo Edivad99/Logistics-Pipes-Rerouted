@@ -293,6 +293,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
         mod_name               : mod_name,
         mod_license            : mod_license,
         mod_version            : mod_version,
+        mod_beta               : mod_beta,
     ]
     inputs.properties replaceProperties
     expand replaceProperties
@@ -355,7 +356,7 @@ tasks.register('makeChangelog', GitChangelogTask) {
 publishMods {
     displayName = "logistics-pipes-rerouted-$minecraft_version-$mod_version"
     version = mod_version
-    type = BETA
+    type = mod_beta.toBoolean() ? BETA : STABLE
 
     def changelogFile = file('CHANGELOG.md')
     changelog = changelogFile.exists() ? changelogFile.text : 'CHANGELOG.md not found'
