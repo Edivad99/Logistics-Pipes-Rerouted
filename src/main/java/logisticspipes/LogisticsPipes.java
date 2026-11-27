@@ -42,6 +42,8 @@ import logisticspipes.crafting.FurnaceProgressProvider;
 import logisticspipes.crafting.LogisticsCraftingTableRecipeProvider;
 import logisticspipes.crafting.MachineProgressProvider;
 import logisticspipes.crafting.RegisterCraftingRecipeProvidersEvent;
+import logisticspipes.data.LPBlockLootSubProvider;
+import logisticspipes.data.LPBlockTagsProvider;
 import logisticspipes.data.LPLanguageProvider;
 import logisticspipes.data.LPParticleProvider;
 import logisticspipes.data.LPSpriteSourceProvider;
@@ -218,6 +220,8 @@ public class LogisticsPipes {
         event.createProvider(LPSpriteSourceProvider::new);
         event.createProvider(LPModelProvider::new);
         event.createProvider(LPLanguageProvider::new);
+        event.createProvider(LPBlockLootSubProvider::create);
+        event.createProvider(LPBlockTagsProvider::new);
         event.createDatapackRegistryObjects(new RegistrySetBuilder()
             .add(Registries.TEST_ENVIRONMENT, LPTestEnvironments::bootstrap)
             .add(Registries.TEST_INSTANCE, LPGameTestInstances::bootstrap));
